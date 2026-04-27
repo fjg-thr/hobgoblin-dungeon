@@ -1,0 +1,72 @@
+{
+  "image": "/assets/effects/ammo-pickup-sprite-sheet.png",
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frames": {
+    "ammo_00": {
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_01": {
+      "x": 32,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_02": {
+      "x": 64,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_03": {
+      "x": 96,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_04": {
+      "x": 128,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_05": {
+      "x": 160,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_06": {
+      "x": 192,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "ammo_07": {
+      "x": 224,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    }
+  },
+  "animations": {
+    "ammo": {
+      "frames": [
+        "ammo_00",
+        "ammo_01",
+        "ammo_02",
+        "ammo_03",
+        "ammo_04",
+        "ammo_05",
+        "ammo_06",
+        "ammo_07"
+      ],
+      "frameRate": 10,
+      "repeat": -1
+    }
+  },
+  "notes": "Local deterministic ammo pickup sprite sheet."
+}

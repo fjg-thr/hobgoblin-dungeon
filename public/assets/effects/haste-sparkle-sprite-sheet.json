@@ -1,0 +1,7 @@
+{
+  "image": "/assets/effects/haste-sparkle-sprite-sheet.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "frames": 8,
+  "notes": "Looping star-mode sparkle ring for haste power-up."
+}

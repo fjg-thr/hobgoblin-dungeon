@@ -1,0 +1,24 @@
+{
+  "image": "/assets/ui/hobgoblin-ui-sheet-source.png",
+  "chromaKey": "#00ff00",
+  "assets": [
+    {
+      "name": "life_meter_frame",
+      "path": "/assets/ui/life_meter_frame.png",
+      "sourceRect": { "x": 306, "y": 27, "w": 642, "h": 293 },
+      "notes": "Generated hobgoblin life charm with three gem sockets; Phaser overlays empty-socket masks for lost lives."
+    },
+    {
+      "name": "game_over_panel",
+      "path": "/assets/ui/game_over_panel.png",
+      "sourceRect": { "x": 46, "y": 397, "w": 1151, "h": 522 },
+      "notes": "Generated blank game-over plaque; Phaser renders crisp text over the empty center."
+    },
+    {
+      "name": "start_over_button",
+      "path": "/assets/ui/start_over_button.png",
+      "sourceRect": { "x": 275, "y": 978, "w": 701, "h": 227 },
+      "notes": "Generated blank restart button frame; Phaser renders the button label."
+    }
+  ]
+}

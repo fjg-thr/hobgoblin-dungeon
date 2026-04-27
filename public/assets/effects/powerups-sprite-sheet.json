@@ -1,0 +1,258 @@
+{
+  "image": "/assets/effects/powerups-sprite-sheet.png",
+  "frameWidth": 32,
+  "frameHeight": 32,
+  "frames": {
+    "quickshot_00": {
+      "x": 0,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_01": {
+      "x": 32,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_02": {
+      "x": 64,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_03": {
+      "x": 96,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_04": {
+      "x": 128,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_05": {
+      "x": 160,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_06": {
+      "x": 192,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "quickshot_07": {
+      "x": 224,
+      "y": 0,
+      "w": 32,
+      "h": 32
+    },
+    "haste_00": {
+      "x": 0,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_01": {
+      "x": 32,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_02": {
+      "x": 64,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_03": {
+      "x": 96,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_04": {
+      "x": 128,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_05": {
+      "x": 160,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_06": {
+      "x": 192,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "haste_07": {
+      "x": 224,
+      "y": 32,
+      "w": 32,
+      "h": 32
+    },
+    "ward_00": {
+      "x": 0,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_01": {
+      "x": 32,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_02": {
+      "x": 64,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_03": {
+      "x": 96,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_04": {
+      "x": 128,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_05": {
+      "x": 160,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_06": {
+      "x": 192,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "ward_07": {
+      "x": 224,
+      "y": 64,
+      "w": 32,
+      "h": 32
+    },
+    "blast_00": {
+      "x": 0,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_01": {
+      "x": 32,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_02": {
+      "x": 64,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_03": {
+      "x": 96,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_04": {
+      "x": 128,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_05": {
+      "x": 160,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_06": {
+      "x": 192,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    },
+    "blast_07": {
+      "x": 224,
+      "y": 96,
+      "w": 32,
+      "h": 32
+    }
+  },
+  "animations": {
+    "powerup-quickshot": {
+      "frames": [
+        "quickshot_00",
+        "quickshot_01",
+        "quickshot_02",
+        "quickshot_03",
+        "quickshot_04",
+        "quickshot_05",
+        "quickshot_06",
+        "quickshot_07"
+      ],
+      "frameRate": 10,
+      "repeat": -1
+    },
+    "powerup-haste": {
+      "frames": [
+        "haste_00",
+        "haste_01",
+        "haste_02",
+        "haste_03",
+        "haste_04",
+        "haste_05",
+        "haste_06",
+        "haste_07"
+      ],
+      "frameRate": 10,
+      "repeat": -1
+    },
+    "powerup-ward": {
+      "frames": [
+        "ward_00",
+        "ward_01",
+        "ward_02",
+        "ward_03",
+        "ward_04",
+        "ward_05",
+        "ward_06",
+        "ward_07"
+      ],
+      "frameRate": 10,
+      "repeat": -1
+    },
+    "powerup-blast": {
+      "frames": [
+        "blast_00",
+        "blast_01",
+        "blast_02",
+        "blast_03",
+        "blast_04",
+        "blast_05",
+        "blast_06",
+        "blast_07"
+      ],
+      "frameRate": 10,
+      "repeat": -1
+    }
+  },
+  "notes": "Power-up spritesheet: quickshot, haste, ward, and rare blast rows. Blast row is generated from gpt-image-2 source art."
+}

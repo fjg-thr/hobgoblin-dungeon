@@ -1,0 +1,21 @@
+{
+  "image": "/assets/effects/blast-sprite-sheet.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "animations": {
+    "blast-impact": {
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "frameRate": 16,
+      "repeat": 0
+    }
+  }
+}

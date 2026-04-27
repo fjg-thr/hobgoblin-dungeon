@@ -1,0 +1,7 @@
+{
+  "image": "/assets/ui/game-over-sprite-sheet.png",
+  "frameWidth": 560,
+  "frameHeight": 260,
+  "frames": 4,
+  "text": "GAME OVER"
+}

@@ -1,0 +1,10 @@
+{
+  "image": "/assets/ui/hud-panels-sprite-sheet.png",
+  "frameWidth": 224,
+  "frameHeight": 58,
+  "rows": [
+    "score",
+    "ammo"
+  ],
+  "framesPerRow": 4
+}

@@ -1,0 +1,41 @@
+{
+  "image": "/assets/effects/flame-heart-effects-source.png",
+  "chromaKey": "#00ff00",
+  "generatedAssets": [
+    {
+      "name": "torch_flame_loop",
+      "path": "/assets/effects/torch-flame-loop.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 8,
+      "animation": "loop",
+      "notes": "Generated flame-only loop layered over torch props."
+    },
+    {
+      "name": "candle_flame_loop",
+      "path": "/assets/effects/candle-flame-loop.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 8,
+      "animation": "loop",
+      "notes": "Generated smaller flame-only loop layered over candle props."
+    },
+    {
+      "name": "life_heart",
+      "path": "/assets/ui/life-heart.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 1,
+      "notes": "Generated separate ruby heart/gem life icon."
+    },
+    {
+      "name": "life_heart_burst",
+      "path": "/assets/ui/life-heart-burst.png",
+      "frameWidth": 64,
+      "frameHeight": 64,
+      "frames": 8,
+      "animation": "once",
+      "notes": "Generated life-loss burst played when a heart disappears."
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "image": "/assets/tiles/dungeon-tileset.png",
+  "tiles": [
+    {
+      "name": "stone_floor",
+      "path": "/assets/tiles/stone_floor.png",
+      "sourceRect": {
+        "x": 0,
+        "y": 0,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "none",
+      "renderLayer": "ground",
+      "placementNotes": "Default walkable stone floor."
+    },
+    {
+      "name": "cracked_floor",
+      "path": "/assets/tiles/cracked_floor.png",
+      "sourceRect": {
+        "x": 307,
+        "y": 0,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "none",
+      "renderLayer": "ground",
+      "placementNotes": "Walkable cracked floor variation."
+    },
+    {
+      "name": "mossy_floor",
+      "path": "/assets/tiles/mossy_floor.png",
+      "sourceRect": {
+        "x": 614,
+        "y": 0,
+        "w": 308,
+        "h": 341
+      },
+      "collision": "none",
+      "renderLayer": "ground",
+      "placementNotes": "Walkable mossy floor variation."
+    },
+    {
+      "name": "dark_wall",
+      "path": "/assets/tiles/dark_wall.png",
+      "sourceRect": {
+        "x": 922,
+        "y": 0,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "wall",
+      "placementNotes": "Blocking wall segment."
+    },
+    {
+      "name": "corner_wall",
+      "path": "/assets/tiles/corner_wall.png",
+      "sourceRect": {
+        "x": 1229,
+        "y": 0,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "wall",
+      "placementNotes": "Blocking corner wall."
+    },
+    {
+      "name": "vertical_wall",
+      "path": "/assets/tiles/vertical_wall.png",
+      "sourceRect": {
+        "x": 1229,
+        "y": 0,
+        "w": 58,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "wall",
+      "placementNotes": "Derived from the generated corner wall to provide a vertical isometric wall face."
+    },
+    {
+      "name": "stairs_down",
+      "path": "/assets/tiles/stairs_down.png",
+      "sourceRect": {
+        "x": 0,
+        "y": 341,
+        "w": 307,
+        "h": 342
+      },
+      "collision": "none",
+      "renderLayer": "prop",
+      "placementNotes": "Visible exit, no interaction yet."
+    },
+    {
+      "name": "chasm_edge",
+      "path": "/assets/tiles/chasm_edge.png",
+      "sourceRect": {
+        "x": 307,
+        "y": 341,
+        "w": 307,
+        "h": 342
+      },
+      "collision": "solid",
+      "renderLayer": "ground",
+      "placementNotes": "Blocked chasm/void tile."
+    },
+    {
+      "name": "wooden_bridge",
+      "path": "/assets/tiles/wooden_bridge.png",
+      "sourceRect": {
+        "x": 614,
+        "y": 341,
+        "w": 308,
+        "h": 342
+      },
+      "collision": "none",
+      "renderLayer": "ground",
+      "placementNotes": "Walkable bridge across chasm."
+    },
+    {
+      "name": "torch",
+      "path": "/assets/tiles/torch.png",
+      "sourceRect": {
+        "x": 922,
+        "y": 341,
+        "w": 307,
+        "h": 342
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking torch prop with glow."
+    },
+    {
+      "name": "bone_pile",
+      "path": "/assets/tiles/bone_pile.png",
+      "sourceRect": {
+        "x": 1229,
+        "y": 341,
+        "w": 307,
+        "h": 342
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking decoration."
+    },
+    {
+      "name": "small_treasure",
+      "path": "/assets/tiles/small_treasure.png",
+      "sourceRect": {
+        "x": 0,
+        "y": 683,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking treasure debris."
+    },
+    {
+      "name": "red_banner",
+      "path": "/assets/tiles/red_banner.png",
+      "sourceRect": {
+        "x": 307,
+        "y": 683,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking hobgoblin banner prop."
+    },
+    {
+      "name": "rubble",
+      "path": "/assets/tiles/rubble.png",
+      "sourceRect": {
+        "x": 614,
+        "y": 683,
+        "w": 308,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking rubble prop."
+    },
+    {
+      "name": "wooden_post",
+      "path": "/assets/tiles/wooden_post.png",
+      "sourceRect": {
+        "x": 922,
+        "y": 683,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking wooden post."
+    },
+    {
+      "name": "small_candle",
+      "path": "/assets/tiles/small_candle.png",
+      "sourceRect": {
+        "x": 1229,
+        "y": 683,
+        "w": 307,
+        "h": 341
+      },
+      "collision": "solid",
+      "renderLayer": "prop",
+      "placementNotes": "Blocking candle prop."
+    }
+  ]
+}

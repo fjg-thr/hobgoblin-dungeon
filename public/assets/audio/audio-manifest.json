@@ -1,0 +1,17 @@
+{
+  "staffShot": "staff_shot.wav",
+  "projectileHit": "projectile_hit.wav",
+  "enemyHit": "enemy_hit.wav",
+  "enemyDown": "enemy_down.wav",
+  "playerHurt": "player_hurt.wav",
+  "pickup": "pickup.wav",
+  "powerup": "powerup.wav",
+  "heartPickup": "heart_pickup.wav",
+  "ammoPickup": "ammo_pickup.wav",
+  "gameOver": "game_over.wav",
+  "start": "start.wav",
+  "uiToggle": "ui_toggle.wav",
+  "blast": "blast.wav",
+  "dungeonAmbience": "dungeon_ambience.wav",
+  "retroDungeonTheme": "retro_dungeon_theme.wav"
+}

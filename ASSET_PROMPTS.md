@@ -73,6 +73,20 @@ Asset type: larger villain sprite sheet source for Phaser, chroma-keyed and resi
 Primary request: dark GBA inspired pixel art game asset sheet, transparent-background-ready on perfectly flat #00ff00 chroma-key background, no watermark. Create a game-ready sprite sheet for a larger dungeon villain brute: hulking green-gray goblin-like creature, bigger than a small goblin, horned head, bulky dark leather and iron armor, heavy club, angry silhouette, underground hobgoblin ruin mood. Isometric three-quarter view. Arrange exactly 4 rows by 10 columns; each cell represents a 64 by 64 pixel frame with generous padding and consistent foot baseline. Rows are southeast, southwest, northeast, northwest. First 4 frames per row are idle, next 6 frames walk/attack-ready motion. Crisp readable pixel art, limited moody palette, no text, no photorealism, no painterly rendering, consistent pixel scale. The #00ff00 background must be perfectly flat and should not appear in the subject.
 Implementation note: source saved as `public/assets/source/brute-gpt-image-2-source.png`, then chroma-keyed and resized to `public/assets/characters/brute-sprite-sheet.png`.
 
+## GPT-Image-2 Actor Death Sprite Sheet
+
+Use case: gpt-image-2 game asset generation.
+Asset type: character death animation source for Phaser, chroma-keyed and resized locally.
+Primary request: dark GBA inspired pixel art death / dying animation source sprite sheet for exactly three existing game actors: row 1 winged hobgoblin hero, row 2 small dagger goblin villain, row 3 hulking brute goblin villain. Each row has exactly 8 frames left to right showing the actor collapsing/dying in place: stagger, knees buckle, falling, impact, sprawled, fading with small dust and red-gold pixel motes, final nearly still defeated pose. Keep it stylized and readable, not gory. Arrange as a precise 3 rows by 8 columns sprite sheet on a perfectly flat solid #ff00ff chroma-key background. Each cell is a 64 by 64 pixel frame with generous padding. Use the same southeast-facing three-quarter direction for all frames. No text, labels, watermark, extra characters, large blood, or generic mobile-game art.
+Implementation note: source saved as `public/assets/source/actor-deaths-gpt-image-2-source.png`, then chroma-keyed and resized to `public/assets/characters/actor-deaths-sprite-sheet.png`. The final hobgoblin death row is derived from `public/assets/characters/hobgoblin-sprite-sheet.png` during processing so the main character keeps the exact in-game hood, wings, staff, proportions, and palette.
+
+## GPT-Image-2 Combat Juice Effects
+
+Use case: gpt-image-2 game asset generation.
+Asset type: compact combat effect source for Phaser, chroma-keyed and resized locally.
+Primary request: Create a dark GBA inspired pixel art combat effects sprite sheet on a perfectly flat solid #ff00ff chroma-key background. Arrange exactly 2 rows by 8 columns with generous padding and no labels. Row 1: small red-gold hit impact sparks, 8 frames, centered, punchy and readable for staff projectile hits. Row 2: stronger smoky enemy death poof, 8 frames, expanding dust cloud with ember chips and tiny stone flecks, stylized and not gory. Each implied cell must fit cleanly into a 64 by 64 game frame after processing. Keep the palette moody dungeon fantasy, crisp pixel art, no photorealism, no painterly rendering, no text, no watermark, and do not use #ff00ff inside the effects.
+Implementation note: source saved as `public/assets/source/combat-juice-gpt-image-2-source.png`, then chroma-keyed and resized to `public/assets/effects/combat-juice-sprite-sheet.png`.
+
 ## Ammo Pickup Sprite Sheet
 
 Use case: local deterministic pixel-art asset generation.

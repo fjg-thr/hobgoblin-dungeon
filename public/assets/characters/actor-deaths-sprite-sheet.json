@@ -1,0 +1,203 @@
+{
+  "image": "/assets/characters/actor-deaths-sprite-sheet.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "actors": [
+    "hobgoblin",
+    "goblin",
+    "brute"
+  ],
+  "framesPerRow": 8,
+  "frames": {
+    "hobgoblin_00": {
+      "x": 0,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_01": {
+      "x": 64,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_02": {
+      "x": 128,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_03": {
+      "x": 192,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_04": {
+      "x": 256,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_05": {
+      "x": 320,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_06": {
+      "x": 384,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "hobgoblin_07": {
+      "x": 448,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_00": {
+      "x": 0,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_01": {
+      "x": 64,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_02": {
+      "x": 128,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_03": {
+      "x": 192,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_04": {
+      "x": 256,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_05": {
+      "x": 320,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_06": {
+      "x": 384,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "goblin_07": {
+      "x": 448,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "brute_00": {
+      "x": 0,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_01": {
+      "x": 64,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_02": {
+      "x": 128,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_03": {
+      "x": 192,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_04": {
+      "x": 256,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_05": {
+      "x": 320,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_06": {
+      "x": 384,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "brute_07": {
+      "x": 448,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    }
+  },
+  "animations": {
+    "death-hobgoblin": {
+      "frames": [
+        "hobgoblin_00",
+        "hobgoblin_01",
+        "hobgoblin_02",
+        "hobgoblin_03",
+        "hobgoblin_04",
+        "hobgoblin_05",
+        "hobgoblin_06",
+        "hobgoblin_07"
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    "death-goblin": {
+      "frames": [
+        "goblin_00",
+        "goblin_01",
+        "goblin_02",
+        "goblin_03",
+        "goblin_04",
+        "goblin_05",
+        "goblin_06",
+        "goblin_07"
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    },
+    "death-brute": {
+      "frames": [
+        "brute_00",
+        "brute_01",
+        "brute_02",
+        "brute_03",
+        "brute_04",
+        "brute_05",
+        "brute_06",
+        "brute_07"
+      ],
+      "frameRate": 12,
+      "repeat": 0
+    }
+  },
+  "source": "/assets/source/actor-deaths-gpt-image-2-source.png",
+  "notes": "GPT-image-2 goblin and brute death rows are repacked from a 3x8 chroma-key source. The hobgoblin hero row is derived from the existing player sprite sheet so the death animation preserves the main character silhouette."
+}

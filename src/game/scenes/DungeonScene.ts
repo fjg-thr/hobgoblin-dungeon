@@ -3,10 +3,12 @@ import { assetManifest, type AudioAssetKey, type TileAssetKey } from "../assets/
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
+  MAP_WIDTH,
+  createDungeon,
   getTileCode,
   isTileBlocked,
-  startingDungeon,
   tileAssetForCode,
+  type DungeonMap,
   type DungeonProp,
   type PropKind,
   type TileCode
@@ -15,6 +17,9 @@ import {
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
 type EnemyKind = keyof typeof assetManifest.enemies;
+type ActorDeathKind = (typeof assetManifest.actorDeaths.actors)[number];
+type CombatEffectKind = "hit" | "deathPoof";
+type CombatHitSource = "projectile" | "blast";
 
 interface TilePoint {
   x: number;
@@ -40,6 +45,11 @@ interface CollisionBox {
   bottom: number;
 }
 
+interface GridPoint {
+  x: number;
+  y: number;
+}
+
 interface PropRenderConfig {
   origin: { x: number; y: number };
   yOffset: number;
@@ -60,6 +70,9 @@ interface EnemyActor {
   health: number;
   respawnAtMs: number;
   hurtUntilMs: number;
+  path: GridPoint[];
+  pathTargetKey: string;
+  nextPathAtMs: number;
 }
 
 interface EnemyConfig {
@@ -78,6 +91,11 @@ interface EnemyConfig {
   shadowScale: number;
   shadowAlpha: number;
   knockbackMultiplier: number;
+  projectileHitbox: {
+    offsetY: number;
+    radiusX: number;
+    radiusY: number;
+  };
 }
 
 interface StaffProjectile {
@@ -126,15 +144,25 @@ interface AmmoPickup {
 }
 
 const SCENE_KEY = "DungeonScene";
-const MAP_OFFSET_X = startingDungeon.width * HALF_TILE_WIDTH + 40;
+const MAP_OFFSET_X = MAP_WIDTH * HALF_TILE_WIDTH + 40;
 const MAP_OFFSET_Y = 48;
 const PLAYER_RADIUS = 0.22;
 const PLAYER_SPEED_TILES = 3.35;
 const MAX_PLAYER_HEALTH = 3;
 const ENEMY_HURT_FLASH_MS = 240;
 const ENEMY_HIT_KNOCKBACK_TILES = 0.32;
+const ENEMY_PATH_RECALC_MS = 420;
+const ENEMY_PATH_DIRECT_SAMPLE_STEP = 0.18;
+const ENEMY_PATH_NODE_REACHED_DISTANCE = 0.18;
+const HIT_STOP_MS = 42;
+const BRUTE_HIT_STOP_MS = 64;
+const DEATH_HIT_STOP_MS = 76;
+const BLAST_HIT_STOP_MS = 82;
+const DAMAGE_NUMBER_POOL_LIMIT = 18;
+const COMBAT_EFFECT_POOL_LIMIT = 28;
 const PLAYER_INVULN_MS = 900;
 const PLAYER_POWER_FLASH_MS = 900;
+const PLAYER_DEATH_GAME_OVER_DELAY_MS = 560;
 const PROJECTILE_RADIUS = 0.12;
 const PROJECTILE_SPEED_TILES = 7.5;
 const PROJECTILE_MAX_DISTANCE = 8;
@@ -195,7 +223,12 @@ const ENEMY_CONFIG: Record<EnemyKind, EnemyConfig> = {
     spriteScale: 1,
     shadowScale: 0.82,
     shadowAlpha: 0.62,
-    knockbackMultiplier: 1
+    knockbackMultiplier: 1,
+    projectileHitbox: {
+      offsetY: -24,
+      radiusX: 23,
+      radiusY: 24
+    }
   },
   brute: {
     textureKey: assetManifest.enemies.brute.key,
@@ -212,7 +245,12 @@ const ENEMY_CONFIG: Record<EnemyKind, EnemyConfig> = {
     spriteScale: 1.34,
     shadowScale: 1.18,
     shadowAlpha: 0.7,
-    knockbackMultiplier: 0.42
+    knockbackMultiplier: 0.42,
+    projectileHitbox: {
+      offsetY: -34,
+      radiusX: 42,
+      radiusY: 34
+    }
   }
 };
 
@@ -309,50 +347,51 @@ const PROP_RENDER: Record<PropKind, PropRenderConfig> = {
     origin: { x: 0.5, y: 0.86 },
     yOffset: -16,
     depthOffset: 22,
-    collision: { left: 0.35, right: 0.65, top: 0.28, bottom: 0.76 },
+    collision: { left: 0.43, right: 0.57, top: 0.42, bottom: 0.72 },
     glow: { yOffset: -38, alpha: 0.28 }
   },
   small_candle: {
     origin: { x: 0.5, y: 0.86 },
     yOffset: -10,
     depthOffset: 14,
-    collision: { left: 0.36, right: 0.64, top: 0.38, bottom: 0.72 },
+    collision: { left: 0.44, right: 0.56, top: 0.48, bottom: 0.66 },
     glow: { yOffset: -24, alpha: 0.14 }
   },
   bone_pile: {
     origin: { x: 0.5, y: 0.76 },
     yOffset: -6,
     depthOffset: 10,
-    collision: { left: 0.22, right: 0.78, top: 0.28, bottom: 0.76 }
+    collision: { left: 0.28, right: 0.72, top: 0.38, bottom: 0.74 }
   },
   small_treasure: {
     origin: { x: 0.5, y: 0.76 },
     yOffset: -6,
     depthOffset: 10,
-    collision: { left: 0.22, right: 0.78, top: 0.3, bottom: 0.76 }
+    collision: { left: 0.3, right: 0.7, top: 0.4, bottom: 0.74 }
   },
   red_banner: {
     origin: { x: 0.5, y: 0.92 },
     yOffset: -18,
     depthOffset: 18,
-    collision: { left: 0.35, right: 0.65, top: 0.24, bottom: 0.78 }
+    collision: { left: 0.43, right: 0.57, top: 0.36, bottom: 0.76 }
   },
   rubble: {
     origin: { x: 0.5, y: 0.78 },
     yOffset: -6,
     depthOffset: 11,
-    collision: { left: 0.16, right: 0.84, top: 0.22, bottom: 0.82 }
+    collision: { left: 0.24, right: 0.76, top: 0.38, bottom: 0.78 }
   },
   wooden_post: {
     origin: { x: 0.5, y: 0.9 },
     yOffset: -16,
     depthOffset: 18,
-    collision: { left: 0.34, right: 0.66, top: 0.22, bottom: 0.82 }
+    collision: { left: 0.44, right: 0.56, top: 0.34, bottom: 0.78 }
   }
 };
 
 export class DungeonScene extends Phaser.Scene {
-  private playerTile: TilePoint = { ...startingDungeon.playerStart };
+  private dungeon: DungeonMap = createDungeon();
+  private playerTile: TilePoint = { ...this.dungeon.playerStart };
   private playerDirection: Direction = "southeast";
   private playerHealth = MAX_PLAYER_HEALTH;
   private playerInvulnerableUntilMs = 0;
@@ -387,6 +426,9 @@ export class DungeonScene extends Phaser.Scene {
   private powerUps: PowerUp[] = [];
   private heartPickups: HeartPickup[] = [];
   private ammoPickups: AmmoPickup[] = [];
+  private deathSprites: Phaser.GameObjects.Sprite[] = [];
+  private combatJuiceObjects: Phaser.GameObjects.GameObject[] = [];
+  private dungeonObjects: Phaser.GameObjects.GameObject[] = [];
   private propBlockers: CollisionBox[] = [];
   private mapBounds: Bounds = { left: 0, right: 0, top: 0, bottom: 0 };
   private lastAimScreenPoint?: WorldPoint;
@@ -401,6 +443,7 @@ export class DungeonScene extends Phaser.Scene {
   private blastShotReady = false;
   private nextWardBlockPopupAtMs = 0;
   private nextNoAmmoPopupAtMs = 0;
+  private hitStopUntilMs = 0;
   private shotQueued = false;
   private playerScore = 0;
   private enemyKills = 0;
@@ -409,6 +452,7 @@ export class DungeonScene extends Phaser.Scene {
   private debugEnabled = false;
   private gameStarted = false;
   private gameOver = false;
+  private playerDying = false;
   private muted = false;
   private backgroundMusic?: Phaser.Sound.BaseSound;
   private ambienceSound?: Phaser.Sound.BaseSound;
@@ -430,6 +474,10 @@ export class DungeonScene extends Phaser.Scene {
       frameWidth: assetManifest.enemies.brute.frameWidth,
       frameHeight: assetManifest.enemies.brute.frameHeight
     });
+    this.load.spritesheet(assetManifest.actorDeaths.key, assetManifest.actorDeaths.path, {
+      frameWidth: assetManifest.actorDeaths.frameWidth,
+      frameHeight: assetManifest.actorDeaths.frameHeight
+    });
     this.load.spritesheet(assetManifest.projectiles.staffBolt.key, assetManifest.projectiles.staffBolt.path, {
       frameWidth: assetManifest.projectiles.staffBolt.frameWidth,
       frameHeight: assetManifest.projectiles.staffBolt.frameHeight
@@ -449,6 +497,10 @@ export class DungeonScene extends Phaser.Scene {
     this.load.spritesheet(assetManifest.animatedEffects.blast.key, assetManifest.animatedEffects.blast.path, {
       frameWidth: assetManifest.animatedEffects.blast.frameWidth,
       frameHeight: assetManifest.animatedEffects.blast.frameHeight
+    });
+    this.load.spritesheet(assetManifest.animatedEffects.combatJuice.key, assetManifest.animatedEffects.combatJuice.path, {
+      frameWidth: assetManifest.animatedEffects.combatJuice.frameWidth,
+      frameHeight: assetManifest.animatedEffects.combatJuice.frameHeight
     });
     Object.values(assetManifest.uiSprites).forEach((sheet) => {
       this.load.spritesheet(sheet.key, sheet.path, {
@@ -512,6 +564,18 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
+    if (this.playerDying) {
+      this.updatePlayerVisuals();
+      this.updateCamera(dt);
+      this.updateFocusMask();
+      return;
+    }
+
+    if (this.isHitStopped()) {
+      this.updateFocusMask();
+      return;
+    }
+
     const movement = this.readMovementVector();
 
     if (movement.x !== 0 || movement.y !== 0) {
@@ -543,6 +607,7 @@ export class DungeonScene extends Phaser.Scene {
     this.createActorAnimations(assetManifest.character.key, "", assetManifest.character.directions);
     this.createActorAnimations(assetManifest.enemies.goblin.key, "goblin-", assetManifest.enemies.goblin.directions);
     this.createActorAnimations(assetManifest.enemies.brute.key, "brute-", assetManifest.enemies.brute.directions);
+    this.createActorDeathAnimations();
     Object.values(ENEMY_CONFIG).forEach((config) => {
       assetManifest.enemies.goblin.directions.forEach((direction, row) => {
         this.anims.create({
@@ -580,6 +645,7 @@ export class DungeonScene extends Phaser.Scene {
       frameRate: 16,
       repeat: 0
     });
+    this.createCombatJuiceAnimations();
     this.anims.create({
       key: assetManifest.uiSprites.startTitle.key,
       frames: this.anims.generateFrameNumbers(assetManifest.uiSprites.startTitle.key, { start: 0, end: 3 }),
@@ -677,12 +743,44 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
+  private createActorDeathAnimations() {
+    assetManifest.actorDeaths.actors.forEach((actor, row) => {
+      this.anims.create({
+        key: `death-${actor}`,
+        frames: this.anims.generateFrameNumbers(assetManifest.actorDeaths.key, {
+          start: row * assetManifest.actorDeaths.framesPerRow,
+          end: row * assetManifest.actorDeaths.framesPerRow + assetManifest.actorDeaths.framesPerRow - 1
+        }),
+        frameRate: 12,
+        repeat: 0
+      });
+    });
+  }
+
+  private createCombatJuiceAnimations() {
+    const sheet = assetManifest.animatedEffects.combatJuice;
+    const rows: CombatEffectKind[] = ["hit", "deathPoof"];
+
+    rows.forEach((effect, row) => {
+      this.anims.create({
+        key: `combat-${effect}`,
+        frames: this.anims.generateFrameNumbers(sheet.key, {
+          start: row * sheet.framesPerRow,
+          end: row * sheet.framesPerRow + sheet.framesPerRow - 1
+        }),
+        frameRate: effect === "hit" ? 18 : 13,
+        repeat: 0
+      });
+    });
+  }
+
   private renderDungeon() {
+    this.clearDungeonRender();
     this.addFloorEdgeSilhouette();
 
-    for (let y = 0; y < startingDungeon.height; y += 1) {
-      for (let x = 0; x < startingDungeon.width; x += 1) {
-        const code = getTileCode(x, y);
+    for (let y = 0; y < this.dungeon.height; y += 1) {
+      for (let x = 0; x < this.dungeon.width; x += 1) {
+        const code = this.getTileCode(x, y);
         if (code === " " || code === "W") {
           continue;
         }
@@ -693,17 +791,18 @@ export class DungeonScene extends Phaser.Scene {
       }
     }
 
-    startingDungeon.props.forEach((prop) => this.addProp(prop));
+    this.dungeon.props.forEach((prop) => this.addProp(prop));
   }
 
   private addFloorEdgeSilhouette() {
     const graphics = this.add.graphics();
+    this.dungeonObjects.push(graphics);
     graphics.setDepth(DEPTH_BANDS.floor - 100);
     graphics.fillStyle(0x020303, 0.76);
 
-    for (let y = 0; y < startingDungeon.height; y += 1) {
-      for (let x = 0; x < startingDungeon.width; x += 1) {
-        const code = getTileCode(x, y);
+    for (let y = 0; y < this.dungeon.height; y += 1) {
+      for (let x = 0; x < this.dungeon.width; x += 1) {
+        const code = this.getTileCode(x, y);
         if (!this.isFloorShapeTile(code)) {
           continue;
         }
@@ -724,6 +823,7 @@ export class DungeonScene extends Phaser.Scene {
 
   private addTileImage(assetKey: TileAssetKey, world: WorldPoint, code: TileCode, tileX: number, tileY: number) {
     const image = this.add.image(world.x, world.y, assetKey);
+    this.dungeonObjects.push(image);
 
     if (code === "S") {
       image.setOrigin(0.5, 0.75);
@@ -751,6 +851,7 @@ export class DungeonScene extends Phaser.Scene {
     const config = PROP_RENDER[prop.kind];
     const anchor = this.propAnchor(prop);
     const image = this.add.image(anchor.x, anchor.y + config.yOffset, prop.kind);
+    this.dungeonObjects.push(image);
     image.setOrigin(config.origin.x, config.origin.y);
     const depth = this.propDepth(prop, config);
     image.setDepth(depth);
@@ -758,6 +859,7 @@ export class DungeonScene extends Phaser.Scene {
 
     if (config.glow) {
       const glow = this.add.image(anchor.x, anchor.y + config.glow.yOffset, "torch_glow");
+      this.dungeonObjects.push(glow);
       glow.setOrigin(0.5, 0.5);
       glow.setAlpha(config.glow.alpha);
       glow.setBlendMode(Phaser.BlendModes.ADD);
@@ -791,7 +893,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private createEnemies() {
-    startingDungeon.enemyStarts.forEach((start) => {
+    this.dungeon.enemyStarts.forEach((start) => {
       this.spawnEnemy(start);
     });
   }
@@ -851,10 +953,16 @@ export class DungeonScene extends Phaser.Scene {
     this.debugGraphics = this.add.graphics();
     this.debugGraphics.setDepth(DEPTH_BANDS.debug);
     this.debugGraphics.setVisible(false);
+    this.refreshCoordinateLabels();
+  }
 
-    for (let y = 0; y < startingDungeon.height; y += 1) {
-      for (let x = 0; x < startingDungeon.width; x += 1) {
-        const code = getTileCode(x, y);
+  private refreshCoordinateLabels() {
+    this.coordinateLabels.forEach((label) => label.destroy());
+    this.coordinateLabels = [];
+
+    for (let y = 0; y < this.dungeon.height; y += 1) {
+      for (let x = 0; x < this.dungeon.width; x += 1) {
+        const code = this.getTileCode(x, y);
         if (code === " ") {
           continue;
         }
@@ -865,7 +973,7 @@ export class DungeonScene extends Phaser.Scene {
           color: isTileBlocked(code) ? "#ff7a6f" : "#99f0c5"
         });
         label.setDepth(DEPTH_BANDS.debug + 1);
-        label.setVisible(false);
+        label.setVisible(this.debugEnabled);
         this.coordinateLabels.push(label);
       }
     }
@@ -1413,7 +1521,10 @@ export class DungeonScene extends Phaser.Scene {
       shadow,
       health: config.maxHealth,
       respawnAtMs: 0,
-      hurtUntilMs: 0
+      hurtUntilMs: 0,
+      path: [],
+      pathTargetKey: "",
+      nextPathAtMs: 0
     };
     this.enemies.push(enemy);
     return enemy;
@@ -1518,6 +1629,8 @@ export class DungeonScene extends Phaser.Scene {
     blast.anims.play(assetManifest.animatedEffects.blast.key);
     blast.once("animationcomplete", () => blast.destroy());
     this.playSfx("blast", { volume: 0.36 });
+    this.requestHitStop(BLAST_HIT_STOP_MS);
+    this.cameras.main.shake(130, 0.006);
 
     this.enemies.forEach((enemy) => {
       if (enemy.health <= 0) {
@@ -1528,7 +1641,7 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       const hitVector = distance > 0 ? { x: (enemy.tile.x - center.x) / distance, y: (enemy.tile.y - center.y) / distance } : this.directionToVector(this.playerDirection);
-      this.damageEnemy(enemy, hitVector, BLAST_DAMAGE);
+      this.damageEnemy(enemy, hitVector, BLAST_DAMAGE, "blast");
     });
   }
 
@@ -1710,8 +1823,8 @@ export class DungeonScene extends Phaser.Scene {
   private findSafeSpawnTile(minDistanceFromPlayer: number): TilePoint | undefined {
     const candidates: TilePoint[] = [];
 
-    for (let y = 0; y < startingDungeon.height; y += 1) {
-      for (let x = 0; x < startingDungeon.width; x += 1) {
+    for (let y = 0; y < this.dungeon.height; y += 1) {
+      for (let x = 0; x < this.dungeon.width; x += 1) {
         if (!this.isPlayableTile(x, y)) {
           continue;
         }
@@ -1757,11 +1870,14 @@ export class DungeonScene extends Phaser.Scene {
             enemy.respawnAtMs = now + 900;
             return;
           }
-          const start = this.findSafeSpawnTile(ENEMY_SAFE_SPAWN_DISTANCE) ?? startingDungeon.enemyStarts[index % startingDungeon.enemyStarts.length] ?? startingDungeon.enemyStarts[0];
+          const start = this.findSafeSpawnTile(ENEMY_SAFE_SPAWN_DISTANCE) ?? this.dungeon.enemyStarts[index % this.dungeon.enemyStarts.length] ?? this.dungeon.enemyStarts[0];
           enemy.tile = { ...start };
           enemy.health = config.maxHealth;
           enemy.respawnAtMs = 0;
           enemy.hurtUntilMs = 0;
+          enemy.path = [];
+          enemy.pathTargetKey = "";
+          enemy.nextPathAtMs = 0;
           enemy.sprite.setVisible(true).setActive(true).clearTint().setAlpha(1).setScale(config.spriteScale);
           enemy.shadow.setVisible(true).setActive(true).setScale(config.shadowScale).setAlpha(config.shadowAlpha);
         } else {
@@ -1776,9 +1892,12 @@ export class DungeonScene extends Phaser.Scene {
       if (distance > config.alertRange) {
         enemy.sprite.anims.play(`${config.keyPrefix}idle-${enemy.direction}`, true);
       } else {
-        enemy.direction = this.directionFromVector(chase);
+        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase, dt) : chase;
+        if (Math.hypot(movement.x, movement.y) > 0.01) {
+          enemy.direction = this.directionFromVector(movement);
+        }
         if (distance > config.contactRange) {
-          this.moveEnemy(enemy, chase, dt);
+          this.moveEnemy(enemy, movement, dt);
         }
 
         enemy.sprite.anims.play(
@@ -1795,9 +1914,81 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
+  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint, _dt: number): TilePoint {
+    const config = ENEMY_CONFIG[enemy.kind];
+    if (this.hasClearEnemyPath(enemy.tile, this.playerTile, config.radius)) {
+      enemy.path = [];
+      return direct;
+    }
+
+    const targetCell = this.nearestEnemyPathCell(this.playerTile, config.radius);
+    if (!targetCell) {
+      return direct;
+    }
+
+    const targetKey = this.gridKey(targetCell);
+    if (this.time.now >= enemy.nextPathAtMs || enemy.pathTargetKey !== targetKey || enemy.path.length === 0) {
+      enemy.path = this.findEnemyPath(enemy, targetCell);
+      enemy.pathTargetKey = targetKey;
+      enemy.nextPathAtMs = this.time.now + ENEMY_PATH_RECALC_MS;
+    }
+
+    while (enemy.path.length > 0) {
+      const next = this.gridCenter(enemy.path[0]);
+      if (Math.hypot(next.x - enemy.tile.x, next.y - enemy.tile.y) > ENEMY_PATH_NODE_REACHED_DISTANCE) {
+        break;
+      }
+      enemy.path.shift();
+    }
+
+    const clearLookaheadIndex = enemy.path.findIndex((point, index) => index > 0 && this.hasClearEnemyPath(enemy.tile, this.gridCenter(point), config.radius));
+    if (clearLookaheadIndex > 0) {
+      enemy.path.splice(0, clearLookaheadIndex);
+    }
+
+    const nextPoint = enemy.path[0];
+    if (!nextPoint) {
+      return direct;
+    }
+
+    const waypoint = this.gridCenter(nextPoint);
+    const vector = { x: waypoint.x - enemy.tile.x, y: waypoint.y - enemy.tile.y };
+    const length = Math.hypot(vector.x, vector.y);
+    return length > 0 ? { x: vector.x / length, y: vector.y / length } : direct;
+  }
+
   private moveEnemy(enemy: EnemyActor, vector: TilePoint, dt: number) {
     const config = ENEMY_CONFIG[enemy.kind];
     const step = config.speed * dt;
+    const length = Math.hypot(vector.x, vector.y);
+    if (length <= 0) {
+      return;
+    }
+
+    const direction = { x: vector.x / length, y: vector.y / length };
+    const candidates = [
+      direction,
+      { x: direction.x * 0.75 + direction.y * 0.25, y: direction.y * 0.75 - direction.x * 0.25 },
+      { x: direction.x * 0.75 - direction.y * 0.25, y: direction.y * 0.75 + direction.x * 0.25 },
+      { x: direction.x, y: 0 },
+      { x: 0, y: direction.y },
+      { x: -direction.y, y: direction.x },
+      { x: direction.y, y: -direction.x }
+    ];
+
+    for (const candidate of candidates) {
+      const candidateLength = Math.hypot(candidate.x, candidate.y);
+      if (candidateLength <= 0) {
+        continue;
+      }
+      const normalized = { x: candidate.x / candidateLength, y: candidate.y / candidateLength };
+      const next = { x: enemy.tile.x + normalized.x * step, y: enemy.tile.y + normalized.y * step };
+      if (!this.collides(next, config.radius)) {
+        enemy.tile = next;
+        return;
+      }
+    }
+
     const nextX = { x: enemy.tile.x + vector.x * step, y: enemy.tile.y };
     if (!this.collides(nextX, config.radius)) {
       enemy.tile.x = nextX.x;
@@ -1809,6 +2000,165 @@ export class DungeonScene extends Phaser.Scene {
     }
   }
 
+  private findEnemyPath(enemy: EnemyActor, target: GridPoint): GridPoint[] {
+    const config = ENEMY_CONFIG[enemy.kind];
+    const start = this.nearestEnemyPathCell(enemy.tile, config.radius);
+    if (!start) {
+      return [];
+    }
+
+    const startKey = this.gridKey(start);
+    const targetKey = this.gridKey(target);
+    if (startKey === targetKey) {
+      return [];
+    }
+
+    const open = new Set<string>([startKey]);
+    const cameFrom = new Map<string, string>();
+    const gScore = new Map<string, number>([[startKey, 0]]);
+    const fScore = new Map<string, number>([[startKey, this.gridHeuristic(start, target)]]);
+
+    while (open.size > 0) {
+      const currentKey = [...open].reduce((best, key) => (this.mapScore(fScore, key) < this.mapScore(fScore, best) ? key : best));
+      if (currentKey === targetKey) {
+        return this.reconstructEnemyPath(cameFrom, currentKey).slice(1);
+      }
+
+      open.delete(currentKey);
+      const current = this.gridPointFromKey(currentKey);
+      this.enemyPathNeighbors(current, config.radius).forEach((neighbor) => {
+        const neighborKey = this.gridKey(neighbor);
+        const stepCost = current.x !== neighbor.x && current.y !== neighbor.y ? Math.SQRT2 : 1;
+        const tentative = this.mapScore(gScore, currentKey) + stepCost;
+        if (tentative >= this.mapScore(gScore, neighborKey)) {
+          return;
+        }
+        cameFrom.set(neighborKey, currentKey);
+        gScore.set(neighborKey, tentative);
+        fScore.set(neighborKey, tentative + this.gridHeuristic(neighbor, target));
+        open.add(neighborKey);
+      });
+    }
+
+    return [];
+  }
+
+  private reconstructEnemyPath(cameFrom: Map<string, string>, endKey: string): GridPoint[] {
+    const path = [this.gridPointFromKey(endKey)];
+    let currentKey = endKey;
+    while (cameFrom.has(currentKey)) {
+      currentKey = cameFrom.get(currentKey) ?? currentKey;
+      path.unshift(this.gridPointFromKey(currentKey));
+    }
+    return path;
+  }
+
+  private enemyPathNeighbors(point: GridPoint, radius: number): GridPoint[] {
+    const neighbors: GridPoint[] = [];
+    const directions = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+      { x: 1, y: 1 },
+      { x: 1, y: -1 },
+      { x: -1, y: 1 },
+      { x: -1, y: -1 }
+    ];
+
+    directions.forEach((direction) => {
+      const next = { x: point.x + direction.x, y: point.y + direction.y };
+      if (!this.enemyCanOccupyCell(next, radius)) {
+        return;
+      }
+      if (
+        direction.x !== 0 &&
+        direction.y !== 0 &&
+        (!this.enemyCanOccupyCell({ x: point.x + direction.x, y: point.y }, radius) || !this.enemyCanOccupyCell({ x: point.x, y: point.y + direction.y }, radius))
+      ) {
+        return;
+      }
+      neighbors.push(next);
+    });
+
+    return neighbors;
+  }
+
+  private hasClearEnemyPath(from: TilePoint, to: TilePoint, radius: number): boolean {
+    const distance = Math.hypot(to.x - from.x, to.y - from.y);
+    const steps = Math.max(1, Math.ceil(distance / ENEMY_PATH_DIRECT_SAMPLE_STEP));
+
+    for (let index = 1; index <= steps; index += 1) {
+      const t = index / steps;
+      const point = {
+        x: Phaser.Math.Linear(from.x, to.x, t),
+        y: Phaser.Math.Linear(from.y, to.y, t)
+      };
+      if (this.collides(point, radius)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private nearestEnemyPathCell(point: TilePoint, radius: number): GridPoint | undefined {
+    const origin = { x: Math.floor(point.x), y: Math.floor(point.y) };
+    if (this.enemyCanOccupyCell(origin, radius)) {
+      return origin;
+    }
+
+    for (let searchRadius = 1; searchRadius <= 4; searchRadius += 1) {
+      const candidates: GridPoint[] = [];
+      for (let y = origin.y - searchRadius; y <= origin.y + searchRadius; y += 1) {
+        for (let x = origin.x - searchRadius; x <= origin.x + searchRadius; x += 1) {
+          if (Math.max(Math.abs(x - origin.x), Math.abs(y - origin.y)) !== searchRadius) {
+            continue;
+          }
+          const candidate = { x, y };
+          if (this.enemyCanOccupyCell(candidate, radius)) {
+            candidates.push(candidate);
+          }
+        }
+      }
+      if (candidates.length > 0) {
+        return candidates.sort((a, b) => Math.hypot(a.x + 0.5 - point.x, a.y + 0.5 - point.y) - Math.hypot(b.x + 0.5 - point.x, b.y + 0.5 - point.y))[0];
+      }
+    }
+
+    return undefined;
+  }
+
+  private enemyCanOccupyCell(point: GridPoint, radius: number): boolean {
+    if (point.x < 0 || point.y < 0 || point.x >= this.dungeon.width || point.y >= this.dungeon.height) {
+      return false;
+    }
+    return !this.collides(this.gridCenter(point), radius);
+  }
+
+  private gridCenter(point: GridPoint): TilePoint {
+    return { x: point.x + 0.5, y: point.y + 0.5 };
+  }
+
+  private gridHeuristic(from: GridPoint, to: GridPoint): number {
+    const dx = Math.abs(from.x - to.x);
+    const dy = Math.abs(from.y - to.y);
+    return Math.max(dx, dy) + (Math.SQRT2 - 1) * Math.min(dx, dy);
+  }
+
+  private mapScore(scores: Map<string, number>, key: string): number {
+    return scores.get(key) ?? Number.POSITIVE_INFINITY;
+  }
+
+  private gridKey(point: GridPoint): string {
+    return `${point.x},${point.y}`;
+  }
+
+  private gridPointFromKey(key: string): GridPoint {
+    const [x, y] = key.split(",").map(Number);
+    return { x, y };
+  }
+
   private updateProjectiles(dt: number) {
     this.projectiles.forEach((projectile) => {
       if (!projectile.alive) {
@@ -1816,21 +2166,19 @@ export class DungeonScene extends Phaser.Scene {
       }
 
       const step = PROJECTILE_SPEED_TILES * dt;
+      const previousTile = { ...projectile.tile };
       projectile.tile.x += projectile.velocity.x * step;
       projectile.tile.y += projectile.velocity.y * step;
       projectile.traveled += step;
 
-    const hitEnemy = this.enemies.find((enemy) => {
-      const config = ENEMY_CONFIG[enemy.kind];
-      return enemy.health > 0 && Math.hypot(projectile.tile.x - enemy.tile.x, projectile.tile.y - enemy.tile.y) < config.hitRange;
-    });
-    if (hitEnemy) {
-      if (!projectile.blastCharged) {
-        this.damageEnemy(hitEnemy, projectile.velocity);
+      const hitEnemy = this.enemies.find((enemy) => this.projectileHitsEnemy(previousTile, projectile.tile, enemy));
+      if (hitEnemy) {
+        if (!projectile.blastCharged) {
+          this.damageEnemy(hitEnemy, projectile.velocity);
+        }
+        this.endProjectile(projectile, true);
+        return;
       }
-      this.endProjectile(projectile, true);
-      return;
-    }
 
       if (projectile.traveled >= PROJECTILE_MAX_DISTANCE || this.collides(projectile.tile, PROJECTILE_RADIUS)) {
         this.endProjectile(projectile, true);
@@ -1843,6 +2191,47 @@ export class DungeonScene extends Phaser.Scene {
     });
 
     this.projectiles = this.projectiles.filter((projectile) => projectile.alive || projectile.sprite.active);
+  }
+
+  private projectileHitsEnemy(previousTile: TilePoint, currentTile: TilePoint, enemy: EnemyActor): boolean {
+    if (enemy.health <= 0) {
+      return false;
+    }
+
+    const config = ENEMY_CONFIG[enemy.kind];
+    const center = this.enemyProjectileHitboxCenter(enemy);
+    const previous = this.projectileWorldPoint(previousTile);
+    const current = this.projectileWorldPoint(currentTile);
+    const radiusX = config.projectileHitbox.radiusX + PROJECTILE_RADIUS * HALF_TILE_WIDTH;
+    const radiusY = config.projectileHitbox.radiusY + PROJECTILE_RADIUS * HALF_TILE_WIDTH;
+    return this.segmentIntersectsEllipse(previous, current, center, radiusX, radiusY);
+  }
+
+  private enemyProjectileHitboxCenter(enemy: EnemyActor): WorldPoint {
+    const world = this.tileToWorld(enemy.tile);
+    return {
+      x: world.x,
+      y: world.y + ENEMY_CONFIG[enemy.kind].projectileHitbox.offsetY
+    };
+  }
+
+  private projectileWorldPoint(tile: TilePoint): WorldPoint {
+    const world = this.tileToWorld(tile);
+    return { x: world.x, y: world.y - 18 };
+  }
+
+  private segmentIntersectsEllipse(start: WorldPoint, end: WorldPoint, center: WorldPoint, radiusX: number, radiusY: number): boolean {
+    const ax = (start.x - center.x) / radiusX;
+    const ay = (start.y - center.y) / radiusY;
+    const bx = (end.x - center.x) / radiusX;
+    const by = (end.y - center.y) / radiusY;
+    const dx = bx - ax;
+    const dy = by - ay;
+    const lengthSquared = dx * dx + dy * dy;
+    const t = lengthSquared <= 0 ? 0 : Phaser.Math.Clamp(-(ax * dx + ay * dy) / lengthSquared, 0, 1);
+    const closestX = ax + dx * t;
+    const closestY = ay + dy * t;
+    return closestX * closestX + closestY * closestY <= 1;
   }
 
   private endProjectile(projectile: StaffProjectile, impact: boolean) {
@@ -1861,18 +2250,25 @@ export class DungeonScene extends Phaser.Scene {
     projectile.sprite.once("animationcomplete", () => projectile.sprite.destroy());
   }
 
-  private damageEnemy(enemy: EnemyActor, hitVector: TilePoint, damage = 1) {
+  private damageEnemy(enemy: EnemyActor, hitVector: TilePoint, damage = 1, source: CombatHitSource = "projectile") {
     const config = ENEMY_CONFIG[enemy.kind];
     enemy.health -= damage;
     enemy.hurtUntilMs = this.time.now + ENEMY_HURT_FLASH_MS;
     enemy.sprite.setTint(0xfff0a6);
     this.playSfx("enemyHit", { volume: enemy.kind === "brute" ? 0.28 : 0.22, rate: enemy.kind === "brute" ? 0.82 : 1.06 });
+    this.spawnHitJuice(enemy, hitVector, damage, source);
 
     if (enemy.health <= 0) {
       this.enemyKills += 1;
       this.awardScore(config.score, enemy.tile);
       this.playSfx("enemyDown", { volume: enemy.kind === "brute" ? 0.36 : 0.28, rate: enemy.kind === "brute" ? 0.72 : 1 });
       this.tryDropAmmoFromEnemy(enemy.tile);
+      this.spawnCombatEffect("deathPoof", enemy.tile, {
+        scale: enemy.kind === "brute" ? 1.55 : 1.12,
+        yOffset: enemy.kind === "brute" ? -12 : -8
+      });
+      this.requestHitStop(DEATH_HIT_STOP_MS);
+      this.spawnDeathSprite(enemy.kind, enemy.tile, config.spriteScale);
       if (this.enemyKills >= this.nextHeartDropKill) {
         this.trySpawnHeartDropWave();
         this.nextHeartDropKill += HEART_DROP_KILL_STEP;
@@ -1884,6 +2280,153 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     this.knockEnemyBack(enemy, hitVector);
+  }
+
+  private spawnHitJuice(enemy: EnemyActor, hitVector: TilePoint, damage: number, source: CombatHitSource) {
+    const isBrute = enemy.kind === "brute";
+    const hitStopMs = source === "blast" ? Math.round(BLAST_HIT_STOP_MS * 0.64) : isBrute ? BRUTE_HIT_STOP_MS : HIT_STOP_MS;
+    this.requestHitStop(hitStopMs);
+
+    if (source === "projectile" && isBrute) {
+      this.cameras.main.shake(85, 0.0038);
+    }
+
+    this.spawnCombatEffect("hit", enemy.tile, {
+      scale: source === "blast" ? 1.22 : isBrute ? 1.08 : 0.88,
+      yOffset: isBrute ? -34 : -25,
+      xOffset: Phaser.Math.Clamp(hitVector.x - hitVector.y, -1, 1) * 9
+    });
+    this.spawnKnockbackDust(enemy.tile, hitVector, isBrute ? 1.1 : 0.84);
+    this.showDamageNumber(damage, enemy.tile, enemy.kind, source);
+  }
+
+  private spawnDeathSprite(actor: ActorDeathKind, tile: TilePoint, scale: number) {
+    const world = this.tileToWorld(tile);
+    const sprite = this.add.sprite(Math.round(world.x), Math.round(world.y), assetManifest.actorDeaths.key, 0);
+    sprite.setOrigin(0.5, 0.94);
+    sprite.setScale(scale);
+    sprite.setDepth(this.depthForTilePoint(tile, DEPTH_BANDS.actor, 18));
+    sprite.anims.play(`death-${actor}`);
+    this.deathSprites.push(sprite);
+    sprite.once("animationcomplete", () => {
+      this.tweens.add({
+        targets: sprite,
+        alpha: 0,
+        duration: 180,
+        ease: "Sine.easeOut",
+        onComplete: () => {
+          this.deathSprites = this.deathSprites.filter((deathSprite) => deathSprite !== sprite);
+          sprite.destroy();
+        }
+      });
+    });
+  }
+
+  private spawnCombatEffect(
+    effect: CombatEffectKind,
+    tile: TilePoint,
+    options: { scale?: number; xOffset?: number; yOffset?: number } = {}
+  ) {
+    this.trimCombatJuiceObjects(COMBAT_EFFECT_POOL_LIMIT);
+
+    const world = this.tileToWorld(tile);
+    const sprite = this.add.sprite(
+      Math.round(world.x + (options.xOffset ?? 0)),
+      Math.round(world.y + (options.yOffset ?? 0)),
+      assetManifest.animatedEffects.combatJuice.key,
+      effect === "hit" ? 0 : assetManifest.animatedEffects.combatJuice.framesPerRow
+    );
+    sprite.setOrigin(0.5);
+    sprite.setScale(options.scale ?? 1);
+    sprite.setDepth(this.depthForTilePoint(tile, DEPTH_BANDS.actor + 1200, effect === "hit" ? 34 : 22));
+    sprite.setBlendMode(effect === "hit" ? Phaser.BlendModes.ADD : Phaser.BlendModes.NORMAL);
+    this.trackCombatJuiceObject(sprite);
+    sprite.anims.play(`combat-${effect}`);
+    sprite.once("animationcomplete", () => this.destroyCombatJuiceObject(sprite));
+  }
+
+  private spawnKnockbackDust(tile: TilePoint, hitVector: TilePoint, scale: number) {
+    const world = this.tileToWorld(tile);
+    const worldVector = this.tileVectorToWorld(hitVector);
+    const length = Math.hypot(worldVector.x, worldVector.y) || 1;
+    const push = { x: worldVector.x / length, y: worldVector.y / length };
+    const dust = this.add.image(Math.round(world.x - push.x * 10), Math.round(world.y - 1), "dust_particle");
+    dust.setOrigin(0.5);
+    dust.setScale(Phaser.Math.FloatBetween(0.34, 0.46) * scale);
+    dust.setAlpha(0.48);
+    dust.setDepth(this.depthForTilePoint(tile, DEPTH_BANDS.actorShadow, 12));
+    this.trackCombatJuiceObject(dust);
+    this.tweens.add({
+      targets: dust,
+      x: dust.x - push.x * 18,
+      y: dust.y - 6,
+      alpha: 0,
+      scale: dust.scale * 1.7,
+      duration: 260,
+      ease: "Sine.easeOut",
+      onComplete: () => this.destroyCombatJuiceObject(dust)
+    });
+  }
+
+  private showDamageNumber(damage: number, tile: TilePoint, enemyKind: EnemyKind, source: CombatHitSource) {
+    this.trimCombatJuiceObjects(DAMAGE_NUMBER_POOL_LIMIT);
+
+    const world = this.tileToWorld(tile);
+    const isBigHit = damage > 1 || enemyKind === "brute";
+    const text = this.add.text(
+      Math.round(world.x + Phaser.Math.Between(-7, 7)),
+      Math.round(world.y - (enemyKind === "brute" ? 72 : 54)),
+      damage.toString(),
+      {
+        fontFamily: "monospace",
+        fontSize: isBigHit ? "16px" : "13px",
+        color: source === "blast" ? "#ff9b5c" : isBigHit ? "#ffd166" : "#fff1a8",
+        stroke: "#1a0804",
+        strokeThickness: isBigHit ? 5 : 4
+      }
+    );
+    text.setOrigin(0.5);
+    text.setDepth(this.depthForTilePoint(tile, DEPTH_BANDS.actor + 1300, 40));
+    this.trackCombatJuiceObject(text);
+    this.tweens.add({
+      targets: text,
+      y: text.y - Phaser.Math.Between(20, 28),
+      x: text.x + Phaser.Math.Between(-9, 9),
+      alpha: 0,
+      scale: isBigHit ? 1.18 : 1.08,
+      duration: isBigHit ? 620 : 520,
+      ease: "Sine.easeOut",
+      onComplete: () => this.destroyCombatJuiceObject(text)
+    });
+  }
+
+  private trackCombatJuiceObject<T extends Phaser.GameObjects.GameObject>(object: T): T {
+    this.combatJuiceObjects.push(object);
+    return object;
+  }
+
+  private destroyCombatJuiceObject(object: Phaser.GameObjects.GameObject) {
+    this.combatJuiceObjects = this.combatJuiceObjects.filter((item) => item !== object);
+    object.destroy();
+  }
+
+  private trimCombatJuiceObjects(limit: number) {
+    while (this.combatJuiceObjects.length > limit) {
+      const object = this.combatJuiceObjects.shift();
+      if (!object) {
+        continue;
+      }
+      this.tweens.killTweensOf(object);
+      object.destroy();
+    }
+  }
+
+  private requestHitStop(durationMs: number) {
+    this.hitStopUntilMs = Math.max(this.hitStopUntilMs, performance.now() + durationMs);
+  }
+
+  private isHitStopped() {
+    return performance.now() < this.hitStopUntilMs;
   }
 
   private knockEnemyBack(enemy: EnemyActor, vector: TilePoint) {
@@ -2081,24 +2624,47 @@ export class DungeonScene extends Phaser.Scene {
       this.playerTile = next;
     }
 
-    if (this.playerHealth <= 0) {
-      this.showGameOver();
+    if (this.playerHealth <= 0 && !this.playerDying) {
+      this.playPlayerDeath();
     }
   }
 
-  private collides(point: TilePoint, radius: number): boolean {
-    const samples = [
-      { x: point.x - radius, y: point.y - radius },
-      { x: point.x + radius, y: point.y - radius },
-      { x: point.x - radius, y: point.y + radius },
-      { x: point.x + radius, y: point.y + radius }
-    ];
+  private playPlayerDeath() {
+    this.playerDying = true;
+    this.playerInvulnerableUntilMs = 0;
+    this.playerPowerFlashUntilMs = 0;
+    this.hasteSparkles?.setVisible(false);
+    this.clearProjectiles();
+    this.stopBackgroundMusic();
+    this.player?.clearTint().setAlpha(1);
+    this.player?.setTexture(assetManifest.actorDeaths.key, 0);
+    this.player?.anims.play("death-hobgoblin");
+    this.time.delayedCall(PLAYER_DEATH_GAME_OVER_DELAY_MS, () => this.showGameOver());
+  }
 
-    if (samples.some((sample) => isTileBlocked(getTileCode(Math.floor(sample.x), Math.floor(sample.y))))) {
+  private collides(point: TilePoint, radius: number): boolean {
+    if (this.collidesWithBlockedTile(point, radius)) {
       return true;
     }
 
     return this.propBlockers.some((box) => this.collidesWithBox(point, box, radius));
+  }
+
+  private collidesWithBlockedTile(point: TilePoint, radius: number): boolean {
+    const left = Math.floor(point.x - radius);
+    const right = Math.floor(point.x + radius);
+    const top = Math.floor(point.y - radius);
+    const bottom = Math.floor(point.y + radius);
+
+    for (let y = top; y <= bottom; y += 1) {
+      for (let x = left; x <= right; x += 1) {
+        if (isTileBlocked(this.getTileCode(x, y)) && this.collidesWithBox(point, { left: x, right: x + 1, top: y, bottom: y + 1 }, radius)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private directionFromVector(vector: TilePoint): Direction {
@@ -2129,11 +2695,15 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private projectileAngle(vector: TilePoint): number {
-    const worldDelta = {
+    const worldDelta = this.tileVectorToWorld(vector);
+    return Phaser.Math.RadToDeg(Math.atan2(worldDelta.y, worldDelta.x));
+  }
+
+  private tileVectorToWorld(vector: TilePoint): WorldPoint {
+    return {
       x: (vector.x - vector.y) * HALF_TILE_WIDTH,
       y: (vector.x + vector.y) * HALF_TILE_HEIGHT
     };
-    return Phaser.Math.RadToDeg(Math.atan2(worldDelta.y, worldDelta.x));
   }
 
   private updatePlayerVisuals() {
@@ -2149,7 +2719,10 @@ export class DungeonScene extends Phaser.Scene {
       this.player.setActive(true);
       this.player.setScale(HERO_SPRITE_SCALE);
       this.player.setDepth(HERO_DEPTH);
-      if (now < this.playerInvulnerableUntilMs) {
+      if (this.playerDying) {
+        this.player.clearTint();
+        this.player.setAlpha(1);
+      } else if (now < this.playerInvulnerableUntilMs) {
         this.player.setTint(0xff786a);
         this.player.setAlpha(Math.floor(now / 90) % 2 === 0 ? 0.55 : 1);
       } else if (now < this.playerPowerFlashUntilMs) {
@@ -2377,23 +2950,28 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     this.gameStarted = true;
+    this.playerDying = false;
     this.input.off("pointerdown", this.handleStartPointerDown, this);
     this.startButtonBounds = undefined;
     this.startContainer?.destroy(true);
     this.startContainer = undefined;
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerScore = 0;
-    this.playerTile = { ...startingDungeon.playerStart };
-    this.playerDirection = "southeast";
     this.nextShotAtMs = 0;
     this.shotQueued = false;
+    this.hitStopUntilMs = 0;
     this.clearProjectiles();
     this.clearPowerUps();
     this.clearHeartPickups();
     this.clearAmmoPickups();
+    this.clearDeathSprites();
+    this.clearCombatJuiceObjects();
     this.clearEnemies();
+    this.prepareNewDungeon();
+    this.playerDirection = "southeast";
     this.createEnemies();
     this.startRunTimers();
+    this.player?.setTexture(assetManifest.character.key, 0);
     this.player?.clearTint().setAlpha(1);
     this.player?.anims.play("idle-southeast", true);
     this.drawLifeMeter();
@@ -2513,6 +3091,7 @@ export class DungeonScene extends Phaser.Scene {
   private restartGame() {
     this.gameStarted = true;
     this.gameOver = false;
+    this.playerDying = false;
     this.input.off("pointerdown", this.handleGameOverPointerDown, this);
     this.gameOverButtonBounds = undefined;
     this.gameOverContainer?.destroy(true);
@@ -2528,17 +3107,21 @@ export class DungeonScene extends Phaser.Scene {
     this.hasteUntilMs = 0;
     this.wardUntilMs = 0;
     this.nextWardBlockPopupAtMs = 0;
-    this.playerTile = { ...startingDungeon.playerStart };
-    this.playerDirection = "southeast";
     this.nextShotAtMs = 0;
     this.shotQueued = false;
-    this.player?.clearTint().setAlpha(1);
-    this.player?.anims.play("idle-southeast", true);
+    this.hitStopUntilMs = 0;
     this.clearProjectiles();
     this.clearPowerUps();
     this.clearHeartPickups();
     this.clearAmmoPickups();
+    this.clearDeathSprites();
+    this.clearCombatJuiceObjects();
     this.clearEnemies();
+    this.prepareNewDungeon();
+    this.playerDirection = "southeast";
+    this.player?.setTexture(assetManifest.character.key, 0);
+    this.player?.clearTint().setAlpha(1);
+    this.player?.anims.play("idle-southeast", true);
     this.createEnemies();
     this.startRunTimers();
     this.drawLifeMeter();
@@ -2584,6 +3167,37 @@ export class DungeonScene extends Phaser.Scene {
     this.ammoPickups = [];
   }
 
+  private clearDeathSprites() {
+    this.deathSprites.forEach((sprite) => {
+      this.tweens.killTweensOf(sprite);
+      sprite.destroy();
+    });
+    this.deathSprites = [];
+  }
+
+  private clearCombatJuiceObjects() {
+    this.combatJuiceObjects.forEach((object) => {
+      this.tweens.killTweensOf(object);
+      object.destroy();
+    });
+    this.combatJuiceObjects = [];
+  }
+
+  private clearDungeonRender() {
+    this.dungeonObjects.forEach((object) => object.destroy());
+    this.dungeonObjects = [];
+    this.propBlockers = [];
+  }
+
+  private prepareNewDungeon() {
+    this.dungeon = createDungeon();
+    this.playerTile = { ...this.dungeon.playerStart };
+    this.renderDungeon();
+    this.refreshCoordinateLabels();
+    this.mapBounds = this.calculateMapBounds();
+    this.focusMaskSignature = "";
+  }
+
   private clearEnemies() {
     this.enemies.forEach((enemy) => {
       enemy.sprite.destroy();
@@ -2620,9 +3234,9 @@ export class DungeonScene extends Phaser.Scene {
     this.debugGraphics.clear();
     this.debugGraphics.lineStyle(1, 0x56f0a8, 0.8);
 
-    for (let y = 0; y < startingDungeon.height; y += 1) {
-      for (let x = 0; x < startingDungeon.width; x += 1) {
-        const code = getTileCode(x, y);
+    for (let y = 0; y < this.dungeon.height; y += 1) {
+      for (let x = 0; x < this.dungeon.width; x += 1) {
+        const code = this.getTileCode(x, y);
         if (code === " ") {
           continue;
         }
@@ -2671,8 +3285,22 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       const enemyCenter = this.tileToWorld(enemy.tile);
+      const hitboxCenter = this.enemyProjectileHitboxCenter(enemy);
+      const hitbox = ENEMY_CONFIG[enemy.kind].projectileHitbox;
       this.debugGraphics?.lineStyle(1, enemy.kind === "brute" ? 0xcfa8ff : 0xff4f4f, 1);
       this.debugGraphics?.strokeCircle(enemyCenter.x, enemyCenter.y, ENEMY_CONFIG[enemy.kind].radius * HALF_TILE_WIDTH);
+      this.debugGraphics?.lineStyle(1, 0xffd166, 0.9);
+      this.debugGraphics?.strokeEllipse(hitboxCenter.x, hitboxCenter.y, hitbox.radiusX * 2, hitbox.radiusY * 2);
+      if (enemy.path.length > 0) {
+        this.debugGraphics?.lineStyle(2, 0x8bc8ff, 0.72);
+        this.debugGraphics?.strokePoints(
+          [enemy.tile, ...enemy.path.map((point) => this.gridCenter(point))].map((point) => {
+            const world = this.tileToWorld(point);
+            return new Phaser.Math.Vector2(world.x, world.y);
+          }),
+          false
+        );
+      }
     });
 
     this.projectiles.forEach((projectile) => {
@@ -2714,6 +3342,7 @@ export class DungeonScene extends Phaser.Scene {
   private addPropAnimation(prop: DungeonProp, anchor: WorldPoint, depth: number) {
     if (prop.kind === "torch") {
       const flame = this.add.sprite(anchor.x - 4, anchor.y - 66, assetManifest.animatedEffects.torchFlame.key, 0);
+      this.dungeonObjects.push(flame);
       flame.setOrigin(0.5, 0.88);
       flame.setScale(0.34);
       flame.setDepth(depth + 2);
@@ -2723,6 +3352,7 @@ export class DungeonScene extends Phaser.Scene {
 
     if (prop.kind === "small_candle") {
       const flame = this.add.sprite(anchor.x, anchor.y - 43, assetManifest.animatedEffects.candleFlame.key, 0);
+      this.dungeonObjects.push(flame);
       flame.setOrigin(0.5, 0.9);
       flame.setScale(0.45);
       flame.setDepth(depth + 2);
@@ -2745,8 +3375,12 @@ export class DungeonScene extends Phaser.Scene {
     return Math.hypot(point.x - closestX, point.y - closestY) < radius;
   }
 
+  private getTileCode(tileX: number, tileY: number): TileCode {
+    return getTileCode(this.dungeon, tileX, tileY);
+  }
+
   private isPlayableTile(tileX: number, tileY: number): boolean {
-    const code = getTileCode(tileX, tileY);
+    const code = this.getTileCode(tileX, tileY);
     return code !== " " && !isTileBlocked(code);
   }
 
@@ -2768,9 +3402,9 @@ export class DungeonScene extends Phaser.Scene {
   private calculateMapBounds(): Bounds {
     const points = [
       this.tileToWorld({ x: 0, y: 0 }),
-      this.tileToWorld({ x: startingDungeon.width, y: 0 }),
-      this.tileToWorld({ x: 0, y: startingDungeon.height }),
-      this.tileToWorld({ x: startingDungeon.width, y: startingDungeon.height })
+      this.tileToWorld({ x: this.dungeon.width, y: 0 }),
+      this.tileToWorld({ x: 0, y: this.dungeon.height }),
+      this.tileToWorld({ x: this.dungeon.width, y: this.dungeon.height })
     ];
     const xs = points.map((point) => point.x);
     const ys = points.map((point) => point.y);

@@ -25,6 +25,15 @@ export const assetManifest = {
       directions: ["southeast", "southwest", "northeast", "northwest"] as const
     }
   },
+  actorDeaths: {
+    key: "actor_deaths",
+    path: "/assets/characters/actor-deaths-sprite-sheet.png",
+    metadataPath: "/assets/characters/actor-deaths-sprite-sheet.json",
+    frameWidth: 64,
+    frameHeight: 64,
+    actors: ["hobgoblin", "goblin", "brute"] as const,
+    framesPerRow: 8
+  },
   tiles: {
     stone_floor: "/assets/tiles/stone_floor.png",
     cracked_floor: "/assets/tiles/cracked_floor.png",
@@ -83,6 +92,14 @@ export const assetManifest = {
       path: "/assets/effects/blast-sprite-sheet.png",
       frameWidth: 64,
       frameHeight: 64
+    },
+    combatJuice: {
+      key: "combat_juice",
+      path: "/assets/effects/combat-juice-sprite-sheet.png",
+      metadataPath: "/assets/effects/combat-juice-sprite-sheet.json",
+      frameWidth: 64,
+      frameHeight: 64,
+      framesPerRow: 8
     }
   },
   powerUps: {

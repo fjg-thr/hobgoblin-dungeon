@@ -1,6 +1,6 @@
 # Hobgoblin Ruin Prototype
 
-A first playable web prototype for a dark GBA-inspired isometric dungeon game. The player controls a winged hobgoblin through a small hand-authored ruin with collision, camera follow, a start screen, life meter, finite ammo, generated pixel-art assets, ramping enemy pressure, powerups, scoring, and a debug overlay.
+A first playable web prototype for a dark GBA-inspired isometric dungeon game. The player controls a winged hobgoblin through regenerated dungeon ruins with collision, camera follow, a start screen, life meter, finite ammo, generated pixel-art assets, ramping enemy pressure, powerups, scoring, and a debug overlay.
 
 ## Run
 
@@ -31,12 +31,16 @@ Open `http://localhost:3000`.
 - `public/assets/characters/goblin-sprite-sheet.json`
 - `public/assets/characters/brute-sprite-sheet.png`
 - `public/assets/characters/brute-sprite-sheet.json`
+- `public/assets/characters/actor-deaths-sprite-sheet.png`
+- `public/assets/characters/actor-deaths-sprite-sheet.json`
 - `public/assets/effects/staff-bolt-sprite-sheet.png`
 - `public/assets/effects/staff-bolt-sprite-sheet.json`
 - `public/assets/effects/powerups-sprite-sheet.png`
 - `public/assets/effects/powerups-sprite-sheet.json`
 - `public/assets/effects/blast-sprite-sheet.png`
 - `public/assets/effects/blast-sprite-sheet.json`
+- `public/assets/effects/combat-juice-sprite-sheet.png`
+- `public/assets/effects/combat-juice-sprite-sheet.json`
 - `public/assets/effects/ammo-pickup-sprite-sheet.png`
 - `public/assets/effects/ammo-pickup-sprite-sheet.json`
 - `public/assets/effects/haste-sparkle-sprite-sheet.png`
@@ -73,13 +77,14 @@ Open `http://localhost:3000`.
 - Effects in `public/assets/effects`
 - UI panels in `public/assets/ui`
 
-Visual source sheets were generated from the prompts in `ASSET_PROMPTS.md`, then processed locally with chroma-key alpha removal and nearest-neighbor resizing. The latest brute, start title, game over, health meter, score/ammo panels, haste sparkle, lower wall, cleaner bridge, and heart shimmer sheets are backed by saved `gpt-image-2` source images under `public/assets/source`, then processed into Phaser-friendly sprite sheets.
+Visual source sheets were generated from the prompts in `ASSET_PROMPTS.md`, then processed locally with chroma-key alpha removal and nearest-neighbor resizing. The latest brute, actor death, combat juice, start title, game over, health meter, score/ammo panels, haste sparkle, lower wall, cleaner bridge, and heart shimmer sheets are backed by saved `gpt-image-2` source images under `public/assets/source`, then processed into Phaser-friendly sprite sheets.
 
 ## Known Limitations
 
 - The character sheet is a generated first pass; directional frames are present, but a later milestone should replace it with tighter hand-polished animation.
 - Collision uses simple tile/proximity checks, not a full physics system.
 - The staircase is visible but does not transition to another level.
+- Each new run creates a fresh room-and-corridor dungeon using the existing tile and prop set.
 - Combat is intentionally simple: goblins ramp in gradually, larger brutes unlock later and spawn randomly, enemies attack only at close range, contact causes damage unless ward is active, staff bolts consume ammo and despawn on impact, and heart pickups restore missing hearts without increasing max health.
 - Power-up rarity is progression-gated: quickshot appears from the start, haste unlocks after early kills or time survived, ward is rare until deeper into the run, and blast is a late rare power-up.
 - Lighting is intentionally subtle and sprite-based to preserve the pixel-art look.
@@ -87,4 +92,4 @@ Visual source sheets were generated from the prompts in `ASSET_PROMPTS.md`, then
 
 ## Next Recommended Milestone
 
-Add one short objective loop: walk to the staircase, collect a simple key or relic, and trigger a level-exit state. Keep combat, inventory, and procedural generation out until movement, camera, and collision have been polished.
+Add one short objective loop: walk to the staircase, collect a simple key or relic, and trigger a level-exit state. Keep combat and inventory modest until movement, camera, collision, and map generation have been polished.

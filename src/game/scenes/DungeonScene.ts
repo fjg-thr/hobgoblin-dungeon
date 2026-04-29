@@ -216,6 +216,10 @@ const POWERUP_SAFE_DISTANCE = 2.8;
 const MAX_ACTIVE_POWERUPS = 2;
 const BLAST_RADIUS_TILES = 3.15;
 const BLAST_DAMAGE = 4;
+const HASTE_MASK_RADIUS_BONUS = 24;
+const HASTE_AFTERIMAGE_INTERVAL_MS = 95;
+const HASTE_AFTERIMAGE_LIFETIME_MS = 340;
+const HASTE_AFTERIMAGE_POOL_LIMIT = 10;
 const HEART_PICKUP_RADIUS = 0.46;
 const FIRST_HEART_DROP_KILLS = 3;
 const HEART_DROP_KILL_STEP = 5;
@@ -428,6 +432,10 @@ export class DungeonScene extends Phaser.Scene {
   private muteButtonText?: Phaser.GameObjects.Text;
   private muteButtonZone?: Phaser.GameObjects.Zone;
   private hasteSparkles?: Phaser.GameObjects.Sprite;
+  private burstChargeSprite?: Phaser.GameObjects.Sprite;
+  private seekerOrbitSprite?: Phaser.GameObjects.Sprite;
+  private hasteAfterimages: Phaser.GameObjects.Sprite[] = [];
+  private nextHasteAfterimageAtMs = 0;
   private focusMask?: Phaser.GameObjects.Image;
   private focusMaskTexture?: Phaser.Textures.CanvasTexture;
   private focusMaskPixelCanvas?: HTMLCanvasElement;
@@ -518,6 +526,10 @@ export class DungeonScene extends Phaser.Scene {
     this.load.spritesheet(assetManifest.animatedEffects.combatJuice.key, assetManifest.animatedEffects.combatJuice.path, {
       frameWidth: assetManifest.animatedEffects.combatJuice.frameWidth,
       frameHeight: assetManifest.animatedEffects.combatJuice.frameHeight
+    });
+    this.load.spritesheet(assetManifest.animatedEffects.pickupIntent.key, assetManifest.animatedEffects.pickupIntent.path, {
+      frameWidth: assetManifest.animatedEffects.pickupIntent.frameWidth,
+      frameHeight: assetManifest.animatedEffects.pickupIntent.frameHeight
     });
     Object.values(assetManifest.uiSprites).forEach((sheet) => {
       this.load.spritesheet(sheet.key, sheet.path, {
@@ -662,6 +674,7 @@ export class DungeonScene extends Phaser.Scene {
       frameRate: 16,
       repeat: 0
     });
+    this.createPickupIntentAnimations();
     this.createCombatJuiceAnimations();
     this.anims.create({
       key: assetManifest.uiSprites.startTitle.key,
@@ -791,6 +804,25 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
+  private createPickupIntentAnimations() {
+    const sheet = assetManifest.animatedEffects.pickupIntent;
+    [
+      { key: "haste-afterimage-loop", row: 0, frameRate: 18 },
+      { key: "burst-charge-loop", row: 1, frameRate: 15 },
+      { key: "seeker-orbit-loop", row: 2, frameRate: 12 }
+    ].forEach((effect) => {
+      this.anims.create({
+        key: effect.key,
+        frames: this.anims.generateFrameNumbers(sheet.key, {
+          start: effect.row * sheet.framesPerRow,
+          end: effect.row * sheet.framesPerRow + sheet.framesPerRow - 1
+        }),
+        frameRate: effect.frameRate,
+        repeat: -1
+      });
+    });
+  }
+
   private renderDungeon() {
     this.clearDungeonRender();
     this.addFloorEdgeSilhouette();
@@ -907,6 +939,20 @@ export class DungeonScene extends Phaser.Scene {
     this.hasteSparkles.setVisible(false);
     this.hasteSparkles.setDepth(HERO_EFFECT_DEPTH);
     this.hasteSparkles.anims.play(assetManifest.animatedEffects.hasteSparkle.key);
+
+    this.burstChargeSprite = this.add.sprite(world.x, world.y - 24, assetManifest.animatedEffects.pickupIntent.key, assetManifest.animatedEffects.pickupIntent.framesPerRow);
+    this.burstChargeSprite.setOrigin(0.5);
+    this.burstChargeSprite.setBlendMode(Phaser.BlendModes.ADD);
+    this.burstChargeSprite.setVisible(false);
+    this.burstChargeSprite.setDepth(HERO_EFFECT_DEPTH + 2);
+    this.burstChargeSprite.anims.play("burst-charge-loop");
+
+    this.seekerOrbitSprite = this.add.sprite(world.x, world.y - 30, assetManifest.animatedEffects.pickupIntent.key, assetManifest.animatedEffects.pickupIntent.framesPerRow * 2);
+    this.seekerOrbitSprite.setOrigin(0.5);
+    this.seekerOrbitSprite.setBlendMode(Phaser.BlendModes.ADD);
+    this.seekerOrbitSprite.setVisible(false);
+    this.seekerOrbitSprite.setDepth(HERO_EFFECT_DEPTH + 1);
+    this.seekerOrbitSprite.anims.play("seeker-orbit-loop");
   }
 
   private createEnemies() {
@@ -1290,6 +1336,11 @@ export class DungeonScene extends Phaser.Scene {
     if (useSeeker) {
       sprite.setTint(0x76fff4);
       sprite.setBlendMode(Phaser.BlendModes.ADD);
+    }
+    if (blastCharged) {
+      sprite.setTint(0xff8a3d);
+      sprite.setBlendMode(Phaser.BlendModes.ADD);
+      sprite.setScale(useSeeker ? 1.5 : 1.34);
     }
     sprite.anims.play("staff-bolt-fly");
 
@@ -2746,6 +2797,9 @@ export class DungeonScene extends Phaser.Scene {
     this.playerInvulnerableUntilMs = 0;
     this.playerPowerFlashUntilMs = 0;
     this.hasteSparkles?.setVisible(false);
+    this.burstChargeSprite?.setVisible(false);
+    this.seekerOrbitSprite?.setVisible(false);
+    this.clearHasteAfterimages();
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.player?.clearTint().setAlpha(1);
@@ -2865,6 +2919,95 @@ export class DungeonScene extends Phaser.Scene {
         this.hasteSparkles.setAlpha(0.72 + Math.sin(now / 90) * 0.18);
       }
     }
+    this.updateHasteAfterimages(world, now);
+    this.updateBurstChargeVisual(world, now);
+    this.updateSeekerOrbitVisual(world, now);
+  }
+
+  private updateHasteAfterimages(world: WorldPoint, now: number) {
+    const hasteActive = now < this.hasteUntilMs && !this.gameOver && !this.playerDying;
+    const isWalking = this.player?.anims.currentAnim?.key.startsWith("walk-") ?? false;
+    if (!hasteActive || !isWalking || now < this.nextHasteAfterimageAtMs) {
+      return;
+    }
+
+    this.nextHasteAfterimageAtMs = now + HASTE_AFTERIMAGE_INTERVAL_MS;
+    this.trimHasteAfterimages(HASTE_AFTERIMAGE_POOL_LIMIT - 1);
+    const afterimage = this.add.sprite(Math.round(world.x), Math.round(world.y), assetManifest.animatedEffects.pickupIntent.key, 0);
+    afterimage.setOrigin(0.5, 0.94);
+    afterimage.setScale(HERO_SPRITE_SCALE * 0.98);
+    afterimage.setAlpha(0.46);
+    afterimage.setDepth(HERO_EFFECT_DEPTH - 1);
+    afterimage.setBlendMode(Phaser.BlendModes.ADD);
+    afterimage.setFlipX(this.playerDirection === "southwest" || this.playerDirection === "northwest");
+    afterimage.anims.play("haste-afterimage-loop");
+    this.hasteAfterimages.push(afterimage);
+    this.tweens.add({
+      targets: afterimage,
+      alpha: 0,
+      scale: HERO_SPRITE_SCALE * 0.84,
+      duration: HASTE_AFTERIMAGE_LIFETIME_MS,
+      ease: "Sine.easeOut",
+      onComplete: () => this.destroyHasteAfterimage(afterimage)
+    });
+  }
+
+  private updateBurstChargeVisual(world: WorldPoint, now: number) {
+    if (!this.burstChargeSprite) {
+      return;
+    }
+
+    const visible = this.blastShotReady && !this.gameOver && !this.playerDying;
+    this.burstChargeSprite.setVisible(visible);
+    if (!visible) {
+      return;
+    }
+
+    const direction = this.directionToVector(this.playerDirection);
+    const offset = this.tileVectorToWorld(direction);
+    const offsetLength = Math.hypot(offset.x, offset.y) || 1;
+    const push = { x: offset.x / offsetLength, y: offset.y / offsetLength };
+    const pulse = 1 + Math.sin(now / 82) * 0.08;
+    this.burstChargeSprite.setPosition(Math.round(world.x + push.x * 18), Math.round(world.y - 25 + push.y * 9));
+    this.burstChargeSprite.setAngle(this.projectileAngle(direction));
+    this.burstChargeSprite.setScale(1.06 * pulse);
+    this.burstChargeSprite.setAlpha(0.82 + Math.sin(now / 70) * 0.14);
+    this.burstChargeSprite.setDepth(HERO_EFFECT_DEPTH + 2);
+  }
+
+  private updateSeekerOrbitVisual(world: WorldPoint, now: number) {
+    if (!this.seekerOrbitSprite) {
+      return;
+    }
+
+    const visible = this.playerSeekerAmmo > 0 && !this.gameOver && !this.playerDying;
+    this.seekerOrbitSprite.setVisible(visible);
+    if (!visible) {
+      return;
+    }
+
+    const charge = Phaser.Math.Clamp(this.playerSeekerAmmo / MAX_SEEKER_AMMO, 0.25, 1);
+    this.seekerOrbitSprite.setPosition(Math.round(world.x), Math.round(world.y - 30));
+    this.seekerOrbitSprite.setScale(1.04 + charge * 0.16 + Math.sin(now / 130) * 0.02);
+    this.seekerOrbitSprite.setAlpha(0.52 + charge * 0.34);
+    this.seekerOrbitSprite.setAngle((now / 38) % 360);
+    this.seekerOrbitSprite.setDepth(HERO_EFFECT_DEPTH + 1);
+  }
+
+  private trimHasteAfterimages(limit: number) {
+    while (this.hasteAfterimages.length > limit) {
+      const afterimage = this.hasteAfterimages.shift();
+      if (!afterimage) {
+        continue;
+      }
+      this.tweens.killTweensOf(afterimage);
+      afterimage.destroy();
+    }
+  }
+
+  private destroyHasteAfterimage(afterimage: Phaser.GameObjects.Sprite) {
+    this.hasteAfterimages = this.hasteAfterimages.filter((item) => item !== afterimage);
+    afterimage.destroy();
   }
 
   private updateEnemyVisuals(enemy: EnemyActor) {
@@ -2942,12 +3085,13 @@ export class DungeonScene extends Phaser.Scene {
     const height = Math.ceil(camera.height);
     const quantizedX = Math.round(screenX / FOCUS_MASK_PIXEL_SIZE) * FOCUS_MASK_PIXEL_SIZE;
     const quantizedY = Math.round(screenY / FOCUS_MASK_PIXEL_SIZE) * FOCUS_MASK_PIXEL_SIZE;
+    const hasteMaskBonus = this.time.now < this.hasteUntilMs && !this.gameOver && !this.playerDying ? HASTE_MASK_RADIUS_BONUS : 0;
     const innerRadius = Phaser.Math.Clamp(
       Math.min(width, height) * FOCUS_MASK_INNER_RADIUS_RATIO,
       FOCUS_MASK_INNER_RADIUS_MIN,
       FOCUS_MASK_INNER_RADIUS_MAX
-    );
-    const signature = `${width}x${height}:${quantizedX}:${quantizedY}:${FOCUS_MASK_PIXEL_SIZE}`;
+    ) + hasteMaskBonus;
+    const signature = `${width}x${height}:${quantizedX}:${quantizedY}:${FOCUS_MASK_PIXEL_SIZE}:${Math.round(innerRadius)}`;
 
     this.focusMask?.setScale(1 / camera.zoom);
     this.focusMask?.setPosition(view.x, view.y);
@@ -3110,6 +3254,7 @@ export class DungeonScene extends Phaser.Scene {
     this.clearAmmoPickups();
     this.clearDeathSprites();
     this.clearCombatJuiceObjects();
+    this.clearHasteAfterimages();
     this.clearEnemies();
     this.prepareNewDungeon();
     this.playerDirection = "southeast";
@@ -3261,6 +3406,7 @@ export class DungeonScene extends Phaser.Scene {
     this.clearAmmoPickups();
     this.clearDeathSprites();
     this.clearCombatJuiceObjects();
+    this.clearHasteAfterimages();
     this.clearEnemies();
     this.prepareNewDungeon();
     this.playerDirection = "southeast";
@@ -3326,6 +3472,15 @@ export class DungeonScene extends Phaser.Scene {
       object.destroy();
     });
     this.combatJuiceObjects = [];
+  }
+
+  private clearHasteAfterimages() {
+    this.hasteAfterimages.forEach((afterimage) => {
+      this.tweens.killTweensOf(afterimage);
+      afterimage.destroy();
+    });
+    this.hasteAfterimages = [];
+    this.nextHasteAfterimageAtMs = 0;
   }
 
   private clearDungeonRender() {

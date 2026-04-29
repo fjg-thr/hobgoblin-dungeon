@@ -100,6 +100,14 @@ export const assetManifest = {
       frameWidth: 64,
       frameHeight: 64,
       framesPerRow: 8
+    },
+    pickupIntent: {
+      key: "pickup_intent_effects",
+      path: "/assets/effects/pickup-intent-effects-sprite-sheet.png",
+      metadataPath: "/assets/effects/pickup-intent-effects-sprite-sheet.json",
+      frameWidth: 64,
+      frameHeight: 64,
+      framesPerRow: 8
     }
   },
   powerUps: {

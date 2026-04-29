@@ -1,0 +1,197 @@
+{
+  "image": "/assets/effects/pickup-intent-effects-sprite-sheet.png",
+  "source": "/assets/source/pickup-intent-effects-gpt-image-2-source.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "frames": {
+    "haste_afterimage_00": {
+      "x": 0,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_01": {
+      "x": 64,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_02": {
+      "x": 128,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_03": {
+      "x": 192,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_04": {
+      "x": 256,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_05": {
+      "x": 320,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_06": {
+      "x": 384,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "haste_afterimage_07": {
+      "x": 448,
+      "y": 0,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_00": {
+      "x": 0,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_01": {
+      "x": 64,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_02": {
+      "x": 128,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_03": {
+      "x": 192,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_04": {
+      "x": 256,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_05": {
+      "x": 320,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_06": {
+      "x": 384,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "burst_charge_07": {
+      "x": 448,
+      "y": 64,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_00": {
+      "x": 0,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_01": {
+      "x": 64,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_02": {
+      "x": 128,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_03": {
+      "x": 192,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_04": {
+      "x": 256,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_05": {
+      "x": 320,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_06": {
+      "x": 384,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    },
+    "seeker_orbit_07": {
+      "x": 448,
+      "y": 128,
+      "w": 64,
+      "h": 64
+    }
+  },
+  "animations": {
+    "haste_afterimage": {
+      "frames": [
+        "haste_afterimage_00",
+        "haste_afterimage_01",
+        "haste_afterimage_02",
+        "haste_afterimage_03",
+        "haste_afterimage_04",
+        "haste_afterimage_05",
+        "haste_afterimage_06",
+        "haste_afterimage_07"
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    },
+    "burst_charge": {
+      "frames": [
+        "burst_charge_00",
+        "burst_charge_01",
+        "burst_charge_02",
+        "burst_charge_03",
+        "burst_charge_04",
+        "burst_charge_05",
+        "burst_charge_06",
+        "burst_charge_07"
+      ],
+      "frameRate": 15,
+      "repeat": -1
+    },
+    "seeker_orbit": {
+      "frames": [
+        "seeker_orbit_00",
+        "seeker_orbit_01",
+        "seeker_orbit_02",
+        "seeker_orbit_03",
+        "seeker_orbit_04",
+        "seeker_orbit_05",
+        "seeker_orbit_06",
+        "seeker_orbit_07"
+      ],
+      "frameRate": 12,
+      "repeat": -1
+    }
+  },
+  "notes": "Intentional pickup VFX: haste afterimages, burst arrow charge, and orbiting seeking-arrow pips from gpt-image-2 source art."
+}

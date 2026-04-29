@@ -3,21 +3,30 @@ import { writeFile } from "node:fs/promises";
 const sampleRate = 22050;
 const bpm = 132;
 const beatSeconds = 60 / bpm;
-const bars = 16;
+const bars = 32;
 const beatsPerBar = 4;
 const totalBeats = bars * beatsPerBar;
 const totalSeconds = totalBeats * beatSeconds;
 const sampleCount = Math.floor(totalSeconds * sampleRate);
 const output = new Float32Array(sampleCount);
 
-const melody = [
+const melodyA = [
   "D5", null, "F5", "G5", "A5", null, "G5", "F5",
   "D5", "F5", "A5", null, "C6", "A5", "G5", null,
   "C5", null, "E5", "G5", "Bb5", null, "A5", "G5",
   "F5", "G5", "A5", null, "D6", "C6", "A5", null
 ];
-const bass = ["D2", "D2", "C2", "C2", "Bb1", "Bb1", "A1", "A1"];
+const melodyB = [
+  "D5", "F5", "G5", null, "A5", "C6", "A5", "G5",
+  "F5", null, "A5", "C6", "D6", null, "C6", "A5",
+  "Bb4", "D5", "F5", "A5", "C6", "A5", "F5", null,
+  "G4", "Bb4", "D5", "F5", "A5", "G5", "E5", null
+];
+const melody = [...melodyA, ...melodyB];
+const bass = ["D2", "D2", "C2", "C2", "Bb1", "Bb1", "A1", "A1", "D2", "D2", "F2", "F2", "G1", "G1", "A1", "A1"];
+const deepBass = ["D1", "D1", "C1", "Bb0", "D1", "F1", "G0", "A0"];
 const arp = ["D4", "F4", "A4", "C5", "F4", "A4", "C5", "A4"];
+const lowArp = ["D3", "A3", "C4", "F3", "Bb2", "F3", "A3", "C4"];
 
 const noteSemitones = {
   C: -9,
@@ -67,7 +76,7 @@ function triangle(phase) {
   return 1 - 4 * Math.abs(Math.round(phase - 0.25) - (phase - 0.25));
 }
 
-function addNote({ note, startBeat, lengthBeats, volume, wave = "square", duty = 0.5, detune = 0 }) {
+function addNote({ note, startBeat, lengthBeats, volume, wave = "square", duty = 0.5, detune = 0, attack = 0.012, release = 0.055 }) {
   if (!note) {
     return;
   }
@@ -79,7 +88,7 @@ function addNote({ note, startBeat, lengthBeats, volume, wave = "square", duty =
     const t = (i - start) / sampleRate;
     const phase = freq * t;
     const sample = wave === "triangle" ? triangle(phase) : square(phase, duty);
-    output[i] += sample * volume * envelope(t, duration);
+    output[i] += sample * volume * envelope(t, duration, attack, release);
   }
 }
 
@@ -100,51 +109,90 @@ function addNoiseHit(startBeat, lengthBeats, volume, tone = 0.18) {
 
 for (let beat = 0; beat < totalBeats; beat += 0.5) {
   const melodyNote = melody[Math.floor(beat / 0.5) % melody.length];
+  const progress = beat / totalBeats;
   addNote({
     note: melodyNote,
     startBeat: beat,
     lengthBeats: melodyNote ? 0.42 : 0,
-    volume: 0.12,
+    volume: 0.105 + progress * 0.035,
     wave: "square",
-    duty: 0.38
+    duty: progress > 0.55 ? 0.32 : 0.38
   });
 }
 
 for (let beat = 0; beat < totalBeats; beat += 1) {
+  const progress = beat / totalBeats;
   addNote({
     note: bass[Math.floor(beat / 2) % bass.length],
     startBeat: beat,
     lengthBeats: 0.72,
-    volume: 0.16,
+    volume: 0.14 + progress * 0.045,
     wave: "square",
     duty: 0.52
   });
 }
 
+for (let beat = 0; beat < totalBeats; beat += 4) {
+  const progress = beat / totalBeats;
+  addNote({
+    note: deepBass[Math.floor(beat / 4) % deepBass.length],
+    startBeat: beat,
+    lengthBeats: 3.55,
+    volume: 0.035 + progress * 0.075,
+    wave: "triangle",
+    attack: 0.08,
+    release: 0.24
+  });
+}
+
 for (let beat = 0; beat < totalBeats; beat += 0.25) {
+  const progress = beat / totalBeats;
   addNote({
     note: arp[Math.floor(beat / 0.25) % arp.length],
     startBeat: beat,
     lengthBeats: 0.16,
-    volume: 0.055,
+    volume: 0.046 + progress * 0.018,
     wave: "triangle"
   });
 }
 
+for (let beat = 32; beat < totalBeats; beat += 0.5) {
+  const note = lowArp[Math.floor(beat / 0.5) % lowArp.length];
+  const progress = (beat - 32) / (totalBeats - 32);
+  addNote({
+    note,
+    startBeat: beat,
+    lengthBeats: 0.34,
+    volume: 0.025 + progress * 0.025,
+    wave: "square",
+    duty: 0.64,
+    attack: 0.008,
+    release: 0.09
+  });
+}
+
 for (let beat = 0; beat < totalBeats; beat += 1) {
-  addNoiseHit(beat, 0.09, beat % 4 === 0 ? 0.16 : 0.065, 0.08);
+  const progress = beat / totalBeats;
+  addNoiseHit(beat, 0.09, beat % 4 === 0 ? 0.15 + progress * 0.035 : 0.056 + progress * 0.018, 0.08);
 }
 
 for (let beat = 1; beat < totalBeats; beat += 2) {
-  addNoiseHit(beat, 0.18, 0.075, 0.46);
+  const progress = beat / totalBeats;
+  addNoiseHit(beat, 0.18, 0.066 + progress * 0.02, 0.46);
+}
+
+for (let beat = 48; beat < totalBeats; beat += 4) {
+  addNoiseHit(beat + 2.5, 0.28, 0.045, 0.68);
 }
 
 for (let i = 0; i < sampleCount; i += 1) {
   const t = i / sampleRate;
   const barPosition = (t / beatSeconds) % beatsPerBar;
-  const pulse = barPosition < 0.15 ? 0.96 : 1;
-  const loopFade = Math.min(1, i / (sampleRate * 0.04), (sampleCount - i) / (sampleRate * 0.08));
-  output[i] = Math.max(-0.92, Math.min(0.92, output[i] * pulse * loopFade));
+  const progress = i / sampleCount;
+  const pulse = barPosition < 0.15 ? 0.955 : 1;
+  const lateWeight = Math.sin(Math.PI * progress) * 0.04;
+  const loopFade = Math.min(1, i / (sampleRate * 0.08), (sampleCount - i) / (sampleRate * 0.12));
+  output[i] = Math.max(-0.92, Math.min(0.92, output[i] * (pulse + lateWeight) * loopFade));
 }
 
 const bytesPerSample = 2;

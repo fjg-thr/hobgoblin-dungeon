@@ -19,7 +19,9 @@ type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
 type EnemyKind = keyof typeof assetManifest.enemies;
 type ActorDeathKind = (typeof assetManifest.actorDeaths.actors)[number];
 type CombatEffectKind = "hit" | "deathPoof";
-type CombatHitSource = "projectile" | "blast";
+type CombatHitSource = "projectile" | "seeker" | "blast";
+type ProjectileKind = "standard" | "seeker";
+type AmmoPickupKind = "standard" | "seeker";
 
 interface TilePoint {
   x: number;
@@ -99,12 +101,15 @@ interface EnemyConfig {
 }
 
 interface StaffProjectile {
+  kind: ProjectileKind;
   tile: TilePoint;
   velocity: TilePoint;
   sprite: Phaser.GameObjects.Sprite;
   alive: boolean;
   traveled: number;
+  damage: number;
   blastCharged: boolean;
+  target?: EnemyActor;
 }
 
 interface PowerUp {
@@ -136,6 +141,7 @@ interface HeartPickup {
 }
 
 interface AmmoPickup {
+  kind: AmmoPickupKind;
   tile: TilePoint;
   sprite: Phaser.GameObjects.Sprite;
   glow: Phaser.GameObjects.Image;
@@ -168,18 +174,30 @@ const PROJECTILE_SPEED_TILES = 7.5;
 const PROJECTILE_MAX_DISTANCE = 8;
 const PROJECTILE_COOLDOWN_MS = 260;
 const PROJECTILE_AIM_SNAP_DEGREES = 15;
+const SEEKER_PROJECTILE_DAMAGE = 2;
+const SEEKER_PROJECTILE_SPEED_TILES = 6.7;
+const SEEKER_PROJECTILE_MAX_DISTANCE = 10.5;
+const SEEKER_PROJECTILE_ACQUIRE_RANGE = 7.4;
+const SEEKER_PROJECTILE_TURN_RATE = 7.6;
 const MIN_POINTER_AIM_DISTANCE = 20;
 const DIFFICULTY_STEP_MS = 14500;
 const DIFFICULTY_SPAWN_CHECK_MS = 1900;
 const MAX_ENEMIES = 8;
 const MAX_BRUTES = 2;
 const MAX_SIMULATION_DT = 1 / 35;
-const BRUTE_UNLOCK_KILLS = 6;
-const BRUTE_UNLOCK_MS = 42000;
+const BRUTE_UNLOCK_KILLS = 3;
+const BRUTE_UNLOCK_MS = 22000;
 const ENEMY_SAFE_SPAWN_DISTANCE = 5.2;
 const INITIAL_AMMO = 14;
 const MAX_AMMO = 24;
 const AMMO_PICKUP_AMOUNT = 6;
+const INITIAL_SEEKER_AMMO = 0;
+const MAX_SEEKER_AMMO = 6;
+const SEEKER_PICKUP_AMOUNT = 3;
+const SEEKER_UNLOCK_KILLS = 4;
+const SEEKER_UNLOCK_MS = 30000;
+const SEEKER_PICKUP_CHANCE = 0.23;
+const SEEKER_DROP_CHANCE = 0.16;
 const AMMO_PICKUP_RADIUS = 0.48;
 const AMMO_PICKUP_SAFE_DISTANCE = 2.4;
 const MAX_ACTIVE_AMMO_PICKUPS = 3;
@@ -191,8 +209,8 @@ const QUICKSHOT_DURATION_MS = 9000;
 const HASTE_DURATION_MS = 8000;
 const HASTE_SPEED_MULTIPLIER = 1.35;
 const WARD_DURATION_MS = 7000;
-const POWERUP_SPAWN_INITIAL_MS = 7000;
-const POWERUP_SPAWN_INTERVAL_MS = 14000;
+const POWERUP_SPAWN_INITIAL_MS = 4000;
+const POWERUP_SPAWN_INTERVAL_MS = 8500;
 const POWERUP_PICKUP_RADIUS = 0.48;
 const POWERUP_SAFE_DISTANCE = 2.8;
 const MAX_ACTIVE_POWERUPS = 2;
@@ -206,6 +224,12 @@ const HEART_DROP_MAX_COUNT = 3;
 const MAX_ACTIVE_HEART_PICKUPS = 3;
 const HEART_PICKUP_SAFE_DISTANCE = 2.4;
 const FOCUS_MASK_KEY = "player_focus_mask";
+const FOCUS_MASK_ALPHA = 1;
+const FOCUS_MASK_PIXEL_SIZE = 8;
+const FOCUS_MASK_INNER_RADIUS_RATIO = 0.075;
+const FOCUS_MASK_INNER_RADIUS_MIN = 64;
+const FOCUS_MASK_INNER_RADIUS_MAX = 92;
+const FOCUS_MASK_FEATHER_RADIUS = 190;
 
 const ENEMY_CONFIG: Record<EnemyKind, EnemyConfig> = {
   goblin: {
@@ -269,9 +293,9 @@ const POWERUP_CONFIG: Record<PowerUpKind, PowerUpConfig> = {
   },
   haste: {
     row: 1,
-    weight: 30,
-    unlockKills: 4,
-    unlockElapsedMs: 45000,
+    weight: 48,
+    unlockKills: 1,
+    unlockElapsedMs: 12000,
     glowTint: 0x78baff,
     glowAlpha: 0.18,
     spriteScale: 1.12,
@@ -293,9 +317,9 @@ const POWERUP_CONFIG: Record<PowerUpKind, PowerUpConfig> = {
   },
   blast: {
     row: 3,
-    weight: 7,
-    unlockKills: 10,
-    unlockElapsedMs: 85000,
+    weight: 42,
+    unlockKills: 2,
+    unlockElapsedMs: 16000,
     glowTint: 0xff5a35,
     glowAlpha: 0.24,
     spriteScale: 1.18,
@@ -322,25 +346,19 @@ const CAMERA_TARGET_VIEW_WIDTH = 1300;
 const CAMERA_TARGET_VIEW_HEIGHT = 720;
 const CAMERA_MIN_ZOOM = 1.28;
 const CAMERA_MAX_ZOOM = 2;
-const HUD_INSET_RATIO = 0.045;
-const HUD_MIN_INSET_X = 42;
-const HUD_MAX_INSET_X = 92;
-const HUD_PANEL_SCREEN_SCALE = 1.08;
-const HUD_PANEL_GAP_Y = 18;
-const HUD_TOP_RATIO = 0.038;
-const HUD_TOP_MIN_Y = 28;
-const HUD_TOP_MAX_Y = 44;
-const HUD_VALUE_SOURCE_X = 200;
-const HUD_VALUE_SOURCE_Y = 23;
-const POWERUP_TEXT_SOURCE_Y = 86;
-const LIFE_METER_SCALE = 0.42;
-const LIFE_HEART_SCALE = 0.66;
-const LIFE_METER_MARGIN = { x: 42, y: 26 };
-const LIFE_HEART_CENTERS = [
-  { x: 166, y: 132 },
-  { x: 320, y: 132 },
-  { x: 474, y: 132 }
-] as const;
+const PLAYER_VIEW_CENTER_Y_OFFSET = -18;
+const HUD_CONTAINER_WIDTH_RATIO = 0.5;
+const HUD_CONTAINER_HEIGHT = 34;
+const HUD_CONTAINER_BOTTOM_MARGIN = 18;
+const HUD_CONTAINER_PADDING_X = 16;
+const HUD_TEXT_SCREEN_SCALE = 0.96;
+const HUD_POWERUP_TEXT_SCREEN_SCALE = 0.76;
+const LIFE_HEART_SCREEN_SCALE = 0.42;
+const LIFE_HEART_GAP_X = 30;
+const MUTE_BUTTON_WIDTH = 88;
+const MUTE_BUTTON_HEIGHT = HUD_CONTAINER_HEIGHT;
+const MUTE_BUTTON_RIGHT_MARGIN = 18;
+const MUTE_BUTTON_BOTTOM_MARGIN = HUD_CONTAINER_BOTTOM_MARGIN;
 
 const PROP_RENDER: Record<PropKind, PropRenderConfig> = {
   torch: {
@@ -401,13 +419,10 @@ export class DungeonScene extends Phaser.Scene {
   private keys?: Record<string, Phaser.Input.Keyboard.Key>;
   private debugGraphics?: Phaser.GameObjects.Graphics;
   private hudGraphics?: Phaser.GameObjects.Graphics;
-  private scorePanel?: Phaser.GameObjects.Sprite;
   private scoreText?: Phaser.GameObjects.Text;
   private powerUpText?: Phaser.GameObjects.Text;
-  private ammoPanel?: Phaser.GameObjects.Sprite;
   private ammoText?: Phaser.GameObjects.Text;
-  private lifeMeterImage?: Phaser.GameObjects.Sprite;
-  private lifeHeartImages: Phaser.GameObjects.Sprite[] = [];
+  private lifeHeartImages: Phaser.GameObjects.Image[] = [];
   private muteButtonContainer?: Phaser.GameObjects.Container;
   private muteButtonBg?: Phaser.GameObjects.Graphics;
   private muteButtonText?: Phaser.GameObjects.Text;
@@ -415,6 +430,7 @@ export class DungeonScene extends Phaser.Scene {
   private hasteSparkles?: Phaser.GameObjects.Sprite;
   private focusMask?: Phaser.GameObjects.Image;
   private focusMaskTexture?: Phaser.Textures.CanvasTexture;
+  private focusMaskPixelCanvas?: HTMLCanvasElement;
   private focusMaskSignature = "";
   private gameOverContainer?: Phaser.GameObjects.Container;
   private gameOverButtonBounds?: Phaser.Geom.Rectangle;
@@ -448,6 +464,7 @@ export class DungeonScene extends Phaser.Scene {
   private playerScore = 0;
   private enemyKills = 0;
   private playerAmmo = INITIAL_AMMO;
+  private playerSeekerAmmo = INITIAL_SEEKER_AMMO;
   private nextHeartDropKill = FIRST_HEART_DROP_KILLS;
   private debugEnabled = false;
   private gameStarted = false;
@@ -785,7 +802,7 @@ export class DungeonScene extends Phaser.Scene {
           continue;
         }
 
-        const world = this.tileToWorld({ x, y });
+        const world = this.tileCellCenterToWorld(x, y);
         const assetKey = tileAssetForCode[code as Exclude<TileCode, " ">];
         this.addTileImage(assetKey, world, code, x, y);
       }
@@ -807,13 +824,13 @@ export class DungeonScene extends Phaser.Scene {
           continue;
         }
 
-        const world = this.tileToWorld({ x, y });
+        const [top, right, bottom, left] = this.tileCellDiamondPoints(x, y, false);
         graphics.fillPoints(
           [
-            new Phaser.Math.Vector2(world.x, world.y - HALF_TILE_HEIGHT - 2),
-            new Phaser.Math.Vector2(world.x + HALF_TILE_WIDTH + 5, world.y + 1),
-            new Phaser.Math.Vector2(world.x, world.y + HALF_TILE_HEIGHT + 9),
-            new Phaser.Math.Vector2(world.x - HALF_TILE_WIDTH - 5, world.y + 1)
+            new Phaser.Math.Vector2(top.x, top.y - 2),
+            new Phaser.Math.Vector2(right.x + 5, right.y + 1),
+            new Phaser.Math.Vector2(bottom.x, bottom.y + 9),
+            new Phaser.Math.Vector2(left.x - 5, left.y + 1)
           ],
           true
         );
@@ -914,7 +931,6 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -927,13 +943,6 @@ export class DungeonScene extends Phaser.Scene {
       }
     });
     this.keys.shoot.on("down", () => {
-      if (!this.gameStarted) {
-        this.startGame();
-        return;
-      }
-      this.shotQueued = true;
-    });
-    this.keys.shootAlt.on("down", () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
@@ -966,7 +975,7 @@ export class DungeonScene extends Phaser.Scene {
         if (code === " ") {
           continue;
         }
-        const world = this.tileToWorld({ x, y });
+        const world = this.tileCellCenterToWorld(x, y);
         const label = this.add.text(world.x - 10, world.y - 8, `${x},${y}`, {
           fontFamily: "monospace",
           fontSize: "7px",
@@ -980,21 +989,14 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private createHud() {
-    this.scorePanel = this.add.sprite(0, 0, assetManifest.uiSprites.hudPanels.key, 0);
-    this.scorePanel.setOrigin(0, 0);
-    this.scorePanel.setScrollFactor(0);
-    this.scorePanel.setDepth(HUD_DEPTH);
-    this.scorePanel.setFrame(0);
-    this.addStaticShimmer(this.scorePanel, 0.94, 1, 1400);
-
-    this.scoreText = this.add.text(0, 0, "0000", {
+    this.scoreText = this.add.text(0, 0, "SCORE 0000", {
       fontFamily: "monospace",
-      fontSize: "18px",
+      fontSize: "16px",
       color: "#ffe9a9",
       stroke: "#060404",
       strokeThickness: 4
     });
-    this.scoreText.setOrigin(1, 0.5);
+    this.scoreText.setOrigin(0, 0.5);
     this.scoreText.setScrollFactor(0);
     this.scoreText.setDepth(HUD_DEPTH + 1);
 
@@ -1005,15 +1007,9 @@ export class DungeonScene extends Phaser.Scene {
       stroke: "#06120a",
       strokeThickness: 4
     });
+    this.powerUpText.setOrigin(0, 0.5);
     this.powerUpText.setScrollFactor(0);
     this.powerUpText.setDepth(HUD_DEPTH + 1);
-
-    this.ammoPanel = this.add.sprite(0, 0, assetManifest.uiSprites.hudPanels.key, 4);
-    this.ammoPanel.setOrigin(0, 0);
-    this.ammoPanel.setScrollFactor(0);
-    this.ammoPanel.setDepth(HUD_DEPTH);
-    this.ammoPanel.setFrame(4);
-    this.addStaticShimmer(this.ammoPanel, 0.94, 1, 1600);
 
     this.ammoText = this.add.text(0, 0, "", {
       fontFamily: "monospace",
@@ -1022,34 +1018,22 @@ export class DungeonScene extends Phaser.Scene {
       stroke: "#120706",
       strokeThickness: 4
     });
-    this.ammoText.setOrigin(1, 0.5);
+    this.ammoText.setOrigin(0, 0.5);
     this.ammoText.setScrollFactor(0);
     this.ammoText.setDepth(HUD_DEPTH + 1);
 
-    this.lifeMeterImage = this.add.sprite(0, 0, assetManifest.uiSprites.lifeMeterLoop.key, 0);
-    this.lifeMeterImage.setOrigin(0, 0);
-    this.lifeMeterImage.setScrollFactor(0);
-    this.lifeMeterImage.setDepth(HUD_DEPTH);
-    this.lifeMeterImage.setFrame(0);
-    this.addStaticShimmer(this.lifeMeterImage, 0.96, 1, 1700);
-    this.lifeHeartImages = LIFE_HEART_CENTERS.map((center) => {
-      const heart = this.add.sprite(
-        0,
-        0,
-        assetManifest.uiSprites.lifeHeartShimmer.key,
-        0
-      );
+    this.lifeHeartImages = Array.from({ length: MAX_PLAYER_HEALTH }, (_, index) => {
+      const heart = this.add.image(0, 0, "life_heart");
       heart.setOrigin(0.5);
       heart.setScrollFactor(0);
       heart.setDepth(HUD_DEPTH + 1);
-      heart.setFrame(0);
-      this.addStaticShimmer(heart, 0.92, 1, 900 + Math.round(center.x));
+      this.addStaticShimmer(heart, 0.92, 1, 900 + index * 140);
       return heart;
     });
 
     this.hudGraphics = this.add.graphics();
     this.hudGraphics.setScrollFactor(0);
-    this.hudGraphics.setDepth(HUD_DEPTH + 1);
+    this.hudGraphics.setDepth(HUD_DEPTH);
     this.positionHud();
     this.drawLifeMeter();
     this.updateScoreText();
@@ -1061,8 +1045,8 @@ export class DungeonScene extends Phaser.Scene {
     this.muted = this.readMutedPreference();
     this.sound.mute = this.muted;
 
-    const width = 88;
-    const height = 34;
+    const width = MUTE_BUTTON_WIDTH;
+    const height = MUTE_BUTTON_HEIGHT;
     this.muteButtonBg = this.add.graphics();
     this.muteButtonText = this.add.text(width / 2, height / 2 + 1, "", {
       fontFamily: "monospace",
@@ -1120,20 +1104,20 @@ export class DungeonScene extends Phaser.Scene {
 
     this.muteButtonBg.clear();
     this.muteButtonBg.fillStyle(this.muted ? 0x1b1516 : 0x121716, 0.92);
-    this.muteButtonBg.fillRoundedRect(0, 0, 88, 34, 5);
+    this.muteButtonBg.fillRoundedRect(0, 0, MUTE_BUTTON_WIDTH, MUTE_BUTTON_HEIGHT, 5);
     this.muteButtonBg.lineStyle(1, this.muted ? 0x8f5454 : 0xa48645, 0.92);
-    this.muteButtonBg.strokeRoundedRect(0.5, 0.5, 87, 33, 5);
+    this.muteButtonBg.strokeRoundedRect(0.5, 0.5, MUTE_BUTTON_WIDTH - 1, MUTE_BUTTON_HEIGHT - 1, 5);
     this.muteButtonText.setText(this.muted ? "MUTED" : "SOUND");
     this.muteButtonText.setColor(this.muted ? "#d68c8c" : "#ffe9a9");
   }
 
   private positionMuteButton() {
-    const x = this.cameras.main.width - 106;
-    const y = this.cameras.main.height - 52;
+    const x = this.cameras.main.width - MUTE_BUTTON_RIGHT_MARGIN - MUTE_BUTTON_WIDTH;
+    const y = this.cameras.main.height - MUTE_BUTTON_BOTTOM_MARGIN - MUTE_BUTTON_HEIGHT;
     this.muteButtonContainer?.setScale(this.uiScale());
     this.muteButtonContainer?.setPosition(this.uiX(x), this.uiY(y));
     this.muteButtonZone?.setScale(this.uiScale());
-    this.muteButtonZone?.setPosition(this.uiX(x + 44), this.uiY(y + 17));
+    this.muteButtonZone?.setPosition(this.uiX(x + MUTE_BUTTON_WIDTH / 2), this.uiY(y + MUTE_BUTTON_HEIGHT / 2));
   }
 
   private playSfx(key: AudioAssetKey, config: { volume?: number; rate?: number; detune?: number } = {}) {
@@ -1251,12 +1235,18 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private tryShootProjectile() {
-    if (!this.gameStarted || this.gameOver || !this.keys || (!this.shotQueued && !this.keys.shoot.isDown && !this.keys.shootAlt.isDown)) {
+    if (!this.gameStarted || this.gameOver || !this.keys) {
+      return;
+    }
+
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    if (!shotRequested) {
       return;
     }
 
     const now = this.time.now;
-    if (this.playerAmmo <= 0) {
+    const useSeeker = this.playerSeekerAmmo > 0;
+    if (!useSeeker && this.playerAmmo <= 0) {
       this.shotQueued = false;
       if (now >= this.nextNoAmmoPopupAtMs) {
         this.nextNoAmmoPopupAtMs = now + 650;
@@ -1272,9 +1262,16 @@ export class DungeonScene extends Phaser.Scene {
 
     this.shotQueued = false;
     this.nextShotAtMs = now + this.currentProjectileCooldown();
-    this.playerAmmo = Math.max(0, this.playerAmmo - 1);
+    if (useSeeker) {
+      this.playerSeekerAmmo = Math.max(0, this.playerSeekerAmmo - 1);
+    } else {
+      this.playerAmmo = Math.max(0, this.playerAmmo - 1);
+    }
     this.updateAmmoText();
-    this.playSfx("staffShot", { volume: 0.26, rate: Phaser.Math.FloatBetween(0.94, 1.04) });
+    this.playSfx("staffShot", {
+      volume: useSeeker ? 0.31 : 0.26,
+      rate: useSeeker ? Phaser.Math.FloatBetween(0.76, 0.84) : Phaser.Math.FloatBetween(0.94, 1.04)
+    });
     const shot = this.resolveShotVector();
     const velocity = shot.tileVelocity;
     const blastCharged = this.blastShotReady;
@@ -1287,18 +1284,25 @@ export class DungeonScene extends Phaser.Scene {
     const world = this.tileToWorld(start);
     const sprite = this.add.sprite(Math.round(world.x), Math.round(world.y - 18), assetManifest.projectiles.staffBolt.key, 0);
     sprite.setOrigin(0.5, 0.5);
-    sprite.setScale(1.15);
+    sprite.setScale(useSeeker ? 1.32 : 1.15);
     sprite.setDepth(this.depthForTilePoint(start, DEPTH_BANDS.actor + 900, 24));
     sprite.setAngle(shot.angleDegrees);
+    if (useSeeker) {
+      sprite.setTint(0x76fff4);
+      sprite.setBlendMode(Phaser.BlendModes.ADD);
+    }
     sprite.anims.play("staff-bolt-fly");
 
     this.projectiles.push({
+      kind: useSeeker ? "seeker" : "standard",
       tile: start,
       velocity,
       sprite,
       alive: true,
       traveled: 0,
-      blastCharged
+      damage: useSeeker ? SEEKER_PROJECTILE_DAMAGE : 1,
+      blastCharged,
+      target: useSeeker ? this.findSeekerTarget(start) : undefined
     });
   }
 
@@ -1321,12 +1325,12 @@ export class DungeonScene extends Phaser.Scene {
   private resolveShotVector(): { tileVelocity: TilePoint; angleDegrees: number } {
     const fallback = this.directionToVector(this.playerDirection);
     const fallbackAngle = this.projectileAngle(fallback);
-    const world = this.tileToWorld(this.playerTile);
+    const world = this.playerViewCenterWorld();
     const camera = this.cameras.main;
     const view = camera.worldView;
     const playerScreen = {
       x: (world.x - view.x) * camera.zoom,
-      y: (world.y - view.y - 18) * camera.zoom
+      y: (world.y - view.y) * camera.zoom
     };
 
     if (!this.lastAimScreenPoint) {
@@ -1400,6 +1404,7 @@ export class DungeonScene extends Phaser.Scene {
     this.nextNoAmmoPopupAtMs = 0;
     this.enemyKills = 0;
     this.playerAmmo = INITIAL_AMMO;
+    this.playerSeekerAmmo = INITIAL_SEEKER_AMMO;
     this.nextHeartDropKill = FIRST_HEART_DROP_KILLS;
   }
 
@@ -1429,10 +1434,10 @@ export class DungeonScene extends Phaser.Scene {
 
     if (now >= this.nextAmmoSpawnAtMs) {
       this.nextAmmoSpawnAtMs = now + this.currentAmmoSpawnIntervalMs();
-      if (this.ammoPickups.length < MAX_ACTIVE_AMMO_PICKUPS && this.playerAmmo < MAX_AMMO) {
+      if (this.ammoPickups.length < MAX_ACTIVE_AMMO_PICKUPS && this.needsAnyAmmoPickup()) {
         const spawnTile = this.findSafeSpawnTile(AMMO_PICKUP_SAFE_DISTANCE);
         if (spawnTile) {
-          this.spawnAmmoPickup(spawnTile, AMMO_PICKUP_AMOUNT);
+          this.spawnAmmoPickup(spawnTile, this.chooseAmmoPickupKind());
         }
       }
     }
@@ -1461,6 +1466,29 @@ export class DungeonScene extends Phaser.Scene {
     return Math.round(Phaser.Math.Clamp(AMMO_SPAWN_INTERVAL_MS - pressure * 420, 5200, AMMO_SPAWN_INTERVAL_MS) * lowAmmoHelp);
   }
 
+  private seekerAmmoUnlocked(): boolean {
+    const elapsed = Math.max(0, this.time.now - this.runStartedAtMs);
+    return this.enemyKills >= SEEKER_UNLOCK_KILLS || elapsed >= SEEKER_UNLOCK_MS;
+  }
+
+  private needsAnyAmmoPickup(): boolean {
+    return this.playerAmmo < MAX_AMMO || (this.seekerAmmoUnlocked() && this.playerSeekerAmmo < MAX_SEEKER_AMMO);
+  }
+
+  private chooseAmmoPickupKind(): AmmoPickupKind {
+    if (!this.seekerAmmoUnlocked() || this.playerSeekerAmmo >= MAX_SEEKER_AMMO) {
+      return "standard";
+    }
+
+    if (this.playerAmmo >= MAX_AMMO) {
+      return "seeker";
+    }
+
+    const pressure = Math.floor(Math.max(0, this.time.now - this.runStartedAtMs) / DIFFICULTY_STEP_MS);
+    const chance = Phaser.Math.Clamp(SEEKER_PICKUP_CHANCE + pressure * 0.015, SEEKER_PICKUP_CHANCE, 0.34);
+    return Math.random() < chance ? "seeker" : "standard";
+  }
+
   private chooseEnemyKind(): EnemyKind {
     const elapsed = Math.max(0, this.time.now - this.runStartedAtMs);
     const bruteCount = this.enemies.filter((enemy) => enemy.kind === "brute").length;
@@ -1470,7 +1498,7 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     const pressure = Math.floor(elapsed / DIFFICULTY_STEP_MS) + Math.floor(this.enemyKills / 5);
-    const bruteChance = Phaser.Math.Clamp(0.18 + pressure * 0.035, 0.18, 0.42);
+    const bruteChance = Phaser.Math.Clamp(0.28 + pressure * 0.04, 0.28, 0.5);
     return Math.random() < bruteChance ? "brute" : "goblin";
   }
 
@@ -1747,34 +1775,39 @@ export class DungeonScene extends Phaser.Scene {
     this.ammoPickups = this.ammoPickups.filter((pickup) => pickup.sprite.active);
   }
 
-  private spawnAmmoPickup(tile: TilePoint, amount = AMMO_PICKUP_AMOUNT) {
+  private spawnAmmoPickup(tile: TilePoint, kind: AmmoPickupKind = "standard", amount = kind === "seeker" ? SEEKER_PICKUP_AMOUNT : AMMO_PICKUP_AMOUNT) {
     const spawnTile = { ...tile };
     const world = this.tileToWorld(spawnTile);
     const glow = this.add.image(Math.round(world.x), Math.round(world.y - 9), "torch_glow");
     glow.setOrigin(0.5);
-    glow.setScale(0.38);
-    glow.setAlpha(0.16);
-    glow.setTint(0xff7e44);
+    glow.setScale(kind === "seeker" ? 0.46 : 0.38);
+    glow.setAlpha(kind === "seeker" ? 0.22 : 0.16);
+    glow.setTint(kind === "seeker" ? 0x62fff2 : 0xff7e44);
     glow.setBlendMode(Phaser.BlendModes.ADD);
     glow.setDepth(this.depthForTilePoint(spawnTile, DEPTH_BANDS.actorShadow, 4));
 
     const sprite = this.add.sprite(Math.round(world.x), Math.round(world.y - 18), assetManifest.pickups.ammo.key, 0);
     sprite.setOrigin(0.5);
-    sprite.setScale(1.1);
+    sprite.setScale(kind === "seeker" ? 1.22 : 1.1);
+    if (kind === "seeker") {
+      sprite.setTint(0x7dfcf7);
+      sprite.setBlendMode(Phaser.BlendModes.ADD);
+    }
     sprite.setDepth(this.depthForTilePoint(spawnTile, DEPTH_BANDS.actor, 9));
     sprite.anims.play("ammo-pickup-loop");
 
     this.tweens.add({
       targets: glow,
-      alpha: { from: 0.1, to: 0.3 },
-      scale: { from: 0.34, to: 0.48 },
-      duration: 860,
+      alpha: { from: kind === "seeker" ? 0.14 : 0.1, to: kind === "seeker" ? 0.38 : 0.3 },
+      scale: { from: kind === "seeker" ? 0.4 : 0.34, to: kind === "seeker" ? 0.62 : 0.48 },
+      duration: kind === "seeker" ? 720 : 860,
       yoyo: true,
       repeat: -1,
       ease: "Sine.easeInOut"
     });
 
     this.ammoPickups.push({
+      kind,
       tile: spawnTile,
       sprite,
       glow,
@@ -1784,22 +1817,35 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private collectAmmoPickup(pickup: AmmoPickup) {
-    if (this.playerAmmo >= MAX_AMMO) {
+    if (pickup.kind === "seeker" && this.playerSeekerAmmo >= MAX_SEEKER_AMMO && this.playerAmmo >= MAX_AMMO) {
+      return;
+    }
+    if (pickup.kind === "standard" && this.playerAmmo >= MAX_AMMO) {
       return;
     }
 
-    const gained = Math.min(pickup.amount, MAX_AMMO - this.playerAmmo);
-    this.playerAmmo += gained;
+    const standardAmount = pickup.kind === "seeker" ? AMMO_PICKUP_AMOUNT : pickup.amount;
+    const standardGained = Math.min(standardAmount, MAX_AMMO - this.playerAmmo);
+    if (pickup.kind === "seeker") {
+      const seekerGained = Math.min(SEEKER_PICKUP_AMOUNT, MAX_SEEKER_AMMO - this.playerSeekerAmmo);
+      this.playerAmmo += standardGained;
+      this.playerSeekerAmmo += seekerGained;
+      this.showWorldPopup(standardGained > 0 ? `+${standardGained} AMMO +${seekerGained} SEEK` : `+${seekerGained} SEEK`, pickup.tile, "#7dfcf7");
+      this.playSfx("ammoPickup", { volume: 0.34, rate: 1.24 });
+    } else {
+      this.playerAmmo += standardGained;
+      this.showWorldPopup(`+${standardGained} AMMO`, pickup.tile, "#ffbd73");
+      this.playSfx("ammoPickup", { volume: 0.28 });
+    }
     this.updateAmmoText();
-    this.showWorldPopup(`+${gained} AMMO`, pickup.tile, "#ffbd73");
-    this.playSfx("ammoPickup", { volume: 0.28 });
+    this.updatePowerUpText();
     this.tweens.killTweensOf(pickup.glow);
     pickup.sprite.destroy();
     pickup.glow.destroy();
   }
 
   private tryDropAmmoFromEnemy(tile: TilePoint) {
-    if (this.ammoPickups.length >= MAX_ACTIVE_AMMO_PICKUPS || this.playerAmmo >= MAX_AMMO) {
+    if (this.ammoPickups.length >= MAX_ACTIVE_AMMO_PICKUPS || !this.needsAnyAmmoPickup()) {
       return;
     }
 
@@ -1809,14 +1855,15 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
+    const kind = this.seekerAmmoUnlocked() && this.playerSeekerAmmo < MAX_SEEKER_AMMO && Math.random() < SEEKER_DROP_CHANCE + bruteBonus * 0.5 ? "seeker" : this.playerAmmo < MAX_AMMO ? "standard" : "seeker";
     if (!this.collides(tile, PLAYER_RADIUS)) {
-      this.spawnAmmoPickup({ ...tile }, AMMO_PICKUP_AMOUNT);
+      this.spawnAmmoPickup({ ...tile }, kind);
       return;
     }
 
     const safeTile = this.findSafeSpawnTile(AMMO_PICKUP_SAFE_DISTANCE);
     if (safeTile) {
-      this.spawnAmmoPickup(safeTile, AMMO_PICKUP_AMOUNT);
+      this.spawnAmmoPickup(safeTile, kind);
     }
   }
 
@@ -2165,7 +2212,12 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
 
-      const step = PROJECTILE_SPEED_TILES * dt;
+      if (projectile.kind === "seeker") {
+        this.steerSeekerProjectile(projectile, dt);
+      }
+
+      const speed = projectile.kind === "seeker" ? SEEKER_PROJECTILE_SPEED_TILES : PROJECTILE_SPEED_TILES;
+      const step = speed * dt;
       const previousTile = { ...projectile.tile };
       projectile.tile.x += projectile.velocity.x * step;
       projectile.tile.y += projectile.velocity.y * step;
@@ -2174,13 +2226,14 @@ export class DungeonScene extends Phaser.Scene {
       const hitEnemy = this.enemies.find((enemy) => this.projectileHitsEnemy(previousTile, projectile.tile, enemy));
       if (hitEnemy) {
         if (!projectile.blastCharged) {
-          this.damageEnemy(hitEnemy, projectile.velocity);
+          this.damageEnemy(hitEnemy, projectile.velocity, projectile.damage, projectile.kind === "seeker" ? "seeker" : "projectile");
         }
         this.endProjectile(projectile, true);
         return;
       }
 
-      if (projectile.traveled >= PROJECTILE_MAX_DISTANCE || this.collides(projectile.tile, PROJECTILE_RADIUS)) {
+      const maxDistance = projectile.kind === "seeker" ? SEEKER_PROJECTILE_MAX_DISTANCE : PROJECTILE_MAX_DISTANCE;
+      if (projectile.traveled >= maxDistance || this.collides(projectile.tile, PROJECTILE_RADIUS)) {
         this.endProjectile(projectile, true);
         return;
       }
@@ -2188,9 +2241,49 @@ export class DungeonScene extends Phaser.Scene {
       const world = this.tileToWorld(projectile.tile);
       projectile.sprite.setPosition(Math.round(world.x), Math.round(world.y - 18));
       projectile.sprite.setDepth(this.depthForTilePoint(projectile.tile, DEPTH_BANDS.actor + 900, 24));
+      projectile.sprite.setAngle(this.projectileAngle(projectile.velocity));
     });
 
     this.projectiles = this.projectiles.filter((projectile) => projectile.alive || projectile.sprite.active);
+  }
+
+  private steerSeekerProjectile(projectile: StaffProjectile, dt: number) {
+    const target = this.findSeekerTarget(projectile.tile, projectile.target);
+    projectile.target = target;
+    if (!target) {
+      return;
+    }
+
+    const desired = this.normalizedTileVector({
+      x: target.tile.x - projectile.tile.x,
+      y: target.tile.y - projectile.tile.y
+    });
+    const turn = Phaser.Math.Clamp(SEEKER_PROJECTILE_TURN_RATE * dt, 0, 1);
+    projectile.velocity = this.normalizedTileVector({
+      x: Phaser.Math.Linear(projectile.velocity.x, desired.x, turn),
+      y: Phaser.Math.Linear(projectile.velocity.y, desired.y, turn)
+    });
+  }
+
+  private findSeekerTarget(from: TilePoint, currentTarget?: EnemyActor): EnemyActor | undefined {
+    if (currentTarget?.health && currentTarget.health > 0 && Math.hypot(currentTarget.tile.x - from.x, currentTarget.tile.y - from.y) <= SEEKER_PROJECTILE_ACQUIRE_RANGE) {
+      return currentTarget;
+    }
+
+    let bestEnemy: EnemyActor | undefined;
+    let bestDistance = SEEKER_PROJECTILE_ACQUIRE_RANGE;
+    this.enemies.forEach((enemy) => {
+      if (enemy.health <= 0) {
+        return;
+      }
+      const distance = Math.hypot(enemy.tile.x - from.x, enemy.tile.y - from.y);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestEnemy = enemy;
+      }
+    });
+
+    return bestEnemy;
   }
 
   private projectileHitsEnemy(previousTile: TilePoint, currentTile: TilePoint, enemy: EnemyActor): boolean {
@@ -2284,15 +2377,15 @@ export class DungeonScene extends Phaser.Scene {
 
   private spawnHitJuice(enemy: EnemyActor, hitVector: TilePoint, damage: number, source: CombatHitSource) {
     const isBrute = enemy.kind === "brute";
-    const hitStopMs = source === "blast" ? Math.round(BLAST_HIT_STOP_MS * 0.64) : isBrute ? BRUTE_HIT_STOP_MS : HIT_STOP_MS;
+    const hitStopMs = source === "blast" ? Math.round(BLAST_HIT_STOP_MS * 0.64) : source === "seeker" ? Math.round(BRUTE_HIT_STOP_MS * 0.76) : isBrute ? BRUTE_HIT_STOP_MS : HIT_STOP_MS;
     this.requestHitStop(hitStopMs);
 
-    if (source === "projectile" && isBrute) {
+    if ((source === "projectile" && isBrute) || source === "seeker") {
       this.cameras.main.shake(85, 0.0038);
     }
 
     this.spawnCombatEffect("hit", enemy.tile, {
-      scale: source === "blast" ? 1.22 : isBrute ? 1.08 : 0.88,
+      scale: source === "blast" ? 1.22 : source === "seeker" ? 1.12 : isBrute ? 1.08 : 0.88,
       yOffset: isBrute ? -34 : -25,
       xOffset: Phaser.Math.Clamp(hitVector.x - hitVector.y, -1, 1) * 9
     });
@@ -2380,7 +2473,7 @@ export class DungeonScene extends Phaser.Scene {
       {
         fontFamily: "monospace",
         fontSize: isBigHit ? "16px" : "13px",
-        color: source === "blast" ? "#ff9b5c" : isBigHit ? "#ffd166" : "#fff1a8",
+        color: source === "blast" ? "#ff9b5c" : source === "seeker" ? "#7dfcf7" : isBigHit ? "#ffd166" : "#fff1a8",
         stroke: "#1a0804",
         strokeThickness: isBigHit ? 5 : 4
       }
@@ -2478,7 +2571,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private updateScoreText() {
-    this.scoreText?.setText(this.playerScore.toString().padStart(4, "0"));
+    this.scoreText?.setText(`SCORE ${this.playerScore.toString().padStart(4, "0")}`);
   }
 
   private updatePowerUpText() {
@@ -2493,6 +2586,9 @@ export class DungeonScene extends Phaser.Scene {
       { label: "WARD", remainingMs: this.wardUntilMs - now }
     ].filter((entry) => entry.remainingMs > 0);
     const textParts = labels.map((entry) => `${entry.label} ${Math.ceil(entry.remainingMs / 1000)}s`);
+    if (this.playerSeekerAmmo > 0) {
+      textParts.push(`SEEKING ARROWS ${".".repeat(this.playerSeekerAmmo)}`);
+    }
     if (this.blastShotReady) {
       textParts.push("BLAST READY");
     }
@@ -2508,7 +2604,7 @@ export class DungeonScene extends Phaser.Scene {
   private updateAmmoText() {
     const color = this.playerAmmo <= LOW_AMMO_DROP_THRESHOLD ? "#ff8568" : "#ffbd73";
     this.ammoText?.setColor(color);
-    this.ammoText?.setText(`${this.playerAmmo.toString().padStart(2, "0")}/${MAX_AMMO}`);
+    this.ammoText?.setText(`AMMO ${this.playerAmmo.toString().padStart(2, "0")}/${MAX_AMMO}`);
   }
 
   private cameraZoomForViewport() {
@@ -2558,36 +2654,52 @@ export class DungeonScene extends Phaser.Scene {
     );
   }
 
-  private hudInsetX() {
-    return Math.round(Phaser.Math.Clamp(this.cameras.main.width * HUD_INSET_RATIO, HUD_MIN_INSET_X, HUD_MAX_INSET_X));
+  private hudContainerBounds() {
+    const width = Math.round(this.cameras.main.width * HUD_CONTAINER_WIDTH_RATIO);
+    const height = HUD_CONTAINER_HEIGHT;
+    return {
+      x: Math.round((this.cameras.main.width - width) / 2),
+      y: Math.round(this.cameras.main.height - HUD_CONTAINER_BOTTOM_MARGIN - height),
+      width,
+      height
+    };
   }
 
-  private hudTopY() {
-    return Math.round(Phaser.Math.Clamp(this.cameras.main.height * HUD_TOP_RATIO, HUD_TOP_MIN_Y, HUD_TOP_MAX_Y));
+  private drawHudContainer(bounds = this.hudContainerBounds()) {
+    if (!this.hudGraphics) {
+      return;
+    }
+
+    this.hudGraphics.clear();
+    this.hudGraphics.setScale(this.uiScale());
+    this.hudGraphics.setPosition(this.uiX(bounds.x), this.uiY(bounds.y));
+    this.hudGraphics.fillStyle(0x121716, 0.9);
+    this.hudGraphics.fillRoundedRect(0, 0, bounds.width, bounds.height, 5);
+    this.hudGraphics.lineStyle(1, 0xa48645, 0.88);
+    this.hudGraphics.strokeRoundedRect(0.5, 0.5, bounds.width - 1, bounds.height - 1, 5);
   }
 
   private positionHud() {
-    const panelHeight = assetManifest.uiSprites.hudPanels.frameHeight * HUD_PANEL_SCREEN_SCALE;
-    const panelX = this.hudInsetX();
-    const scoreY = this.hudTopY();
-    const ammoY = scoreY + panelHeight + HUD_PANEL_GAP_Y;
-    const valueX = panelX + HUD_VALUE_SOURCE_X * HUD_PANEL_SCREEN_SCALE;
-    const valueY = HUD_VALUE_SOURCE_Y * HUD_PANEL_SCREEN_SCALE;
+    const bounds = this.hudContainerBounds();
+    const rowY = bounds.y + bounds.height / 2;
+    const scoreX = bounds.x + HUD_CONTAINER_PADDING_X;
+    const ammoX = bounds.x + bounds.width * 0.36;
+    const powerUpX = bounds.x + bounds.width * 0.58;
 
-    this.scorePanel?.setScale(this.uiScale(HUD_PANEL_SCREEN_SCALE));
-    this.scorePanel?.setPosition(this.uiX(panelX), this.uiY(scoreY));
-    this.scoreText?.setScale(this.uiScale(HUD_PANEL_SCREEN_SCALE));
-    this.scoreText?.setPosition(this.uiX(valueX), this.uiY(scoreY + valueY));
+    this.drawHudContainer(bounds);
+    this.scoreText?.setScale(this.uiScale(HUD_TEXT_SCREEN_SCALE));
+    this.scoreText?.setOrigin(0, 0.5);
+    this.scoreText?.setPosition(this.uiX(scoreX), this.uiY(rowY));
 
-    this.powerUpText?.setScale(this.uiScale(HUD_PANEL_SCREEN_SCALE));
-    this.powerUpText?.setPosition(this.uiX(panelX + 4 * HUD_PANEL_SCREEN_SCALE), this.uiY(ammoY + POWERUP_TEXT_SOURCE_Y * HUD_PANEL_SCREEN_SCALE));
+    this.ammoText?.setScale(this.uiScale(HUD_TEXT_SCREEN_SCALE));
+    this.ammoText?.setOrigin(0.5, 0.5);
+    this.ammoText?.setPosition(this.uiX(ammoX), this.uiY(rowY));
 
-    this.ammoPanel?.setScale(this.uiScale(HUD_PANEL_SCREEN_SCALE));
-    this.ammoPanel?.setPosition(this.uiX(panelX), this.uiY(ammoY));
-    this.ammoText?.setScale(this.uiScale(HUD_PANEL_SCREEN_SCALE));
-    this.ammoText?.setPosition(this.uiX(valueX), this.uiY(ammoY + valueY));
+    this.powerUpText?.setScale(this.uiScale(HUD_POWERUP_TEXT_SCREEN_SCALE));
+    this.powerUpText?.setOrigin(0.5, 0.5);
+    this.powerUpText?.setPosition(this.uiX(powerUpX), this.uiY(rowY + 1));
 
-    this.positionLifeMeter();
+    this.positionLifeMeter(bounds);
   }
 
   private damagePlayer(directionAwayFromEnemy: TilePoint) {
@@ -2699,6 +2811,11 @@ export class DungeonScene extends Phaser.Scene {
     return Phaser.Math.RadToDeg(Math.atan2(worldDelta.y, worldDelta.x));
   }
 
+  private normalizedTileVector(vector: TilePoint): TilePoint {
+    const length = Math.hypot(vector.x, vector.y);
+    return length > 0 ? { x: vector.x / length, y: vector.y / length } : { x: 0, y: 0 };
+  }
+
   private tileVectorToWorld(vector: TilePoint): WorldPoint {
     return {
       x: (vector.x - vector.y) * HALF_TILE_WIDTH,
@@ -2781,29 +2898,21 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private drawLifeMeter() {
-    this.hudGraphics?.clear();
-    this.positionLifeMeter();
+    this.positionHud();
     this.lifeHeartImages.forEach((heart, index) => {
       heart.setVisible(index < this.playerHealth);
     });
   }
 
-  private positionLifeMeter() {
-    if (!this.lifeMeterImage) {
-      return;
-    }
-
-    const insetX = this.hudInsetX();
-    const baseWidth = assetManifest.uiSprites.lifeMeterLoop.frameWidth * LIFE_METER_SCALE;
-    const originX = this.cameras.main.width - baseWidth - insetX - LIFE_METER_MARGIN.x;
-    this.lifeMeterImage.setScale(this.uiScale(LIFE_METER_SCALE));
-    this.lifeMeterImage.setPosition(this.uiX(originX), this.uiY(LIFE_METER_MARGIN.y));
+  private positionLifeMeter(bounds = this.hudContainerBounds()) {
+    const rowY = bounds.y + bounds.height / 2;
+    const totalWidth = (MAX_PLAYER_HEALTH - 1) * LIFE_HEART_GAP_X;
+    const startX = bounds.x + bounds.width - HUD_CONTAINER_PADDING_X - 12 - totalWidth;
     this.lifeHeartImages.forEach((heart, index) => {
-      const center = LIFE_HEART_CENTERS[index];
-      heart.setScale(this.uiScale(LIFE_HEART_SCALE));
+      heart.setScale(this.uiScale(LIFE_HEART_SCREEN_SCALE));
       heart.setPosition(
-        this.uiX(originX + center.x * LIFE_METER_SCALE),
-        this.uiY(LIFE_METER_MARGIN.y + center.y * LIFE_METER_SCALE)
+        this.uiX(startX + index * LIFE_HEART_GAP_X),
+        this.uiY(rowY)
       );
     });
   }
@@ -2816,7 +2925,7 @@ export class DungeonScene extends Phaser.Scene {
 
     const burst = this.add.sprite(heart.x, heart.y, assetManifest.uiSprites.lifeHeartBurst.key, 0);
     burst.setOrigin(0.5);
-    burst.setScale(this.uiScale(LIFE_HEART_SCALE));
+    burst.setScale(this.uiScale(LIFE_HEART_SCREEN_SCALE));
     burst.setScrollFactor(0);
     burst.setDepth(DEPTH_BANDS.debug + 22);
     burst.anims.play(assetManifest.uiSprites.lifeHeartBurst.key);
@@ -2825,15 +2934,20 @@ export class DungeonScene extends Phaser.Scene {
 
   private updateFocusMask(force = false) {
     const camera = this.cameras.main;
-    const world = this.tileToWorld(this.playerTile);
+    const world = this.playerViewCenterWorld();
     const view = camera.worldView;
     const screenX = Math.round((world.x - view.x) * camera.zoom);
-    const screenY = Math.round((world.y - view.y - 18) * camera.zoom);
+    const screenY = Math.round((world.y - view.y) * camera.zoom);
     const width = Math.ceil(camera.width);
     const height = Math.ceil(camera.height);
-    const quantizedX = Math.round(screenX / 2) * 2;
-    const quantizedY = Math.round(screenY / 2) * 2;
-    const signature = `${width}x${height}:${quantizedX}:${quantizedY}`;
+    const quantizedX = Math.round(screenX / FOCUS_MASK_PIXEL_SIZE) * FOCUS_MASK_PIXEL_SIZE;
+    const quantizedY = Math.round(screenY / FOCUS_MASK_PIXEL_SIZE) * FOCUS_MASK_PIXEL_SIZE;
+    const innerRadius = Phaser.Math.Clamp(
+      Math.min(width, height) * FOCUS_MASK_INNER_RADIUS_RATIO,
+      FOCUS_MASK_INNER_RADIUS_MIN,
+      FOCUS_MASK_INNER_RADIUS_MAX
+    );
+    const signature = `${width}x${height}:${quantizedX}:${quantizedY}:${FOCUS_MASK_PIXEL_SIZE}`;
 
     this.focusMask?.setScale(1 / camera.zoom);
     this.focusMask?.setPosition(view.x, view.y);
@@ -2861,24 +2975,54 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const innerRadius = Phaser.Math.Clamp(Math.min(width, height) * 0.1, 88, 126);
-    const outerRadius = innerRadius + 260;
-    context.clearRect(0, 0, width, height);
-    context.globalCompositeOperation = "source-over";
-    context.fillStyle = "rgba(0, 0, 0, 0.92)";
-    context.fillRect(0, 0, width, height);
-    context.globalCompositeOperation = "destination-out";
-    const gradient = context.createRadialGradient(quantizedX, quantizedY, innerRadius, quantizedX, quantizedY, outerRadius);
+    const pixelCanvas = this.ensureFocusMaskPixelCanvas(width, height);
+    const pixelContext = pixelCanvas.getContext("2d");
+    if (!pixelContext) {
+      return;
+    }
+
+    const pixelScale = FOCUS_MASK_PIXEL_SIZE;
+    const lowWidth = pixelCanvas.width;
+    const lowHeight = pixelCanvas.height;
+    const centerX = quantizedX / pixelScale;
+    const centerY = quantizedY / pixelScale;
+    const lowInnerRadius = innerRadius / pixelScale;
+    const lowOuterRadius = (innerRadius + FOCUS_MASK_FEATHER_RADIUS) / pixelScale;
+
+    pixelContext.clearRect(0, 0, lowWidth, lowHeight);
+    pixelContext.globalCompositeOperation = "source-over";
+    pixelContext.fillStyle = `rgba(0, 0, 0, ${FOCUS_MASK_ALPHA})`;
+    pixelContext.fillRect(0, 0, lowWidth, lowHeight);
+    pixelContext.globalCompositeOperation = "destination-out";
+    const gradient = pixelContext.createRadialGradient(centerX, centerY, lowInnerRadius, centerX, centerY, lowOuterRadius);
     gradient.addColorStop(0, "rgba(0, 0, 0, 1)");
     gradient.addColorStop(0.22, "rgba(0, 0, 0, 0.96)");
     gradient.addColorStop(0.45, "rgba(0, 0, 0, 0.68)");
     gradient.addColorStop(0.68, "rgba(0, 0, 0, 0.36)");
     gradient.addColorStop(0.86, "rgba(0, 0, 0, 0.14)");
     gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, width, height);
+    pixelContext.fillStyle = gradient;
+    pixelContext.fillRect(0, 0, lowWidth, lowHeight);
+    pixelContext.globalCompositeOperation = "source-over";
+
+    context.clearRect(0, 0, width, height);
     context.globalCompositeOperation = "source-over";
+    context.imageSmoothingEnabled = false;
+    context.drawImage(pixelCanvas, 0, 0, lowWidth, lowHeight, 0, 0, width, height);
     this.focusMaskTexture.refresh();
+  }
+
+  private ensureFocusMaskPixelCanvas(width: number, height: number) {
+    const lowWidth = Math.ceil(width / FOCUS_MASK_PIXEL_SIZE);
+    const lowHeight = Math.ceil(height / FOCUS_MASK_PIXEL_SIZE);
+    if (!this.focusMaskPixelCanvas) {
+      this.focusMaskPixelCanvas = document.createElement("canvas");
+    }
+    if (this.focusMaskPixelCanvas.width !== lowWidth || this.focusMaskPixelCanvas.height !== lowHeight) {
+      this.focusMaskPixelCanvas.width = lowWidth;
+      this.focusMaskPixelCanvas.height = lowHeight;
+    }
+    return this.focusMaskPixelCanvas;
   }
 
   private showStartScreen() {
@@ -2896,7 +3040,7 @@ export class DungeonScene extends Phaser.Scene {
     titleSprite.anims.play(assetManifest.uiSprites.startTitle.key);
     this.addStaticShimmer(titleSprite, 0.94, 1, 1200);
 
-    const subtitle = this.add.text(0, titleSprite.displayHeight * 0.52, "Aim with the cursor. Spend ammo carefully.", {
+    const subtitle = this.add.text(0, titleSprite.displayHeight * 0.52, "Aim with the cursor. Seeking arrows fire automatically.", {
       fontFamily: "monospace",
       fontSize: `${Math.round(14 * titleScale * 1.9)}px`,
       color: "#d9c79a",
@@ -3102,6 +3246,7 @@ export class DungeonScene extends Phaser.Scene {
     this.playerScore = 0;
     this.enemyKills = 0;
     this.playerAmmo = INITIAL_AMMO;
+    this.playerSeekerAmmo = INITIAL_SEEKER_AMMO;
     this.nextHeartDropKill = FIRST_HEART_DROP_KILLS;
     this.quickshotUntilMs = 0;
     this.hasteUntilMs = 0;
@@ -3220,10 +3365,13 @@ export class DungeonScene extends Phaser.Scene {
 
   private updateCamera(_dt: number) {
     const camera = this.cameras.main;
+    const world = this.playerViewCenterWorld();
+    camera.centerOn(Math.round(world.x), Math.round(world.y));
+  }
+
+  private playerViewCenterWorld(): WorldPoint {
     const world = this.tileToWorld(this.playerTile);
-    const offsetX = camera.width < 900 ? 0 : Math.min(camera.width * 0.08, 128) / camera.zoom;
-    const offsetY = camera.height < 640 ? 34 / camera.zoom : Math.min(camera.height * 0.08, 92) / camera.zoom;
-    camera.centerOn(Math.round(world.x - offsetX), Math.round(world.y - offsetY));
+    return { x: world.x, y: world.y + PLAYER_VIEW_CENTER_Y_OFFSET };
   }
 
   private drawDebug() {
@@ -3240,17 +3388,10 @@ export class DungeonScene extends Phaser.Scene {
         if (code === " ") {
           continue;
         }
-        const world = this.tileToWorld({ x, y });
         const color = isTileBlocked(code) ? 0xff604d : 0x56f0a8;
         this.debugGraphics.lineStyle(1, color, 0.58);
         this.debugGraphics.strokePoints(
-          [
-            new Phaser.Math.Vector2(world.x, world.y - HALF_TILE_HEIGHT),
-            new Phaser.Math.Vector2(world.x + HALF_TILE_WIDTH, world.y),
-            new Phaser.Math.Vector2(world.x, world.y + HALF_TILE_HEIGHT),
-            new Phaser.Math.Vector2(world.x - HALF_TILE_WIDTH, world.y),
-            new Phaser.Math.Vector2(world.x, world.y - HALF_TILE_HEIGHT)
-          ],
+          this.tileCellDiamondPoints(x, y),
           false
         );
       }
@@ -3308,7 +3449,7 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       const projectileCenter = this.tileToWorld(projectile.tile);
-      this.debugGraphics?.lineStyle(1, 0xffd166, 1);
+      this.debugGraphics?.lineStyle(1, projectile.kind === "seeker" ? 0x7dfcf7 : 0xffd166, 1);
       this.debugGraphics?.strokeCircle(projectileCenter.x, projectileCenter.y, PROJECTILE_RADIUS * HALF_TILE_WIDTH);
     });
 
@@ -3326,7 +3467,7 @@ export class DungeonScene extends Phaser.Scene {
 
     this.ammoPickups.forEach((pickup) => {
       const pickupCenter = this.tileToWorld(pickup.tile);
-      this.debugGraphics?.lineStyle(1, 0xffbd73, 1);
+      this.debugGraphics?.lineStyle(1, pickup.kind === "seeker" ? 0x7dfcf7 : 0xffbd73, 1);
       this.debugGraphics?.strokeCircle(pickupCenter.x, pickupCenter.y, AMMO_PICKUP_RADIUS * HALF_TILE_WIDTH);
     });
   }
@@ -3397,6 +3538,24 @@ export class DungeonScene extends Phaser.Scene {
       x: MAP_OFFSET_X + (point.x - point.y) * HALF_TILE_WIDTH,
       y: MAP_OFFSET_Y + (point.x + point.y) * HALF_TILE_HEIGHT
     };
+  }
+
+  private tileCellCenterToWorld(tileX: number, tileY: number): WorldPoint {
+    return this.tileToWorld({ x: tileX + 0.5, y: tileY + 0.5 });
+  }
+
+  private tileCellDiamondPoints(tileX: number, tileY: number, closed = true): Phaser.Math.Vector2[] {
+    const top = this.tileToWorld({ x: tileX, y: tileY });
+    const right = this.tileToWorld({ x: tileX + 1, y: tileY });
+    const bottom = this.tileToWorld({ x: tileX + 1, y: tileY + 1 });
+    const left = this.tileToWorld({ x: tileX, y: tileY + 1 });
+    const points = [
+      new Phaser.Math.Vector2(top.x, top.y),
+      new Phaser.Math.Vector2(right.x, right.y),
+      new Phaser.Math.Vector2(bottom.x, bottom.y),
+      new Phaser.Math.Vector2(left.x, left.y)
+    ];
+    return closed ? [...points, points[0]] : points;
   }
 
   private calculateMapBounds(): Bounds {

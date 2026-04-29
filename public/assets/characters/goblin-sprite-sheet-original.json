@@ -1,5 +1,5 @@
 {
-  "image": "/assets/characters/brute-sprite-sheet.png",
+  "image": "/assets/characters/goblin-sprite-sheet.png",
   "frameWidth": 64,
   "frameHeight": 64,
   "directions": [
@@ -258,7 +258,7 @@
         "southeast_02",
         "southeast_03"
       ],
-      "frameRate": 5,
+      "frameRate": 6,
       "repeat": -1
     },
     "walk-southeast": {
@@ -270,7 +270,7 @@
         "southeast_08",
         "southeast_09"
       ],
-      "frameRate": 8,
+      "frameRate": 10,
       "repeat": -1
     },
     "idle-southwest": {
@@ -280,7 +280,7 @@
         "southwest_02",
         "southwest_03"
       ],
-      "frameRate": 5,
+      "frameRate": 6,
       "repeat": -1
     },
     "walk-southwest": {
@@ -292,7 +292,7 @@
         "southwest_08",
         "southwest_09"
       ],
-      "frameRate": 8,
+      "frameRate": 10,
       "repeat": -1
     },
     "idle-northeast": {
@@ -302,7 +302,7 @@
         "northeast_02",
         "northeast_03"
       ],
-      "frameRate": 5,
+      "frameRate": 6,
       "repeat": -1
     },
     "walk-northeast": {
@@ -314,7 +314,7 @@
         "northeast_08",
         "northeast_09"
       ],
-      "frameRate": 8,
+      "frameRate": 10,
       "repeat": -1
     },
     "idle-northwest": {
@@ -324,7 +324,7 @@
         "northwest_02",
         "northwest_03"
       ],
-      "frameRate": 5,
+      "frameRate": 6,
       "repeat": -1
     },
     "walk-northwest": {
@@ -336,9 +336,9 @@
         "northwest_08",
         "northwest_09"
       ],
-      "frameRate": 8,
+      "frameRate": 10,
       "repeat": -1
     }
   },
-  "notes": "GPT-image-2 spreadsheet monster brute frames repacked from chroma-key source into fixed 64x64 Phaser-safe cells. Original brute sheet is preserved beside this file."
+  "notes": "Generated goblin enemy frames repacked from chroma-key source into fixed 64x64 Phaser-safe cells."
 }

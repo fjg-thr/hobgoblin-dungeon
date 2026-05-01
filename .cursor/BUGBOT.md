@@ -34,9 +34,10 @@ Pay special attention to these invariants:
 2. Spritesheet frame dimensions, frame counts, row offsets, and animation ranges
    in `DungeonScene` must match the actual PNG sheet layouts. Many animations use
    hard-coded frame ranges.
-3. New map tile codes must update `TileCode`, `tileAssetForCode`, and
-   `isTileBlocked` together. Bridges, stairs, and floor variants are intentionally
-   walkable; spaces, walls, and high wall tiles are blocked.
+3. New map tile codes must update `TileCode`, `tileAssetForCode`,
+   `isTileBlocked`, generator playable-code sets, and scene rendering helpers
+   together. Bridges, stairs, and floor variants are intentionally walkable;
+   spaces, walls, and high wall tiles are blocked.
 4. Generated `DungeonMap.rows` must keep `height` rows and each row must keep the
    declared `width`. Bounds helpers expect single-character tile codes.
 5. Start, restart, and game-over paths have different cleanup responsibilities.
@@ -58,7 +59,8 @@ There is no automated test suite in this repository today. For code changes,
 expect at least:
 
 - `npm run build`
-- `npm run lint` when lint configuration is present and the script is functional
+- `npm run lint` if the repository's Next.js lint script is supported by the
+  installed Next.js version and local tooling
 
 For gameplay or asset changes, also ask for manual browser verification of the
 affected flow because many rendering and timing issues are only visible at

@@ -25,7 +25,7 @@ export default function GameCanvas() {
       }
 
       const config: PhaserType.Types.Core.GameConfig = {
-        type: Phaser.WEBGL,
+        type: Phaser.AUTO,
         parent: host,
         width: Math.max(1, window.innerWidth),
         height: Math.max(1, window.innerHeight),

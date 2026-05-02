@@ -442,8 +442,10 @@ export class DungeonScene extends Phaser.Scene {
   private focusMaskSignature = "";
   private gameOverContainer?: Phaser.GameObjects.Container;
   private gameOverButtonBounds?: Phaser.Geom.Rectangle;
+  private gameOverTitleSprite?: Phaser.GameObjects.Sprite;
   private startContainer?: Phaser.GameObjects.Container;
   private startButtonBounds?: Phaser.Geom.Rectangle;
+  private startTitleSprite?: Phaser.GameObjects.Sprite;
   private coordinateLabels: Phaser.GameObjects.Text[] = [];
   private enemies: EnemyActor[] = [];
   private projectiles: StaffProjectile[] = [];
@@ -830,7 +832,7 @@ export class DungeonScene extends Phaser.Scene {
     for (let y = 0; y < this.dungeon.height; y += 1) {
       for (let x = 0; x < this.dungeon.width; x += 1) {
         const code = this.getTileCode(x, y);
-        if (code === " " || code === "W") {
+        if (code === " ") {
           continue;
         }
 
@@ -3170,7 +3172,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private showStartScreen() {
-    this.startContainer?.destroy(true);
+    this.destroyStartScreen();
     this.input.off("pointerdown", this.handleStartPointerDown, this);
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
@@ -3183,6 +3185,7 @@ export class DungeonScene extends Phaser.Scene {
     titleSprite.setScale(titleScale);
     titleSprite.anims.play(assetManifest.uiSprites.startTitle.key);
     this.addStaticShimmer(titleSprite, 0.94, 1, 1200);
+    this.startTitleSprite = titleSprite;
 
     const subtitle = this.add.text(0, titleSprite.displayHeight * 0.52, "Aim with the cursor. Seeking arrows fire automatically.", {
       fontFamily: "monospace",
@@ -3241,8 +3244,7 @@ export class DungeonScene extends Phaser.Scene {
     this.playerDying = false;
     this.input.off("pointerdown", this.handleStartPointerDown, this);
     this.startButtonBounds = undefined;
-    this.startContainer?.destroy(true);
-    this.startContainer = undefined;
+    this.destroyStartScreen();
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerScore = 0;
     this.nextShotAtMs = 0;
@@ -3295,6 +3297,7 @@ export class DungeonScene extends Phaser.Scene {
     gameOverSprite.setScale(panelScale);
     gameOverSprite.anims.play(assetManifest.uiSprites.gameOverTitle.key);
     this.addStaticShimmer(gameOverSprite, 0.94, 1, 1000);
+    this.gameOverTitleSprite = gameOverSprite;
 
     const subtitle = this.add.text(0, gameOverSprite.displayHeight * 0.48, "The ruin keeps its gold.", {
       fontFamily: "monospace",
@@ -3383,8 +3386,7 @@ export class DungeonScene extends Phaser.Scene {
     this.playerDying = false;
     this.input.off("pointerdown", this.handleGameOverPointerDown, this);
     this.gameOverButtonBounds = undefined;
-    this.gameOverContainer?.destroy(true);
-    this.gameOverContainer = undefined;
+    this.destroyGameOverScreen();
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerInvulnerableUntilMs = 0;
     this.playerPowerFlashUntilMs = 0;
@@ -3481,6 +3483,30 @@ export class DungeonScene extends Phaser.Scene {
     });
     this.hasteAfterimages = [];
     this.nextHasteAfterimageAtMs = 0;
+  }
+
+  private destroyStartScreen() {
+    if (this.startTitleSprite) {
+      this.tweens.killTweensOf(this.startTitleSprite);
+      this.startTitleSprite = undefined;
+    }
+    if (this.startContainer) {
+      this.tweens.killTweensOf(this.startContainer);
+      this.startContainer.destroy(true);
+      this.startContainer = undefined;
+    }
+  }
+
+  private destroyGameOverScreen() {
+    if (this.gameOverTitleSprite) {
+      this.tweens.killTweensOf(this.gameOverTitleSprite);
+      this.gameOverTitleSprite = undefined;
+    }
+    if (this.gameOverContainer) {
+      this.tweens.killTweensOf(this.gameOverContainer);
+      this.gameOverContainer.destroy(true);
+      this.gameOverContainer = undefined;
+    }
   }
 
   private clearDungeonRender() {

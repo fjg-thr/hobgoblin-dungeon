@@ -27,8 +27,9 @@ break the playable loop, asset loading, or production builds.
 
 - Prefer `npm run build` as the baseline verification for code changes.
 - If linting is touched or configured, run `npm run lint` when available.
-- For asset pipeline changes, run the specific script listed in `package.json`
-  and inspect that generated manifest paths still line up with `public/assets`.
+- For asset pipeline changes, run the relevant script from the repo root
+  (whether listed in `package.json` or changed directly under `tools/`) and
+  inspect that generated manifest paths still line up with `public/assets`.
 
 ## Style expectations
 
@@ -36,4 +37,4 @@ break the playable loop, asset loading, or production builds.
   asset manifests, and Phaser object collections.
 - Prefer small, descriptive helper functions when logic is reused, but avoid
   broad refactors that do not directly reduce risk in the changed area.
-- Preserve the existing Tailwind and App Router conventions in `src/app`.
+- Preserve the existing App Router and plain CSS conventions in `src/app`.

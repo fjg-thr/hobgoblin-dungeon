@@ -33,4 +33,3 @@ Bugbot automatically includes `.cursor/BUGBOT.md` when reviewing this repository
 - Next.js and client-only Phaser rendering risks,
 - asset manifest and generated asset workflow expectations,
 - high-signal testing expectations.
-

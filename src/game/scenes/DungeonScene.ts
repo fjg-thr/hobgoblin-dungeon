@@ -830,7 +830,7 @@ export class DungeonScene extends Phaser.Scene {
     for (let y = 0; y < this.dungeon.height; y += 1) {
       for (let x = 0; x < this.dungeon.width; x += 1) {
         const code = this.getTileCode(x, y);
-        if (code === " " || code === "W") {
+        if (code === " ") {
           continue;
         }
 
@@ -977,6 +977,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      j: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -989,6 +990,13 @@ export class DungeonScene extends Phaser.Scene {
       }
     });
     this.keys.shoot.on("down", () => {
+      if (!this.gameStarted) {
+        this.startGame();
+        return;
+      }
+      this.shotQueued = true;
+    });
+    this.keys.j.on("down", () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
@@ -1121,7 +1129,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1129,7 +1141,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    } catch {
+      // Storage can be blocked by browser privacy settings; muting should still work for the session.
+    }
   }
 
   private toggleMute() {
@@ -1285,7 +1301,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.j.isDown;
     if (!shotRequested) {
       return;
     }

@@ -977,6 +977,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlternate: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -988,13 +989,15 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    this.keys.shoot.on("down", handleShootKeyDown);
+    this.keys.shootAlternate.on("down", handleShootKeyDown);
 
     this.input.on("pointermove", this.updatePointerAim, this);
     this.input.on("pointerdown", this.handleAimPointerDown, this);
@@ -1285,7 +1288,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlternate.isDown;
     if (!shotRequested) {
       return;
     }

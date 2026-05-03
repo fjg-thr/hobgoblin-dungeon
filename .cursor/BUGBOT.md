@@ -20,8 +20,8 @@ Apply these project-specific rules when reviewing pull requests for this reposit
   scene restarts, and DOM references that are not cleaned up.
 - Flag changes to asset filenames, frame names, sprite dimensions, audio keys, or manifest entries when
   the referenced files or metadata are not updated consistently.
-- Flag dependency changes that introduce known vulnerable packages, disallowed licenses, or unnecessary
-  runtime dependencies for code that could stay local to scripts/tools.
+- Flag dependency changes that introduce known vulnerable packages, copyleft licenses such as GPL or
+  AGPL, or unnecessary runtime dependencies for code that could stay local to scripts/tools.
 
 ## Testing and validation expectations
 

@@ -977,6 +977,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -989,6 +990,13 @@ export class DungeonScene extends Phaser.Scene {
       }
     });
     this.keys.shoot.on("down", () => {
+      if (!this.gameStarted) {
+        this.startGame();
+        return;
+      }
+      this.shotQueued = true;
+    });
+    this.keys.shootAlt.on("down", () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
@@ -1121,7 +1129,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1129,7 +1141,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    } catch {
+      // Storage may be blocked in private or restricted browser contexts.
+    }
   }
 
   private toggleMute() {
@@ -1285,7 +1301,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }
@@ -3284,6 +3300,15 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.renderGameOverOverlay(true);
+  }
+
+  private renderGameOverOverlay(animate: boolean) {
+    this.input.off("pointerdown", this.handleGameOverPointerDown, this);
+    this.gameOverButtonBounds = undefined;
+    this.gameOverContainer?.destroy(true);
+    this.gameOverContainer = undefined;
+
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
@@ -3339,7 +3364,7 @@ export class DungeonScene extends Phaser.Scene {
     buttonText.setOrigin(0.5);
 
     const content = this.add.container(camera.width / 2, panelY, [gameOverSprite, subtitle, button, buttonText, finalScoreBg, finalScore]);
-    content.setAlpha(0);
+    content.setAlpha(animate ? 0 : 1);
 
     const restartZone = this.add.zone(camera.width / 2, panelY + button.y, button.displayWidth, button.displayHeight);
     restartZone.setInteractive({ useHandCursor: true });
@@ -3352,7 +3377,11 @@ export class DungeonScene extends Phaser.Scene {
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
-    this.gameOverContainer.setAlpha(0);
+    this.gameOverContainer.setAlpha(animate ? 0 : 1);
+    if (!animate) {
+      return;
+    }
+
     this.tweens.add({
       targets: this.gameOverContainer,
       alpha: 1,
@@ -3513,6 +3542,9 @@ export class DungeonScene extends Phaser.Scene {
     this.positionMuteButton();
     if (!this.gameStarted && this.startContainer) {
       this.showStartScreen();
+    }
+    if (this.gameOver && this.gameOverContainer) {
+      this.renderGameOverOverlay(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

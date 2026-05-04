@@ -1,0 +1,67 @@
+name: Cursor Bugbot Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    name: Review pull request
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Check for Cursor API key
+        id: cursor-api-key
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          if [ -n "$CURSOR_API_KEY" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.cursor-api-key.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Cursor CLI
+        if: steps.cursor-api-key.outputs.available == 'true'
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Run Cursor Bugbot review
+        if: steps.cursor-api-key.outputs.available == 'true'
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          agent -p "Review ${PR_URL} as Cursor Bugbot.
+
+          Focus only on high-confidence bugs introduced by this pull request:
+          correctness regressions, runtime crashes, security problems, build/deploy failures,
+          asset manifest mismatches, and lifecycle leaks.
+
+          Use the repository rules in .cursor/BUGBOT.md.
+          Compare the PR changes against origin/${BASE_REF} at ${HEAD_SHA}.
+          Post concise inline GitHub review comments for actionable findings.
+          If there are no high-confidence issues, leave a brief no-issues summary.
+          Do not modify files or create commits."
+
+      - name: Skip review without Cursor API key
+        if: steps.cursor-api-key.outputs.available != 'true'
+        run: echo "Skipping Cursor Bugbot review because CURSOR_API_KEY is not configured."

@@ -8,7 +8,7 @@ Review this repository as a browser game built with Next.js, React, TypeScript, 
 - Check Phaser lifecycle changes for leaks or duplicated runtime state. `GameCanvas` must create one game instance per mounted host and destroy it on unmount.
 - Guard client-only code carefully. Phaser, `window`, DOM APIs, pointer input, and audio playback must remain behind client components or runtime-only imports so Next.js server rendering and builds stay safe.
 - Verify asset changes against `src/game/assets/manifest.ts` and the files under `public/assets`. Texture keys, frame names, JSON metadata, and audio manifest entries must stay in sync with code references.
-- Preserve deterministic map and collision assumptions in `src/game/maps/startingDungeon.ts`; changes to tile codes, blocked tiles, props, or coordinate conversion should be reviewed with pathing and player bounds in mind.
+- Preserve procedural map and collision assumptions in `src/game/maps/startingDungeon.ts`; changes to tile codes, blocked tiles, props, random generation, or coordinate conversion should be reviewed with pathing and player bounds in mind.
 - Flag changes that introduce per-frame allocations, unbounded timers, accumulating event listeners, orphaned Phaser objects, or expensive pathfinding in hot update loops.
 - Pay close attention to browser input and audio constraints: keyboard, pointer, focus, mute state, and user-gesture requirements should continue to work after UI or scene changes.
 - For generated asset scripts in `tools/` and `scripts/`, check that outputs remain reproducible, paths are explicit, and existing checked-in assets are not overwritten unintentionally.

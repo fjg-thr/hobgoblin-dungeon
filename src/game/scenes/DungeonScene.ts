@@ -1121,7 +1121,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1129,7 +1133,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    } catch {
+      // Storage can be blocked in private or sandboxed contexts; muting still works for this session.
+    }
   }
 
   private toggleMute() {

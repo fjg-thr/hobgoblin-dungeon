@@ -6,7 +6,7 @@ Review this repository as a Next.js/React application that embeds a Phaser game 
 
 - The user-facing game runs from `src/app/page.tsx` through `src/game/GameCanvas.tsx`.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`.
-- Static sprite, tile, UI, audio, and effect manifests live under `public/assets`.
+- Static sprite, tile, UI, audio, and effect manifests live under `public/assets`, with the central typed asset manifest in `src/game/assets/manifest.ts`.
 - Asset generation and processing scripts live under `tools` and `scripts`.
 
 ## Review priorities
@@ -19,7 +19,7 @@ When reviewing pull requests, prioritize findings that can cause:
 4. TypeScript type safety issues that hide invalid game state or malformed asset manifests.
 5. Asset path, frame-name, or manifest mismatches that would fail only after bundling or loading the scene.
 6. Performance problems in the main update loop, rendering path, or input handlers that could degrade frame rate.
-7. Accessibility regressions for React-rendered controls and overlays.
+7. Accessibility regressions for Phaser/canvas UI zones and any React-rendered controls or overlays.
 
 ## Repository expectations
 

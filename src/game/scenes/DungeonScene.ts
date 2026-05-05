@@ -977,6 +977,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -988,13 +989,15 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootDown = () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    this.keys.shoot.on("down", handleShootDown);
+    this.keys.shootAlt.on("down", handleShootDown);
 
     this.input.on("pointermove", this.updatePointerAim, this);
     this.input.on("pointerdown", this.handleAimPointerDown, this);
@@ -1121,7 +1124,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1129,7 +1136,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    } catch {
+      // Storage can be blocked in sandboxed/private contexts; keep mute state in memory.
+    }
   }
 
   private toggleMute() {
@@ -1285,7 +1296,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }
@@ -1365,12 +1376,22 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private handleAimPointerDown(pointer: Phaser.Input.Pointer) {
-    if (!this.gameStarted || this.gameOver) {
+    if (!this.gameStarted || this.gameOver || this.isPointerInsideMuteButton(pointer)) {
       return;
     }
 
     this.updatePointerAim(pointer);
     this.shotQueued = true;
+  }
+
+  private isPointerInsideMuteButton(pointer: Phaser.Input.Pointer) {
+    const x = this.cameras.main.width - MUTE_BUTTON_RIGHT_MARGIN - MUTE_BUTTON_WIDTH;
+    const y = this.cameras.main.height - MUTE_BUTTON_BOTTOM_MARGIN - MUTE_BUTTON_HEIGHT;
+    return Phaser.Geom.Rectangle.Contains(
+      new Phaser.Geom.Rectangle(x, y, MUTE_BUTTON_WIDTH, MUTE_BUTTON_HEIGHT),
+      pointer.x,
+      pointer.y
+    );
   }
 
   private resolveShotVector(): { tileVelocity: TilePoint; angleDegrees: number } {

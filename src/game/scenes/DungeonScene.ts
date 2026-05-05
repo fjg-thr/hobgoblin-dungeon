@@ -2963,13 +2963,13 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const direction = this.directionToVector(this.playerDirection);
-    const offset = this.tileVectorToWorld(direction);
+    const shot = this.resolveShotVector();
+    const offset = this.tileVectorToWorld(shot.tileVelocity);
     const offsetLength = Math.hypot(offset.x, offset.y) || 1;
     const push = { x: offset.x / offsetLength, y: offset.y / offsetLength };
     const pulse = 1 + Math.sin(now / 82) * 0.08;
     this.burstChargeSprite.setPosition(Math.round(world.x + push.x * 18), Math.round(world.y - 25 + push.y * 9));
-    this.burstChargeSprite.setAngle(this.projectileAngle(direction));
+    this.burstChargeSprite.setAngle(shot.angleDegrees);
     this.burstChargeSprite.setScale(1.06 * pulse);
     this.burstChargeSprite.setAlpha(0.82 + Math.sin(now / 70) * 0.14);
     this.burstChargeSprite.setDepth(HERO_EFFECT_DEPTH + 2);

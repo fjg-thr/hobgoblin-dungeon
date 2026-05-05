@@ -23,4 +23,5 @@ This repository is a Next.js app that hosts a Phaser-based isometric dungeon gam
 
 - For app or gameplay changes, expect `npm run build` to pass.
 - If asset manifests or generated files change, verify the referenced files exist and frame names match code usage.
+- If asset processing or generation scripts change, expect the relevant `npm run process:*` or `npm run generate:*` command to be run, or verify the generated outputs and paths another way when external asset inputs are unavailable.
 - If package scripts or dependencies change, verify the lockfile is updated consistently.

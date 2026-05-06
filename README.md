@@ -11,6 +11,10 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot
+
+Cursor Bugbot reviews are run by the managed Cursor GitHub App and Cursor dashboard settings; this repository does not need a GitHub Actions workflow for standard Bugbot reviews. Install the Cursor GitHub App for this repo, enable Bugbot in the Cursor dashboard, and use `.cursor/BUGBOT.md` as the repo-specific review guide. Depending on the dashboard setting, Bugbot can review PR updates automatically or can be triggered manually by commenting `cursor review` or `bugbot run` on a pull request.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

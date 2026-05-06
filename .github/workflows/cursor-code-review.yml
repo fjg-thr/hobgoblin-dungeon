@@ -22,12 +22,20 @@ jobs:
         run: |
           echo "CURSOR_API_KEY is not configured; skipping Cursor Bugbot review."
 
-      - name: Checkout pull request
+      - name: Checkout trusted base configuration
         if: ${{ env.CURSOR_API_KEY != '' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Capture pull request diff
+        if: ${{ env.CURSOR_API_KEY != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr diff "$PR_NUMBER" --patch > pr.diff
 
       - name: Install Cursor CLI
         if: ${{ env.CURSOR_API_KEY != '' }}
@@ -38,13 +46,12 @@ jobs:
       - name: Run Cursor Bugbot review
         if: ${{ env.CURSOR_API_KEY != '' }}
         env:
-          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPOSITORY: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          cursor-agent --force --output-format=text --print "You are Cursor Bugbot running in GitHub Actions to review a pull request.
+          cursor-agent --output-format=text --print "You are Cursor Bugbot running in GitHub Actions to review a pull request.
 
           Context:
           - Repository: ${REPOSITORY}
@@ -53,13 +60,25 @@ jobs:
           - Base SHA: ${BASE_SHA}
 
           Review scope:
-          - Use gh pr diff ${PR_NUMBER} to inspect only the pull request diff.
-          - Follow the repository-specific guidance in .cursor/BUGBOT.md.
+          - Review only the patch in pr.diff.
+          - Follow the repository-specific guidance in the checked-out .cursor/BUGBOT.md from the trusted base commit.
           - Prioritize clear bugs, regressions, security issues, accessibility issues, and production-risk defects.
           - Do not request broad refactors, style-only changes, or speculative improvements.
 
           Reporting:
-          - If you find clear issues, submit one GitHub pull request review with concise inline comments on changed lines.
-          - Keep each comment actionable and grounded in the observed diff.
-          - If there are no clear issues, leave a short summary comment saying no blocking issues were found.
-          - Do not modify files, commit changes, push branches, create pull requests, or merge anything."
+          - Return only the review body as concise Markdown.
+          - Use concise Markdown.
+          - If you find clear issues, include file paths and changed-line references from the diff.
+          - If there are no clear issues, write that no blocking issues were found.
+          - Do not modify files, run shell commands, commit changes, push branches, create pull requests, or merge anything." > cursor-review.md
+
+      - name: Publish Cursor Bugbot review
+        if: ${{ env.CURSOR_API_KEY != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ ! -s cursor-review.md ]; then
+            echo "Cursor Bugbot did not produce a review." > cursor-review.md
+          fi
+          gh pr comment "$PR_NUMBER" --body-file cursor-review.md

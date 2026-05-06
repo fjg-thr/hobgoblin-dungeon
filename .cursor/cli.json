@@ -1,11 +1,16 @@
 {
+  "version": 1,
   "permissions": {
+    "allow": [
+      "Read(.cursor/BUGBOT.md)",
+      "Read(pr.diff)",
+      "Read(package.json)",
+      "Read(tsconfig.json)",
+      "Read(next.config.ts)",
+      "Read(src/**)"
+    ],
     "deny": [
-      "Shell(git add)",
-      "Shell(git commit)",
-      "Shell(git push)",
-      "Shell(gh pr create)",
-      "Shell(gh pr merge)",
+      "Shell(*)",
       "Write(**)"
     ]
   }

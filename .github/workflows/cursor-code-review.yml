@@ -1,0 +1,65 @@
+name: Cursor Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+
+jobs:
+  cursor-code-review:
+    name: Cursor Bugbot review
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.draft == false }}
+    steps:
+      - name: Skip when Cursor API key is unavailable
+        if: ${{ env.CURSOR_API_KEY == '' }}
+        run: |
+          echo "CURSOR_API_KEY is not configured; skipping Cursor Bugbot review."
+
+      - name: Checkout pull request
+        if: ${{ env.CURSOR_API_KEY != '' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install Cursor CLI
+        if: ${{ env.CURSOR_API_KEY != '' }}
+        run: |
+          curl -fsSL https://cursor.com/install | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Run Cursor Bugbot review
+        if: ${{ env.CURSOR_API_KEY != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          cursor-agent --force --output-format=text --print "You are Cursor Bugbot running in GitHub Actions to review a pull request.
+
+          Context:
+          - Repository: ${REPOSITORY}
+          - Pull request: #${PR_NUMBER}
+          - Head SHA: ${HEAD_SHA}
+          - Base SHA: ${BASE_SHA}
+
+          Review scope:
+          - Use gh pr diff ${PR_NUMBER} to inspect only the pull request diff.
+          - Follow the repository-specific guidance in .cursor/BUGBOT.md.
+          - Prioritize clear bugs, regressions, security issues, accessibility issues, and production-risk defects.
+          - Do not request broad refactors, style-only changes, or speculative improvements.
+
+          Reporting:
+          - If you find clear issues, submit one GitHub pull request review with concise inline comments on changed lines.
+          - Keep each comment actionable and grounded in the observed diff.
+          - If there are no clear issues, leave a short summary comment saying no blocking issues were found.
+          - Do not modify files, commit changes, push branches, create pull requests, or merge anything."

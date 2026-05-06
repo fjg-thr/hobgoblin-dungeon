@@ -977,6 +977,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -988,13 +989,15 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         this.startGame();
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    this.keys.shoot.on("down", handleShootKeyDown);
+    this.keys.shootAlt.on("down", handleShootKeyDown);
 
     this.input.on("pointermove", this.updatePointerAim, this);
     this.input.on("pointerdown", this.handleAimPointerDown, this);
@@ -1107,7 +1110,13 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: { stopPropagation: () => void }) => {
+        event.stopPropagation();
+        this.toggleMute();
+      }
+    );
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -1285,7 +1294,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }

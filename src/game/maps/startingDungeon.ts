@@ -251,9 +251,9 @@ export function createDungeon(random: RandomSource = Math.random): DungeonMap {
   const rooms = makeRooms(random);
   paintFloorPlan(grid, rooms, random);
   addChasmBridge(grid, rooms, random);
-  addStairs(grid, rooms);
   addFloorVariation(grid, random);
   addInteriorWalls(grid, rooms, random);
+  addStairs(grid, rooms);
   addWallsAroundPlayable(grid);
 
   const firstRoomCenter = roomCenter(rooms[0]);

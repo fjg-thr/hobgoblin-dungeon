@@ -17,7 +17,7 @@ Use this guidance when reviewing pull requests for the Hobgoblin Ruin Prototype.
 - Keep TypeScript strictness intact. Avoid `any`, unsafe casts, and broad null assertions unless the invariant is clear from nearby code.
 - Treat generated binary assets as high risk for repository bloat. Metadata JSON should match committed sprite dimensions, frame names, and asset keys.
 - Preserve pixel-art rendering constraints: nearest-neighbor scaling, stable canvas sizing, and no CSS/image smoothing regressions.
-- For map, enemy, and power-up tuning, look for accidental difficulty spikes, impossible paths, unreachable pickups, or regressions to deterministic replay assumptions.
+- For map, enemy, and power-up tuning, look for accidental difficulty spikes, impossible paths, unreachable pickups, or unintended changes to procedural randomness assumptions.
 
 ## Validation expectations
 

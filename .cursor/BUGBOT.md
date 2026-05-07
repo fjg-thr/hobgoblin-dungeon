@@ -6,7 +6,9 @@ Use this guidance when reviewing pull requests for the Hobgoblin Ruin Prototype.
 
 - This is a Next.js app that mounts a Phaser dungeon prototype from React.
 - The main gameplay code lives in `src/game/scenes/DungeonScene.ts`.
+- Procedural map layout helpers live in `src/game/maps/startingDungeon.ts`.
 - Static game assets and sprite metadata live under `public/assets`.
+- Runtime asset keys and paths are registered in `src/game/assets/manifest.ts`.
 - Asset generation and processing scripts live in `tools` and `scripts`.
 
 ## Review priorities
@@ -23,5 +25,6 @@ Use this guidance when reviewing pull requests for the Hobgoblin Ruin Prototype.
 
 - Prefer `npm ci` before validation when dependencies are missing or stale.
 - Run `npm run build` for TypeScript and Next.js verification.
+- Run `npm run lint` when linting is part of the PR or CI policy and the configured script is healthy.
 - If behavior changes affect gameplay, call out where manual playtesting is still needed, including controls, collisions, combat, pickups, and restart behavior.
 - If asset scripts change, verify the generated JSON and PNG outputs stay in sync and document any generated files that were intentionally committed.

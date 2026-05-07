@@ -444,6 +444,9 @@ export class DungeonScene extends Phaser.Scene {
   private gameOverButtonBounds?: Phaser.Geom.Rectangle;
   private startContainer?: Phaser.GameObjects.Container;
   private startButtonBounds?: Phaser.Geom.Rectangle;
+  private howToPlayButtonBounds?: Phaser.Geom.Rectangle;
+  private howToPlayContainer?: Phaser.GameObjects.Container;
+  private closeHowToPlayButtonBounds?: Phaser.Geom.Rectangle;
   private coordinateLabels: Phaser.GameObjects.Text[] = [];
   private enemies: EnemyActor[] = [];
   private projectiles: StaffProjectile[] = [];
@@ -977,6 +980,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
 
@@ -990,10 +994,18 @@ export class DungeonScene extends Phaser.Scene {
     });
     this.keys.shoot.on("down", () => {
       if (!this.gameStarted) {
+        if (this.howToPlayContainer) {
+          return;
+        }
         this.startGame();
         return;
       }
       this.shotQueued = true;
+    });
+    this.keys.escape.on("down", () => {
+      if (!this.gameStarted && this.howToPlayContainer) {
+        this.hideHowToPlayModal();
+      }
     });
 
     this.input.on("pointermove", this.updatePointerAim, this);
@@ -3170,8 +3182,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private showStartScreen() {
+    this.hideHowToPlayModal(false);
     this.startContainer?.destroy(true);
     this.input.off("pointerdown", this.handleStartPointerDown, this);
+    this.startButtonBounds = undefined;
+    this.howToPlayButtonBounds = undefined;
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.58);
@@ -3184,23 +3199,13 @@ export class DungeonScene extends Phaser.Scene {
     titleSprite.anims.play(assetManifest.uiSprites.startTitle.key);
     this.addStaticShimmer(titleSprite, 0.94, 1, 1200);
 
-    const subtitle = this.add.text(0, titleSprite.displayHeight * 0.52, "Aim with the cursor. Seeking arrows fire automatically.", {
-      fontFamily: "monospace",
-      fontSize: `${Math.round(14 * titleScale * 1.9)}px`,
-      color: "#d9c79a",
-      stroke: "#090909",
-      strokeThickness: 3,
-      align: "center"
-    });
-    subtitle.setOrigin(0.5);
-
-    const button = this.add.image(0, titleSprite.displayHeight * 0.72, "start_over_button");
+    const button = this.add.image(0, titleSprite.displayHeight * 0.58, "start_over_button");
     const buttonScale = Phaser.Math.Clamp(Math.min((camera.width * 0.24) / button.width, 0.34), 0.22, 0.36);
     button.setScale(buttonScale);
 
-    const buttonText = this.add.text(button.x, button.y, "START", {
+    const buttonText = this.add.text(button.x, button.y, "START GAME", {
       fontFamily: "monospace",
-      fontSize: `${Math.round(21 * buttonScale * 2.8)}px`,
+      fontSize: `${Math.round(17 * buttonScale * 2.8)}px`,
       color: "#ffe3a6",
       stroke: "#290909",
       strokeThickness: 4,
@@ -3208,27 +3213,367 @@ export class DungeonScene extends Phaser.Scene {
     });
     buttonText.setOrigin(0.5);
 
-    const content = this.add.container(camera.width / 2, panelY, [titleSprite, subtitle, button, buttonText]);
+    const howToPlayButton = this.add.image(0, button.y + button.displayHeight * 0.92, "start_over_button");
+    howToPlayButton.setScale(buttonScale * 0.88);
+
+    const howToPlayButtonText = this.add.text(howToPlayButton.x, howToPlayButton.y, "HOW TO PLAY", {
+      fontFamily: "monospace",
+      fontSize: `${Math.round(15 * buttonScale * 2.8)}px`,
+      color: "#f2d49a",
+      stroke: "#190806",
+      strokeThickness: 4,
+      align: "center"
+    });
+    howToPlayButtonText.setOrigin(0.5);
+
+    const content = this.add.container(camera.width / 2, panelY, [titleSprite, button, buttonText, howToPlayButton, howToPlayButtonText]);
     const startZone = this.add.zone(camera.width / 2, panelY + button.y, button.displayWidth, button.displayHeight);
     startZone.setInteractive({ useHandCursor: true });
     startZone.on("pointerover", () => button.setTint(0xffe0a3));
     startZone.on("pointerout", () => button.clearTint());
     startZone.on("pointerdown", () => this.startGame());
     this.startButtonBounds = this.screenRect(startZone.x, startZone.y, startZone.width, startZone.height);
+
+    const howToPlayZone = this.add.zone(camera.width / 2, panelY + howToPlayButton.y, howToPlayButton.displayWidth, howToPlayButton.displayHeight);
+    howToPlayZone.setInteractive({ useHandCursor: true });
+    howToPlayZone.on("pointerover", () => howToPlayButton.setTint(0xffe0a3));
+    howToPlayZone.on("pointerout", () => howToPlayButton.clearTint());
+    howToPlayZone.on("pointerdown", () => this.showHowToPlayModal());
+    this.howToPlayButtonBounds = this.screenRect(howToPlayZone.x, howToPlayZone.y, howToPlayZone.width, howToPlayZone.height);
+
     this.input.on("pointerdown", this.handleStartPointerDown, this);
 
-    this.startContainer = this.add.container(0, 0, [overlay, content, startZone]);
+    this.startContainer = this.add.container(0, 0, [overlay, content, startZone, howToPlayZone]);
     this.startContainer.setScrollFactor(0);
     this.startContainer.setDepth(HUD_DEPTH + 30);
   }
 
   private handleStartPointerDown(pointer: Phaser.Input.Pointer) {
-    if (this.gameStarted || !this.startButtonBounds) {
+    if (this.gameStarted) {
       return;
     }
 
-    if (Phaser.Geom.Rectangle.Contains(this.startButtonBounds, pointer.x, pointer.y)) {
+    if (this.howToPlayContainer) {
+      if (this.closeHowToPlayButtonBounds && Phaser.Geom.Rectangle.Contains(this.closeHowToPlayButtonBounds, pointer.x, pointer.y)) {
+        this.hideHowToPlayModal();
+      }
+      return;
+    }
+
+    if (this.startButtonBounds && Phaser.Geom.Rectangle.Contains(this.startButtonBounds, pointer.x, pointer.y)) {
       this.startGame();
+      return;
+    }
+
+    if (this.howToPlayButtonBounds && Phaser.Geom.Rectangle.Contains(this.howToPlayButtonBounds, pointer.x, pointer.y)) {
+      this.showHowToPlayModal();
+    }
+  }
+
+  private showHowToPlayModal(playSound = true) {
+    if (this.gameStarted) {
+      return;
+    }
+
+    this.hideHowToPlayModal(false);
+    const camera = this.cameras.main;
+    const viewportWidth = Math.max(1, camera.width);
+    const viewportHeight = Math.max(1, camera.height);
+    const modalMarginX = viewportWidth < 520 ? 12 : 24;
+    const modalMarginY = viewportHeight < 520 ? 10 : 22;
+    const modalWidth = Math.min(920, Math.max(1, viewportWidth - modalMarginX * 2));
+    const modalHeight = Math.min(650, Math.max(1, viewportHeight - modalMarginY * 2));
+    const halfWidth = modalWidth / 2;
+    const halfHeight = modalHeight / 2;
+    const isCompact = modalWidth < 620 || modalHeight < 560;
+    const isShort = modalHeight < 500;
+    const isTiny = modalWidth < 440 || modalHeight < 430;
+    const showHeaderCharacters = modalWidth >= 340 && modalHeight >= 360;
+    const centerX = camera.width / 2;
+    const centerY = camera.height / 2;
+    const titleSize = isTiny ? 17 : isCompact ? 20 : 25;
+    const bodySize = isTiny ? 8 : isCompact ? 10 : 12;
+    const headingSize = isTiny ? 10 : isCompact ? 13 : 15;
+    const instructionTextObjects: Phaser.GameObjects.GameObject[] = [];
+
+    const blocker = this.add.zone(centerX, centerY, camera.width, camera.height);
+    blocker.setInteractive({ useHandCursor: false });
+
+    const overlay = this.add.graphics();
+    overlay.fillStyle(0x010202, 0.78);
+    overlay.fillRect(0, 0, camera.width, camera.height);
+
+    const panelRadius = isTiny ? 4 : 7;
+    const panel = this.add.graphics();
+    panel.fillStyle(0x101411, 0.98);
+    panel.fillRoundedRect(-halfWidth, -halfHeight, modalWidth, modalHeight, panelRadius);
+    panel.lineStyle(2, 0xb68a42, 0.9);
+    panel.strokeRoundedRect(-halfWidth + 1, -halfHeight + 1, modalWidth - 2, modalHeight - 2, panelRadius);
+    if (!isTiny) {
+      panel.lineStyle(1, 0x342115, 0.95);
+      panel.strokeRoundedRect(-halfWidth + 9, -halfHeight + 9, modalWidth - 18, modalHeight - 18, 4);
+    }
+
+    const titleY = -halfHeight + (isTiny ? 16 : isCompact ? 23 : 30);
+    const title = this.add.text(0, titleY, "HOW TO PLAY", {
+      fontFamily: "monospace",
+      fontSize: `${titleSize}px`,
+      color: "#ffe3a6",
+      stroke: "#160705",
+      strokeThickness: isTiny ? 3 : 5,
+      align: "center"
+    });
+    title.setOrigin(0.5);
+
+    const headerAssetY = -halfHeight + (isTiny ? 36 : isCompact ? 52 : 64);
+    const headerAssetScale = isTiny ? 0.62 : isCompact ? 0.86 : 1;
+    const hero = this.add.sprite(-halfWidth + Math.min(60, modalWidth * 0.16), headerAssetY, assetManifest.character.key, 0);
+    hero.setOrigin(0.5, 0.62);
+    hero.setScale((isCompact ? 1.0 : 1.2) * headerAssetScale);
+    hero.setVisible(showHeaderCharacters);
+    hero.anims.play(`idle-${this.playerDirection}`);
+    this.addStaticShimmer(hero, 0.92, 1, 920);
+
+    const goblin = this.add.sprite(halfWidth - Math.min(84, modalWidth * 0.18), headerAssetY - 1, assetManifest.enemies.goblin.key, 0);
+    goblin.setOrigin(0.5, 0.65);
+    goblin.setScale((isCompact ? 0.9 : 1.05) * headerAssetScale);
+    goblin.setVisible(showHeaderCharacters);
+    goblin.anims.play("goblin-walk-southwest");
+
+    const brute = this.add.sprite(goblin.x + (isTiny ? 24 : 40) * headerAssetScale, headerAssetY + 5, assetManifest.enemies.brute.key, 0);
+    brute.setOrigin(0.5, 0.68);
+    brute.setScale((isCompact ? 0.94 : 1.12) * headerAssetScale);
+    brute.setVisible(showHeaderCharacters);
+    brute.anims.play("brute-idle-southwest");
+
+    const introY = -halfHeight + (isTiny ? 48 : isCompact ? 66 : 76);
+    const intro = this.add.text(0, introY, "Survive the ruin, defeat enemies for score, and keep enough ammo to stay dangerous.", {
+      fontFamily: "monospace",
+      fontSize: `${isTiny ? bodySize : Math.max(bodySize, bodySize - 1)}px`,
+      color: "#e7d6aa",
+      stroke: "#080504",
+      strokeThickness: isTiny ? 2 : 3,
+      align: "center",
+      wordWrap: { width: modalWidth - (showHeaderCharacters ? isTiny ? 86 : isCompact ? 130 : 210 : 34), useAdvancedWrap: true }
+    });
+    intro.setOrigin(0.5);
+
+    const closeButtonY = halfHeight - (isTiny ? 20 : isCompact ? 30 : 36);
+    const gridColumns = this.instructionGridColumns(modalWidth, modalHeight);
+    const gridRows = Math.ceil(6 / gridColumns);
+    const gridGap = isTiny ? 5 : isCompact ? 8 : 14;
+    const gridSidePadding = isTiny ? 10 : isCompact ? 18 : 34;
+    const gridTop = -halfHeight + (isTiny ? 70 : isCompact ? 106 : 124);
+    const gridBottom = closeButtonY - (isTiny ? 28 : isCompact ? 42 : 54);
+    const gridWidth = modalWidth - gridSidePadding * 2;
+    const gridHeight = Math.max(120, gridBottom - gridTop);
+    const cardWidth = (gridWidth - gridGap * (gridColumns - 1)) / gridColumns;
+    const cardHeight = (gridHeight - gridGap * (gridRows - 1)) / gridRows;
+    const assetTopPadding = isTiny ? 6 : isShort ? 8 : isCompact ? 12 : 16;
+    const assetSlotHeight = Math.max(18, Math.min(isTiny ? 24 : isShort ? 30 : isCompact ? 36 : 44, cardHeight * 0.34));
+    const assetScale = Phaser.Math.Clamp(cardHeight / 142, 0.44, gridColumns === 1 ? 0.9 : 1);
+    const powerUpIcons: Phaser.GameObjects.Sprite[] = [];
+
+    const controlCard = this.gridCardBounds(0, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const controlAsset = this.cardAssetCenter(controlCard, assetTopPadding, assetSlotHeight);
+    const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
+    controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
+    instructionTextObjects.push(
+      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const boltAsset = this.cardAssetCenter(boltCard, assetTopPadding, assetSlotHeight);
+    const bolt = this.add.sprite(boltAsset.x, boltAsset.y, assetManifest.projectiles.staffBolt.key, 0);
+    bolt.setScale((isCompact ? 1.05 : 1.28) * assetScale);
+    bolt.setAngle(-18);
+    bolt.anims.play("staff-bolt-fly");
+    instructionTextObjects.push(
+      ...this.addInstructionCard(boltCard, "Staff Bolts", "Shots snap toward your aim point, spend ammo, and break on walls or enemies.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const enemyCard = this.gridCardBounds(2, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const enemyAsset = this.cardAssetCenter(enemyCard, assetTopPadding, assetSlotHeight);
+    const enemyX = enemyAsset.x - (isCompact ? 13 : 18);
+    const enemyY = enemyAsset.y + 4;
+    const enemyGoblin = this.add.sprite(enemyX, enemyY, assetManifest.enemies.goblin.key, 0);
+    enemyGoblin.setScale((isCompact ? 0.56 : 0.68) * assetScale);
+    enemyGoblin.anims.play("goblin-walk-southeast");
+    const enemyBrute = this.add.sprite(enemyX + (isCompact ? 26 : 34), enemyY + 1, assetManifest.enemies.brute.key, 0);
+    enemyBrute.setScale((isCompact ? 0.68 : 0.82) * assetScale);
+    enemyBrute.anims.play("brute-idle-southeast");
+    instructionTextObjects.push(
+      ...this.addInstructionCard(enemyCard, "Enemies", "Goblins chase fast. Brutes arrive later, hit harder, and take more shots.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const pickupCard = this.gridCardBounds(3, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const pickupAsset = this.cardAssetCenter(pickupCard, assetTopPadding, assetSlotHeight);
+    const heart = this.add.image(pickupAsset.x - 15, pickupAsset.y, "life_heart");
+    heart.setScale((isCompact ? 0.38 : 0.48) * assetScale);
+    const ammo = this.add.sprite(pickupAsset.x + 17, pickupAsset.y, assetManifest.pickups.ammo.key, 0);
+    ammo.setScale((isCompact ? 0.96 : 1.15) * assetScale);
+    ammo.anims.play("ammo-pickup-loop");
+    instructionTextObjects.push(
+      ...this.addInstructionCard(pickupCard, "Pickups", "Ammo shards reload your staff. Hearts restore missing health, up to three hearts.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const powerCard = this.gridCardBounds(4, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const powerAsset = this.cardAssetCenter(powerCard, assetTopPadding, assetSlotHeight);
+    assetManifest.powerUps.types.forEach((kind, index) => {
+      const spacing = isCompact ? 17 : 21;
+      const icon = this.add.sprite(powerAsset.x - spacing * 1.5 + index * spacing, powerAsset.y, assetManifest.powerUps.key, POWERUP_CONFIG[kind].row * 8);
+      icon.setScale((isCompact ? 0.72 : 0.86) * assetScale);
+      icon.anims.play(`powerup-${kind}`);
+      powerUpIcons.push(icon);
+    });
+    instructionTextObjects.push(
+      ...this.addInstructionCard(powerCard, "Power-ups", "Quickshot fires faster, haste speeds you up, ward blocks hits, and blast charges an explosive shot.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const dungeonCard = this.gridCardBounds(5, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
+    const dungeonAsset = this.cardAssetCenter(dungeonCard, assetTopPadding, assetSlotHeight);
+    const torch = this.add.image(dungeonAsset.x - 16, dungeonAsset.y + 2, "torch");
+    torch.setScale((isCompact ? 0.47 : 0.6) * assetScale);
+    const treasure = this.add.image(dungeonAsset.x + 18, dungeonAsset.y + 4, "small_treasure");
+    treasure.setScale((isCompact ? 0.5 : 0.64) * assetScale);
+    instructionTextObjects.push(
+      ...this.addInstructionCard(dungeonCard, "Dungeon", "Walls, rubble, posts, and chasms block movement. Use corners and bridges to kite enemies.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+    );
+
+    const closeButton = this.add.image(0, closeButtonY, "start_over_button");
+    const closeButtonScale = Phaser.Math.Clamp(Math.min((modalWidth * 0.23) / closeButton.width, 0.28), 0.22, 0.3);
+    closeButton.setScale(closeButtonScale);
+
+    const closeText = this.add.text(0, closeButton.y, "BACK", {
+      fontFamily: "monospace",
+      fontSize: `${Math.round(17 * closeButtonScale * 2.8)}px`,
+      color: "#ffe3a6",
+      stroke: "#290909",
+      strokeThickness: 4,
+      align: "center"
+    });
+    closeText.setOrigin(0.5);
+
+    const closeZone = this.add.zone(centerX, centerY + closeButton.y, closeButton.displayWidth, closeButton.displayHeight);
+    closeZone.setInteractive({ useHandCursor: true });
+    closeZone.on("pointerover", () => closeButton.setTint(0xffe0a3));
+    closeZone.on("pointerout", () => closeButton.clearTint());
+    closeZone.on("pointerdown", () => this.hideHowToPlayModal());
+    this.closeHowToPlayButtonBounds = this.screenRect(closeZone.x, closeZone.y, closeZone.width, closeZone.height);
+
+    const panelContent = this.add.container(centerX, centerY, [
+      panel,
+      title,
+      hero,
+      goblin,
+      brute,
+      intro,
+      ...instructionTextObjects,
+      controlIcon,
+      bolt,
+      enemyGoblin,
+      enemyBrute,
+      heart,
+      ammo,
+      ...powerUpIcons,
+      torch,
+      treasure,
+      closeButton,
+      closeText
+    ]);
+
+    this.howToPlayContainer = this.add.container(0, 0, [overlay, blocker, panelContent, closeZone]);
+    this.howToPlayContainer.setScrollFactor(0);
+    this.howToPlayContainer.setDepth(HUD_DEPTH + 70);
+    if (playSound) {
+      this.playSfx("uiToggle", { volume: 0.18, rate: 1.05 });
+    }
+  }
+
+  private gridCardBounds(index: number, columns: number, sidePadding: number, top: number, cardWidth: number, cardHeight: number, gap: number, halfWidth: number) {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    return {
+      x: -halfWidth + sidePadding + column * (cardWidth + gap),
+      y: top + row * (cardHeight + gap),
+      width: cardWidth,
+      height: cardHeight
+    };
+  }
+
+  private instructionGridColumns(width: number, height: number) {
+    if (width >= 780 && height < 570) {
+      return 3;
+    }
+    if (width >= 520) {
+      return 2;
+    }
+    return 1;
+  }
+
+  private cardAssetCenter(bounds: { x: number; y: number; width: number }, topPadding: number, slotHeight: number) {
+    return {
+      x: bounds.x + bounds.width / 2,
+      y: bounds.y + topPadding + slotHeight / 2
+    };
+  }
+
+  private addInstructionCard(
+    bounds: { x: number; y: number; width: number; height: number },
+    title: string,
+    body: string,
+    headingSize: number,
+    bodySize: number,
+    assetTopPadding: number,
+    assetSlotHeight: number
+  ) {
+    const card = this.add.graphics();
+    card.fillStyle(0x151914, 0.9);
+    card.fillRoundedRect(bounds.x, bounds.y, bounds.width, bounds.height, 6);
+    card.lineStyle(1, 0x7c6238, 0.72);
+    card.strokeRoundedRect(bounds.x + 0.5, bounds.y + 0.5, bounds.width - 1, bounds.height - 1, 6);
+
+    const textX = bounds.x + bounds.width / 2;
+    const gapAfterAsset = bounds.height < 96 ? 6 : 12;
+    const gapAfterTitle = bounds.height < 96 ? 4 : 8;
+    const titleY = bounds.y + assetTopPadding + assetSlotHeight + gapAfterAsset;
+    const copyY = titleY + headingSize + gapAfterTitle;
+    const wrapWidth = Math.max(80, bounds.width - 34);
+
+    const heading = this.add.text(textX, titleY, title.toUpperCase(), {
+      fontFamily: "monospace",
+      fontSize: `${headingSize}px`,
+      color: "#ffe0a0",
+      stroke: "#090504",
+      strokeThickness: 3,
+      align: "center"
+    });
+    heading.setOrigin(0.5, 0);
+
+    const copy = this.add.text(textX, copyY, body, {
+      fontFamily: "monospace",
+      fontSize: `${bodySize}px`,
+      color: "#d7c49a",
+      stroke: "#060403",
+      strokeThickness: 2,
+      align: "center",
+      wordWrap: { width: wrapWidth, useAdvancedWrap: true }
+    });
+    copy.setOrigin(0.5, 0);
+
+    return [card, heading, copy];
+  }
+
+  private hideHowToPlayModal(playSound = true) {
+    if (!this.howToPlayContainer) {
+      return;
+    }
+
+    this.howToPlayContainer.destroy(true);
+    this.howToPlayContainer = undefined;
+    this.closeHowToPlayButtonBounds = undefined;
+    if (playSound) {
+      this.playSfx("uiToggle", { volume: 0.14, rate: 0.92 });
     }
   }
 
@@ -3239,8 +3584,10 @@ export class DungeonScene extends Phaser.Scene {
 
     this.gameStarted = true;
     this.playerDying = false;
+    this.hideHowToPlayModal(false);
     this.input.off("pointerdown", this.handleStartPointerDown, this);
     this.startButtonBounds = undefined;
+    this.howToPlayButtonBounds = undefined;
     this.startContainer?.destroy(true);
     this.startContainer = undefined;
     this.playerHealth = MAX_PLAYER_HEALTH;
@@ -3507,12 +3854,16 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private handleResize() {
+    const shouldReopenHowToPlay = !this.gameStarted && !!this.howToPlayContainer;
     this.updateCameraZoom();
     this.focusMaskSignature = "";
     this.positionHud();
     this.positionMuteButton();
     if (!this.gameStarted && this.startContainer) {
       this.showStartScreen();
+      if (shouldReopenHowToPlay) {
+        this.showHowToPlayModal(false);
+      }
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

@@ -5,6 +5,7 @@ Use this guidance when reviewing pull requests for the Hobgoblin Ruin Prototype.
 ## Project context
 
 - This is a Next.js app that mounts a Phaser dungeon prototype from React.
+- The React-to-Phaser boundary and game lifecycle are handled in `src/game/GameCanvas.tsx`.
 - The main gameplay code lives in `src/game/scenes/DungeonScene.ts`.
 - Procedural map layout helpers live in `src/game/maps/startingDungeon.ts`.
 - Static game assets and sprite metadata live under `public/assets`.

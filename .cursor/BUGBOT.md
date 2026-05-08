@@ -5,7 +5,7 @@ Review pull requests for correctness regressions in this Next.js and Phaser dung
 ## Project context
 
 - The app uses Next.js App Router with React and strict TypeScript.
-- Phaser is currently `4.0.0-rc.4`; do not assume Phaser 3-only APIs or behavior.
+- Phaser is currently `4.0.0-rc.4` per `package.json`; keep this note in sync on upgrades and do not assume Phaser 3-only APIs or behavior.
 - The runtime game surface is small:
   - `src/game/GameCanvas.tsx` boots Phaser on the client.
   - `src/game/scenes/DungeonScene.ts` owns most scene, input, combat, UI, audio, and cleanup behavior.

@@ -43,6 +43,8 @@ Review pull requests for correctness regressions in this Next.js and Phaser dung
 - Do not request removal of the dynamic Phaser import in `GameCanvas.tsx`; it protects the Next.js server render boundary.
 - Do not comment solely on `DungeonScene.ts` being large. File size is known; only flag structural issues when a change creates a concrete correctness or maintenance risk.
 - Do not nitpick use of `"latest"` dependency ranges unless the pull request changes dependency management or creates a reproducibility problem.
+- Do not treat `next-env.d.ts` changes between `.next/dev/types/routes.d.ts` and `.next/types/routes.d.ts` as meaningful source changes unless the PR intentionally changes generated route typing behavior.
+- Do not treat the current `npm run lint` failure as a PR regression by itself. With Next.js 16, the existing `next lint` script is interpreted as an invalid project directory (`/workspace/lint`) unless the PR changes lint or dependency configuration.
 - Do not treat missing automated tests as a standalone finding for asset-only or documentation-only pull requests. Prefer checking whether the relevant build, asset, or gameplay verification was run.
 
 ## Review tone

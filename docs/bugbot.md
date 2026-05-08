@@ -42,4 +42,4 @@ npm run build
 npm run lint
 ```
 
-If `npm run lint` fails because the installed Next.js version no longer supports `next lint`, update the lint script before treating lint output as a code-review finding.
+Both commands should exit successfully before merging PRs reviewed by Bugbot.

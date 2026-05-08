@@ -41,4 +41,4 @@ Use these project-specific rules when reviewing pull requests for the Hobgoblin 
 - Prioritize concrete bugs, regressions, missing cleanup, and missing validation.
 - Include file and line references when possible.
 - Do not request broad refactors unless they address a specific risk introduced by the PR.
-- Recommend fresh validation with `npm run build`; use `npm run lint` when the local Next.js version supports the configured lint script.
+- Recommend fresh validation with `npm run build` and `npm run lint`.

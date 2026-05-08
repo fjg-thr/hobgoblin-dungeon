@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint",
+    "lint": "tsc --noEmit --pretty false --incremental false",
+    "test": "node --test tests/*.test.mjs",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",

@@ -22,6 +22,7 @@ type CombatEffectKind = "hit" | "deathPoof";
 type CombatHitSource = "projectile" | "seeker" | "blast";
 type ProjectileKind = "standard" | "seeker";
 type AmmoPickupKind = "standard" | "seeker";
+type PointerEventData = { stopPropagation: () => void };
 
 interface TilePoint {
   x: number;
@@ -1119,13 +1120,20 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: PointerEventData) => {
+      this.stopUiPointerPropagation(event);
+      this.toggleMute();
+    });
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
     this.muteButtonContainer.setDepth(HUD_DEPTH + 50);
     this.positionMuteButton();
     this.updateMuteButtonVisuals();
+  }
+
+  private stopUiPointerPropagation(event?: PointerEventData) {
+    event?.stopPropagation();
   }
 
   private readMutedPreference(): boolean {
@@ -3231,14 +3239,20 @@ export class DungeonScene extends Phaser.Scene {
     startZone.setInteractive({ useHandCursor: true });
     startZone.on("pointerover", () => button.setTint(0xffe0a3));
     startZone.on("pointerout", () => button.clearTint());
-    startZone.on("pointerdown", () => this.startGame());
+    startZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: PointerEventData) => {
+      this.stopUiPointerPropagation(event);
+      this.startGame();
+    });
     this.startButtonBounds = this.screenRect(startZone.x, startZone.y, startZone.width, startZone.height);
 
     const howToPlayZone = this.add.zone(camera.width / 2, panelY + howToPlayButton.y, howToPlayButton.displayWidth, howToPlayButton.displayHeight);
     howToPlayZone.setInteractive({ useHandCursor: true });
     howToPlayZone.on("pointerover", () => howToPlayButton.setTint(0xffe0a3));
     howToPlayZone.on("pointerout", () => howToPlayButton.clearTint());
-    howToPlayZone.on("pointerdown", () => this.showHowToPlayModal());
+    howToPlayZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: PointerEventData) => {
+      this.stopUiPointerPropagation(event);
+      this.showHowToPlayModal();
+    });
     this.howToPlayButtonBounds = this.screenRect(howToPlayZone.x, howToPlayZone.y, howToPlayZone.width, howToPlayZone.height);
 
     this.input.on("pointerdown", this.handleStartPointerDown, this);
@@ -3458,7 +3472,10 @@ export class DungeonScene extends Phaser.Scene {
     closeZone.setInteractive({ useHandCursor: true });
     closeZone.on("pointerover", () => closeButton.setTint(0xffe0a3));
     closeZone.on("pointerout", () => closeButton.clearTint());
-    closeZone.on("pointerdown", () => this.hideHowToPlayModal());
+    closeZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: PointerEventData) => {
+      this.stopUiPointerPropagation(event);
+      this.hideHowToPlayModal();
+    });
     this.closeHowToPlayButtonBounds = this.screenRect(closeZone.x, closeZone.y, closeZone.width, closeZone.height);
 
     const panelContent = this.add.container(centerX, centerY, [
@@ -3631,6 +3648,18 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.renderGameOverOverlay(true);
+  }
+
+  private clearGameOverOverlay() {
+    this.input.off("pointerdown", this.handleGameOverPointerDown, this);
+    this.gameOverButtonBounds = undefined;
+    this.gameOverContainer?.destroy(true);
+    this.gameOverContainer = undefined;
+  }
+
+  private renderGameOverOverlay(animate = true) {
+    this.clearGameOverOverlay();
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
@@ -3692,14 +3721,22 @@ export class DungeonScene extends Phaser.Scene {
     restartZone.setInteractive({ useHandCursor: true });
     restartZone.on("pointerover", () => button.setTint(0xffe0a3));
     restartZone.on("pointerout", () => button.clearTint());
-    restartZone.on("pointerdown", () => this.restartGame());
+    restartZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: PointerEventData) => {
+      this.stopUiPointerPropagation(event);
+      this.restartGame();
+    });
     this.gameOverButtonBounds = this.screenRect(restartZone.x, restartZone.y, restartZone.width, restartZone.height);
     this.input.on("pointerdown", this.handleGameOverPointerDown, this);
 
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
-    this.gameOverContainer.setAlpha(0);
+    this.gameOverContainer.setAlpha(animate ? 0 : 1);
+    if (!animate) {
+      content.setAlpha(1);
+      return;
+    }
+
     this.tweens.add({
       targets: this.gameOverContainer,
       alpha: 1,
@@ -3728,10 +3765,7 @@ export class DungeonScene extends Phaser.Scene {
     this.gameStarted = true;
     this.gameOver = false;
     this.playerDying = false;
-    this.input.off("pointerdown", this.handleGameOverPointerDown, this);
-    this.gameOverButtonBounds = undefined;
-    this.gameOverContainer?.destroy(true);
-    this.gameOverContainer = undefined;
+    this.clearGameOverOverlay();
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerInvulnerableUntilMs = 0;
     this.playerPowerFlashUntilMs = 0;
@@ -3864,6 +3898,9 @@ export class DungeonScene extends Phaser.Scene {
       if (shouldReopenHowToPlay) {
         this.showHowToPlayModal(false);
       }
+    }
+    if (this.gameOver && this.gameOverContainer) {
+      this.renderGameOverOverlay(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

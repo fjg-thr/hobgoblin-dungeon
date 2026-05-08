@@ -13,7 +13,7 @@ Review pull requests for correctness regressions in this Next.js and Phaser dung
   - `src/game/assets/manifest.ts` is the source of truth for runtime asset keys, paths, frame sizes, and typed asset unions.
   - `src/game/maps/startingDungeon.ts` defines procedural dungeon layout, tile codes, and map contracts.
 - Static assets live under `public/assets`; runtime game paths should start with `/assets/...`.
-- Public metadata images such as `/opengraph-image.png` are served from `public/`.
+- Metadata image paths configured in `src/app/layout.tsx` should resolve to files served from `public/`, such as `/opengraph-image.png` when present.
 - Asset processing and generation scripts live in `tools/` and `scripts/`.
 
 ## High-signal findings to flag

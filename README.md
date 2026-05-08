@@ -11,6 +11,10 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot
+
+Project-specific Bugbot review guidance lives in `.cursor/BUGBOT.md`. See `docs/bugbot.md` for the repository enablement steps and manual PR review triggers.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

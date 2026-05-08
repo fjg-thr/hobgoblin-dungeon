@@ -27,7 +27,7 @@ bugbot run
 If Bugbot does not run as expected, use the verbose form in a PR comment to get troubleshooting details:
 
 ```text
-bugbot run verbose=true
+cursor review verbose=true
 ```
 
 ## Local validation commands

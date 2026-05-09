@@ -62,7 +62,7 @@ lifecycle, asset loading, and frame-by-frame gameplay invariants.
 - Combat changes should account for invulnerability windows, hit stop, damage
   numbers, death effects, score increments, drops, and game-over timing.
 - Pointer aiming is snapped to 15-degree increments and keyboard firing is
-  supported. Flag changes that make mouse, click, Space, or `J` behavior diverge
+  supported. Flag changes that make mouse, click, or Space behavior diverge
   unintentionally.
 
 ### Assets and generated files

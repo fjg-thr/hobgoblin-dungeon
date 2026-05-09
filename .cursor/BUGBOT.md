@@ -57,9 +57,9 @@ the current Next.js + Phaser game behavior.
 ### Metadata and share images
 
 - `src/app/layout.tsx` declares Open Graph and Twitter metadata using
-  `/opengraph-image.png`. If a change modifies this path, verify the referenced
-  file exists in `public/` or the change intentionally adds a generated Next.js
-  metadata image route.
+  `/opengraph-image.png`. When metadata is touched, verify referenced share
+  image files exist in `public/` or the change intentionally adds a generated
+  Next.js metadata image route.
 - Metadata code must stay server-safe and must not import Phaser or game modules.
 
 ### Dungeon map and collision contracts

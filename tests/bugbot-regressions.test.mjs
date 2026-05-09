@@ -26,6 +26,10 @@ test("J is wired as a fire key alongside Space", () => {
   );
 });
 
+test("in-game controls copy mentions both fire keys", () => {
+  assert.match(dungeonSceneSource, /press SPACE or J to fire/);
+});
+
 test("lint script does not call removed Next.js lint command", () => {
   assert.notEqual(packageJson.scripts?.lint, "next lint");
 });

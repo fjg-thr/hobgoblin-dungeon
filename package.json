@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "tsc --noEmit",
+    "lint": "next typegen && tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",

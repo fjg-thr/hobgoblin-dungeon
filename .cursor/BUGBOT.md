@@ -20,7 +20,7 @@ Use these project-specific rules when reviewing pull requests for this repositor
 
 - Keep coordinate conversions, collision checks, depth sorting, and spawn logic deterministic and easy to reason about.
 - Watch for stale state in long-lived Phaser scene fields, especially across restart/game-over flows.
-- Ensure new controls remain keyboard accessible and do not interfere with existing `WASD`, arrow, click, `Space`, `J`, and `F3` controls.
+- Ensure new controls remain keyboard accessible and do not interfere with existing `WASD`, arrow, click, `Space`, and `F3` controls.
 - Keep performance-sensitive update-loop work bounded; avoid per-frame allocations or full-map scans unless the map size is explicitly constrained.
 
 ## Verification expectations

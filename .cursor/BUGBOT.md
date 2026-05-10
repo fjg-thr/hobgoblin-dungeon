@@ -10,5 +10,5 @@ When reviewing pull requests:
 - Preserve strict TypeScript expectations from `tsconfig.json`. Avoid `any`, implicit null assumptions, and untyped Phaser object bags unless the local API makes stronger typing impractical.
 - Pay close attention to coordinate math in isometric map, collision, camera, and projectile code. Small changes can create off-by-one walkability bugs or visual/gameplay desyncs.
 - For UI and page changes, preserve full-screen game layout behavior and avoid custom CSS unless it is needed for the canvas shell or global page styling.
-- Expect focused verification for code changes: `npm run lint` and `npm run build` should pass unless the PR clearly documents an environment limitation.
+- Expect focused verification for code changes: `npm run build` should pass, and lint output should be included only after the repository's lint setup is updated to support the installed Next.js version.
 

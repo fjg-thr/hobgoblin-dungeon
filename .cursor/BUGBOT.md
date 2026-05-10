@@ -109,4 +109,3 @@ git diff --check
 If a PR changes generated assets or asset-processing code, also run the relevant
 generator or processor command from `package.json`, `README.md`, or the changed
 tool.
-

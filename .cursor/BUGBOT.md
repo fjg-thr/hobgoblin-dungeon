@@ -6,7 +6,7 @@ gameplay regressions over stylistic preferences.
 
 ## Project context
 
-- The browser entrypoint is `src/app/page.tsx`, which renders the client-only
+- The browser entrypoint is `src/app/page.tsx`, which renders the client
   `src/game/GameCanvas.tsx` component.
 - Phaser is dynamically imported in `GameCanvas` to avoid server-side rendering
   failures. Flag changes that import Phaser or browser globals from server
@@ -15,8 +15,8 @@ gameplay regressions over stylistic preferences.
   is in `src/game/maps/startingDungeon.ts`; asset paths and frame metadata are in
   `src/game/assets/manifest.ts`.
 - Static assets live under `public/assets`. Generated source sheets and processed
-  sprite metadata should stay in sync with the manifest and with any processing
-  scripts under `tools/` and `scripts/`.
+  sprite metadata should stay in sync with the manifest, the processing scripts
+  under `tools/`, and any occasional helpers under `scripts/`.
 
 ## Review priorities
 
@@ -39,9 +39,9 @@ gameplay regressions over stylistic preferences.
 
 - This repo defines `npm run build` and `npm run lint`; run them for app-level
   changes unless the pull request intentionally changes those scripts.
-- If a verification script is unavailable or incompatible with the installed
-  Next.js version, call that out explicitly instead of treating it as a code
-  failure.
+- If a verification script is unavailable or incompatible with the local
+  toolchain or environment, call that out explicitly instead of treating it as a
+  code failure.
 - For asset or script changes, verify the corresponding processing/generation
   command from `package.json` when practical.
 - For gameplay changes, look for deterministic edge cases that can be checked by

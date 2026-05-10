@@ -13,7 +13,8 @@ Use this file as repository-specific context when reviewing pull requests for th
 
 ### Next.js and React boundaries
 
-- Flag any server component, metadata, or module-scope code that imports Phaser directly or touches `window`, `document`, canvas, audio, or input APIs outside a client-only boundary.
+- Flag Phaser imports from server components, metadata/layout modules, or modules statically imported by server-rendered code. Phaser imports are expected inside client-only or dynamically imported game modules.
+- Flag `window`, `document`, canvas, audio, or input API access outside a client-only boundary.
 - `GameCanvas` must keep one Phaser game instance per host element, guard cancelled async boots, and destroy the game on unmount. Watch for duplicate game instances under React strict mode.
 - Keep full-viewport layout behavior in sync between `src/app/page.tsx`, `src/app/globals.css`, and Phaser scale settings.
 
@@ -22,7 +23,7 @@ Use this file as repository-specific context when reviewing pull requests for th
 - Event listeners, timers, tweens, input handlers, audio objects, containers, and masks created by `DungeonScene` need matching cleanup or restart-safe ownership.
 - Be skeptical of changes to start, how-to-play, game-over, restart, mute, and debug flows because they add global input handlers and overlay objects.
 - Check that new animations use unique keys or intentionally reuse existing keys; duplicate animation creation can throw or produce cross-run state leaks.
-- Preserve bounded object pools for recurring combat effects, damage numbers, afterimages, projectiles, pickups, and enemies.
+- Preserve explicit pool limits for recurring combat effects, damage numbers, and afterimages; active caps for enemies and pickups; and cleanup, range, cooldown, and ammo constraints for projectiles.
 
 ### Gameplay invariants
 

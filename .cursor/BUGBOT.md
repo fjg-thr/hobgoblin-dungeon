@@ -14,7 +14,7 @@ Use these project-specific rules when reviewing pull requests for this repositor
 
 - Keep React components client-safe when they interact with Phaser or browser-only APIs.
 - Preserve the dynamic Phaser loading pattern so server-side rendering does not import browser-only game code.
-- Use existing app structure and Tailwind/global styling conventions instead of introducing unrelated UI frameworks.
+- Use existing app structure and global CSS conventions instead of introducing unrelated UI frameworks.
 
 ## Game implementation expectations
 

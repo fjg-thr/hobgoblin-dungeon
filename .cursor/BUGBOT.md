@@ -37,10 +37,11 @@ gameplay regressions over stylistic preferences.
 
 ## Testing and verification expectations
 
-- Prefer confirming that `npm run build` succeeds for app-level changes.
-- Run `npm run lint` when lint tooling is available and relevant. If the script is
-  unavailable or incompatible with the installed Next.js version, call that out
-  explicitly instead of treating it as a code failure.
+- This repo defines `npm run build` and `npm run lint`; run them for app-level
+  changes unless the pull request intentionally changes those scripts.
+- If a verification script is unavailable or incompatible with the installed
+  Next.js version, call that out explicitly instead of treating it as a code
+  failure.
 - For asset or script changes, verify the corresponding processing/generation
   command from `package.json` when practical.
 - For gameplay changes, look for deterministic edge cases that can be checked by

@@ -24,7 +24,7 @@
    - Audio additions should update both `public/assets/audio/audio-manifest.json` when applicable and `assetManifest.audio`.
 
 4. **Gameplay tuning and accessibility**
-   - For controls, keep README instructions, start/how-to-play UI copy, and implemented key bindings in sync. Current fire inputs include Space, `J`, and pointer click.
+   - For controls, keep README instructions, start/how-to-play UI copy, and implemented key bindings in sync. The code currently supports Space and pointer click for firing, while README copy may mention `J`.
    - Check that changes preserve keyboard-only play and do not make required actions mouse-only.
    - Review balance changes against existing progression gates for ammo, seekers, brutes, power-ups, health drops, and spawn caps.
 

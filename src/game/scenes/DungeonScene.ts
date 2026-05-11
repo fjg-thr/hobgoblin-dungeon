@@ -13,6 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { readMutedPreference, writeMutedPreference } from "../preferences/mutePreference";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -1129,19 +1130,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    return readMutedPreference();
   }
 
   private writeMutedPreference() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    writeMutedPreference(this.muted);
   }
 
   private toggleMute() {

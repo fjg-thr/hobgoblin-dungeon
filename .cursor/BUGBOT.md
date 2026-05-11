@@ -25,7 +25,7 @@ comments actionable and avoid broad style feedback unless it hides a likely bug.
     codes, props, and map contracts.
 - Game runtime assets live under `public/assets`; asset-manifest runtime paths
   should start with `/assets/...`. Next.js metadata assets may also live at the
-  public root, such as `public/opengraph-image.png`.
+  public root, but only when the referenced public file is checked in.
 - Asset processing and generation scripts live in `tools/` and `scripts/`.
 
 ## High-signal findings to flag
@@ -57,8 +57,8 @@ comments actionable and avoid broad style feedback unless it hides a likely bug.
   checks, enemy pathing, and `assetManifest.tiles`.
 - Runtime asset-manifest path changes that reference files outside
   `public/assets` or mismatch checked-in PNG/WAV/JSON files. Do not apply this
-  rule to valid Next.js public-root metadata assets such as
-  `public/opengraph-image.png`.
+  rule to valid Next.js public-root metadata assets, but still flag metadata
+  references to missing public files.
 - Game logic changes that can create impossible states: negative health or ammo,
   active pickups beyond caps, unbounded spawn/timer growth, projectiles that
   never despawn, enemies attacking after death, or power-up timers stacking

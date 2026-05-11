@@ -7,7 +7,7 @@ Review this repository as a small playable Next.js prototype that embeds a Phase
 - `src/app/*` is a minimal Next.js App Router shell.
 - `src/game/GameCanvas.tsx` is client-only React code that dynamically imports Phaser and owns the Phaser game lifecycle.
 - `src/game/scenes/DungeonScene.ts` contains most runtime gameplay state, rendering, input handling, collision, combat, UI overlays, and audio orchestration.
-- `src/game/maps/startingDungeon.ts` generates and validates isometric dungeon maps.
+- `src/game/maps/startingDungeon.ts` generates isometric dungeon maps used by the game.
 - `src/game/assets/manifest.ts` is the source of truth for public asset keys, paths, frame sizes, and animation metadata.
 - `public/assets/**` contains generated game assets and metadata. Treat changes there as large binary/generated artifacts unless the PR clearly intends to update assets.
 - `tools/**` and `scripts/**` generate or process sprites and audio. Review these for reproducibility and accidental destructive file writes.

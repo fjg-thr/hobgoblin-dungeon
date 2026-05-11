@@ -30,7 +30,7 @@ Review pull requests for correctness regressions in this Next.js and Phaser dung
   - frame ranges, row offsets, `framesPerRow`, or animation keys;
   - union-derived keys such as `TileAssetKey`, `AudioAssetKey`, and power-up or actor names.
 - Tile, prop, or map-code changes that break the contract between `startingDungeon.ts`, collision logic, rendering, prop placement, and `assetManifest.tiles`.
-- Asset path changes that reference files outside `public/assets` or mismatch checked-in PNG/WAV/JSON files.
+- Runtime asset-manifest path changes that reference files outside `public/assets` or mismatch checked-in PNG/WAV/JSON files. Do not apply this rule to valid Next.js public-root metadata assets such as `public/opengraph-image.png`.
 - Game logic changes that can create impossible states: negative health or ammo, unbounded spawn/timer growth, projectiles that never despawn, enemies attacking after death, or power-up timers stacking incorrectly.
 - Audio or mute changes that can start duplicate loops, ignore the mute state, or leave sound instances alive after restart.
 - Package or lockfile changes that make dependency resolution inconsistent between `package-lock.json` and `pnpm-lock.yaml`.

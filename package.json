@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint",
+    "lint": "eslint . --max-warnings=0",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",
@@ -13,15 +13,21 @@
     "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
   },
   "dependencies": {
-    "next": "latest",
+    "next": "^16.2.6",
     "phaser": "4.0.0-rc.4",
     "react": "latest",
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.6",
     "typescript": "latest"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   }
 }

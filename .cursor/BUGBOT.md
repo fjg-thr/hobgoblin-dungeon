@@ -9,7 +9,7 @@ Use these repository rules when reviewing changes for Hobgoblin Ruin, a Next.js 
 - Most gameplay state, rendering, combat, audio, and input logic is in `src/game/scenes/DungeonScene.ts`.
 - Dungeon map generation and tile semantics live in `src/game/maps/startingDungeon.ts`.
 - Public asset paths and sprite sheet metadata are centralized in `src/game/assets/manifest.ts`; referenced files should exist under `public/`.
-- Asset generation and processing scripts live under `tools/` and are exposed through `package.json` scripts.
+- Asset generation and processing scripts live under `tools/`; commonly used ones are exposed through `package.json` scripts.
 
 ## Review priorities
 
@@ -26,7 +26,7 @@ Use these repository rules when reviewing changes for Hobgoblin Ruin, a Next.js 
 - Prefer `npm ci` over `npm install` in automated verification.
 - Run `npm run build` for production safety.
 - Run `npm run lint` if the script is available in the installed Next.js version; if it fails because the Next CLI no longer supports `next lint`, report that tooling gap separately from code-quality findings.
-- For asset-processing changes, also run the specific `package.json` script that owns the affected assets.
+- For asset-processing changes, also run the owning package script when one exists, or the relevant tool command otherwise.
 
 ## Reporting guidance
 

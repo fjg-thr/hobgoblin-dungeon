@@ -21,7 +21,7 @@
 
 3. **Check isometric coordinate, collision, and depth invariants.**
    - Tile/world conversions, collision checks, prop blocking, and pathfinding should continue to use the helpers and tile codes in `src/game/maps/startingDungeon.ts`.
-   - Render depth should remain based on tile position via the scene depth helpers so actors, props, walls, pickups, and effects sort correctly.
+   - Render depth should remain based on tile position via the scene depth helpers for enemies, props, walls, pickups, projectiles, and world effects; the player hero, hero effects, HUD, and overlays intentionally use fixed high depths.
    - F3 debug rendering should still match collision and tile-coordinate behavior after map or movement changes.
 
 4. **Review gameplay resource rules carefully.**
@@ -30,7 +30,7 @@
    - Power-up rarity, enemy/brute unlocks, safe spawn distance, pickup caps, and heart drop limits are balance-sensitive and should not become bypassable through restarts or scene resets.
 
 5. **Validate asset and manifest changes together.**
-   - Any asset added to gameplay should have a matching `public/assets/**` file and `assetManifest` entry with correct frame dimensions, key names, and metadata JSON paths.
+   - Any asset added to gameplay should have a matching `public/assets/**` file and `assetManifest` entry with correct paths, key names, frame dimensions, and metadata JSON paths where applicable.
    - Pixel-art rendering depends on nearest-neighbor-friendly assets and the global canvas/image-rendering settings in `src/app/globals.css`.
    - Generated asset sources and processing scripts should not be required at runtime.
 

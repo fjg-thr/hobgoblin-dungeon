@@ -8,17 +8,20 @@ Review pull requests for correctness regressions in this Next.js and Phaser dung
 - Phaser is currently `4.0.0-rc.4` per `package.json`; keep this note in sync on upgrades and do not assume Phaser 3-only APIs or behavior.
 - The runtime game surface is small:
   - `src/app/layout.tsx` defines site metadata and OpenGraph/Twitter share image configuration.
+  - `src/app/page.tsx` mounts the full-screen game canvas.
+  - `src/app/globals.css` controls full-viewport sizing, overflow, canvas sizing, cursor behavior, and pixel rendering.
   - `src/game/GameCanvas.tsx` boots Phaser on the client.
   - `src/game/scenes/DungeonScene.ts` owns most scene, input, combat, UI, audio, and cleanup behavior.
   - `src/game/assets/manifest.ts` is the source of truth for runtime asset keys, paths, frame sizes, and typed asset unions.
   - `src/game/maps/startingDungeon.ts` defines procedural dungeon layout, tile codes, props, and map contracts.
-- Static assets live under `public/assets`; runtime paths should start with `/assets/...`.
+- Game runtime assets live under `public/assets`; asset-manifest runtime paths should start with `/assets/...`. Next.js metadata assets may also live at the public root, such as `public/opengraph-image.png`.
 - Asset processing and generation scripts live in `tools/` and `scripts/`.
 
 ## High-signal findings to flag
 
 - Top-level imports or server-component usage that causes Phaser, `window`, WebGL, or browser-only APIs to run during SSR.
 - Changes to `GameCanvas.tsx` that remove the dynamic `import("phaser")`, the duplicate-boot guard, cancellation handling, or `destroy(true)` cleanup without an equivalent lifecycle-safe replacement.
+- Changes to `src/app/page.tsx` or `src/app/globals.css` that stop mounting the canvas, break full-viewport sizing, re-enable document scroll, or remove pixel-art canvas rendering.
 - Changes to `src/app/layout.tsx` metadata that create invalid `metadataBase` URLs, point OpenGraph/Twitter images at missing files, or break local/Vercel URL handling.
 - Phaser scene changes that leak event listeners, timers, tweens, sounds, sprites, or shutdown handlers across scene restarts.
 - Asset-manifest changes that do not update all coupled usage:

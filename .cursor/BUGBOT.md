@@ -5,7 +5,7 @@ Use these repository rules when reviewing changes for Hobgoblin Ruin, a Next.js 
 ## Project context
 
 - The app entry points are `src/app/layout.tsx` and `src/app/page.tsx`.
-- The browser-only Phaser bootstrapping lives in `src/game/GameCanvas.tsx`; keep Phaser imports dynamically loaded from client components so server rendering does not import browser-only APIs.
+- The browser-only Phaser boot path starts in `src/game/GameCanvas.tsx`; keep Phaser runtime imports and scene loading behind that client-only boundary so server components or shared SSR code do not import browser-only APIs.
 - Most gameplay state, rendering, combat, audio, and input logic is in `src/game/scenes/DungeonScene.ts`.
 - Dungeon map generation and tile semantics live in `src/game/maps/startingDungeon.ts`.
 - Public asset paths and sprite sheet metadata are centralized in `src/game/assets/manifest.ts`; referenced files should exist under `public/`.

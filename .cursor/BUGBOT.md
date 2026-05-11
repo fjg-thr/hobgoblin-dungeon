@@ -64,9 +64,11 @@ scene lifecycle, or player-facing gameplay described in `README.md`.
 - Combat changes should account for invulnerability windows, hit stop, damage
   numbers, death effects, score increments, drops, and game-over timing.
 - Keep controls and docs aligned. `README.md` documents WASD/arrow movement,
-  pointer aiming, click-to-fire, `Space` or `J` firing, lower-right
-  `SOUND`/`MUTED`, and `F3` debug controls; flag changed behavior or docs that
-  leave those controls inconsistent.
+  pointer aiming, keyboard firing, click-to-fire, lower-right `SOUND`/`MUTED`,
+  and `F3` debug controls; flag changed behavior or docs that leave those
+  controls inconsistent. The current runtime binds keyboard firing to `Space`
+  only, even though README also lists `J`, so do not assume `J` support unless a
+  PR changes it intentionally.
 
 ### Assets, Generated Files, and Dependencies
 

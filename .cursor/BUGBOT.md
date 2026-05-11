@@ -63,10 +63,10 @@ scene lifecycle, or player-facing gameplay described in `README.md`.
   preserve max counts, rarity, duration, pickup feedback, and HUD state.
 - Combat changes should account for invulnerability windows, hit stop, damage
   numbers, death effects, score increments, drops, and game-over timing.
-- Keep controls and docs aligned. `README.md` documents WASD/arrow movement,
-  pointer aiming, click-to-fire, `Space` or `J` firing, lower-right
-  `SOUND`/`MUTED`, and `F3` debug controls; flag changed behavior or docs that
-  leave those controls inconsistent.
+- Keep controls and docs aligned across `README.md`, in-game instructions, and
+  actual key bindings. Check WASD/arrow movement, pointer aiming, click-to-fire,
+  keyboard firing, lower-right `SOUND`/`MUTED`, and `F3` debug controls; flag
+  changed behavior or docs that leave those controls inconsistent.
 
 ### Assets, Generated Files, and Dependencies
 

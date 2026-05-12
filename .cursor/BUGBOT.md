@@ -28,13 +28,16 @@ game from a client component.
 - Prefer `npm ci` before local verification because the repo contains
   `package-lock.json`.
 - Run `npm run build` for production build and TypeScript coverage.
-- `npm run lint` is still listed in `package.json`. If it fails before ESLint
-  runs because Next resolves `lint` as an invalid project directory, report that
-  as a tooling incompatibility. If ESLint runs and reports rule violations,
-  treat those findings as real source issues.
+- `npm run lint` is still listed in `package.json`, but the locked Next.js 16
+  CLI does not expose `next lint`; it treats `lint` as a project directory and
+  exits before ESLint runs. Report that failure as a lint-script/tooling
+  incompatibility. If the script is changed later and ESLint reports rule
+  violations, treat those findings as real source issues.
 - There is no dedicated automated test suite in this repository. For gameplay
-  changes, ask for or perform a short manual run-through of the affected flows
-  in addition to the build.
+  changes, ask for or perform a short `npm run dev` manual run-through of the
+  affected flows in addition to the build.
+- There is no project ESLint config checked in at the moment, so future lint
+  enablement should make its rule source explicit.
 - Asset-generation scripts are only expected when source assets or generated
   sprite/audio outputs change.
 
@@ -56,9 +59,9 @@ game from a client component.
 - Preserve documented intentional limitations from `README.md` unless a change
   explicitly targets them. Do not report cosmetic staircases, simple contact
   damage, or known prototype progression limits as bugs by themselves.
-- `createDungeon(random?)` accepts an injectable random source. Layout or spawn
-  changes should keep that seam intact so reviewers and future tests can
-  reproduce generated maps.
+- `createDungeon(random: RandomSource = Math.random)` accepts an injectable
+  random source. Layout or spawn changes should keep that seam intact so
+  reviewers and future tests can reproduce generated maps.
 - Phaser 4 is pinned to `4.0.0-rc.4`. Verify lifecycle and API assumptions
   against that pinned version, avoid Phaser 3 snippets, and watch for RC-to-RC
   API differences.

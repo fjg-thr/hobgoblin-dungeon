@@ -1,7 +1,7 @@
 # Cursor Bugbot Review Guidance
 
-Use this guidance when reviewing changes in the Hobgoblin Ruin prototype. The
-repository is a private Next.js App Router app with React, TypeScript, and a
+Use this guidance when reviewing changes in the Hobgoblin Ruin prototype. This
+is an unpublished Next.js App Router app with React, TypeScript, and a
 client-only Phaser 4 game scene.
 
 ## Repository context
@@ -12,7 +12,8 @@ client-only Phaser 4 game scene.
 - Dungeon generation and collision semantics live in `src/game/maps/startingDungeon.ts`.
 - Asset paths and sprite metadata contracts live in `src/game/assets/manifest.ts`.
 - Runtime assets are served from `public/assets/**`.
-- Asset generation and processing scripts live in `tools/` and `scripts/`.
+- Asset generation and processing scripts live in `tools/` and `scripts/`; some
+  pipelines use Node and others use Python.
 
 ## Highest-priority review areas
 
@@ -22,6 +23,8 @@ client-only Phaser 4 game scene.
      server components, metadata, or module code that can execute during SSR.
    - Keep `src/app/layout.tsx` metadata references aligned with files checked
      into `public/`.
+   - Check environment-derived metadata such as `NEXT_PUBLIC_SITE_URL` and
+     `VERCEL_URL` for preview and production URL correctness.
 
 2. **Phaser scene lifecycle**
    - New timers, tweens, keyboard handlers, pointer handlers, audio instances,
@@ -43,8 +46,8 @@ client-only Phaser 4 game scene.
 4. **Gameplay simulation invariants**
    - Movement, collision, spawning, pickup placement, and pathing must respect
      blocked tiles, map bounds, prop collision boxes, and safe spawn distances.
-   - Enemy, projectile, pickup, damage-number, and combat-effect pools should
-     stay bounded and should not grow without cleanup.
+   - Enemy, projectile, pickup, damage-number, and combat-effect collections
+     should stay bounded and should not grow without cleanup.
    - Difficulty progression should remain deterministic enough to reason about:
      check unlock thresholds, spawn caps, cooldowns, invulnerability windows, and
      low-ammo recovery paths.
@@ -72,8 +75,11 @@ Run the most relevant checks for the touched area:
 ```bash
 npm ci
 npm run build
-git diff --check
+git diff --check origin/main...HEAD
 ```
+
+`npm ci` is the CI-style install path and assumes the committed npm lockfile is
+current; the README still documents `npm install` for casual local setup.
 
 `npm run lint` currently maps to `next lint`; if the installed Next.js CLI treats
 that command as an invalid project directory, report the tooling incompatibility

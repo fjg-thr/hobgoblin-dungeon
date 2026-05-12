@@ -12,15 +12,17 @@ client-only Phaser 4 game scene.
 - Dungeon generation and collision semantics live in `src/game/maps/startingDungeon.ts`.
 - Asset paths and sprite metadata contracts live in `src/game/assets/manifest.ts`.
 - Runtime assets are served from `public/assets/**`.
-- Asset generation and processing scripts live in `tools/` and `scripts/`; some
-  pipelines use Node and others use Python.
+- Asset generation and processing scripts mostly live in `tools/`; some
+  pipelines use Node and others use Python. `scripts/` currently contains
+  supporting generation utilities such as soundtrack tooling.
 
 ## Highest-priority review areas
 
 1. **Next.js client/server boundary**
    - Phaser usage must stay behind client-only components or dynamic imports.
    - Avoid reading `window`, `document`, canvas APIs, or Phaser globals from
-     server components, metadata, or module code that can execute during SSR.
+     server components, metadata-related modules, or shared imports that can
+     execute during SSR.
    - Keep `src/app/layout.tsx` metadata references aligned with the mechanism
      this app uses for absolute asset URLs, whether files in `public/` or App
      Router metadata/image routes.
@@ -76,11 +78,14 @@ Run the most relevant checks for the touched area:
 ```bash
 npm ci
 npm run build
+npm run lint
 git diff --check origin/main...HEAD
 ```
 
 `npm ci` is the CI-style install path and assumes the committed npm lockfile is
 current; the README still documents `npm install` for casual local setup.
+Replace `origin/main` in the diff check if the review target uses a different
+base branch or merge base.
 
 `npm run lint` currently maps to `next lint`; if the installed Next.js CLI treats
 that command as an invalid project directory, report the tooling incompatibility

@@ -28,11 +28,11 @@ game from a client component.
 - Prefer `npm ci` before local verification because the repo contains
   `package-lock.json`.
 - Run `npm run build` for production build and TypeScript coverage.
-- `npm run lint` is still listed in `package.json`, but the locked Next.js 16
-  CLI does not expose `next lint`; it treats `lint` as a project directory and
-  exits before ESLint runs. Report that failure as a lint-script/tooling
-  incompatibility. If the script is changed later and ESLint reports rule
-  violations, treat those findings as real source issues.
+- `npm run lint` is still listed in `package.json`, but `next lint` is
+  incompatible with the locked Next.js 16 CLI: it treats `lint` as a project
+  directory and exits before ESLint runs. Report that failure as a
+  lint-script/tooling incompatibility. If the script is changed later and ESLint
+  reports rule violations, treat those findings as real source issues.
 - There is no dedicated automated test suite in this repository. For gameplay
   changes, ask for or perform a short `npm run dev` manual run-through of the
   affected flows in addition to the build.
@@ -60,14 +60,18 @@ game from a client component.
   explicitly targets them. Do not report cosmetic staircases, simple contact
   damage, or known prototype progression limits as bugs by themselves.
 - `createDungeon(random: RandomSource = Math.random)` accepts an injectable
-  random source. Layout or spawn changes should keep that seam intact so
-  reviewers and future tests can reproduce generated maps.
+  random source, where the internal `RandomSource` alias is `() => number`.
+  Layout or spawn changes should keep that seam intact so reviewers and future
+  tests can reproduce generated maps.
 - Phaser 4 is pinned to `4.0.0-rc.4`. Verify lifecycle and API assumptions
   against that pinned version, avoid Phaser 3 snippets, and watch for RC-to-RC
   API differences.
-- Dependency changes that involve `next`, `react`, `react-dom`, `typescript`, or
-  `phaser` need an explicit build result because several versions are declared
-  as `latest` in `package.json`.
+- Dependency changes that involve `next`, `react`, `react-dom`, or `typescript`
+  need an explicit build result because those versions are declared as `latest`
+  in `package.json`.
+- Phaser is pinned to `4.0.0-rc.4`; changes to Phaser itself or code that
+  depends on Phaser lifecycle APIs still need an explicit build and targeted
+  gameplay check.
 - For asset-pipeline changes, verify that generated JSON and PNG/audio outputs
   are updated together and that source image prompts or processing tools remain
   in sync with `README.md` and `ASSET_PROMPTS.md`.

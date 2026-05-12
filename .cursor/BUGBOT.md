@@ -52,12 +52,14 @@ client-only Phaser 4 game scene.
 5. **React UI and accessibility**
    - Interactive UI controls should be keyboard reachable and have accessible
      names.
-   - Keep Tailwind utility usage consistent with the existing app styling.
+   - Keep `src/app/globals.css`, semantic HTML, and the existing pixel-art UI
+     class patterns consistent with the rest of the app.
    - Avoid replacing standard buttons with non-semantic clickable elements unless
      keyboard handling and ARIA are complete.
 
 6. **Package and lockfile hygiene**
-   - This repo currently documents npm usage and includes `package-lock.json`.
+   - This repo currently documents npm usage and includes both
+     `package-lock.json` and `pnpm-lock.yaml`.
    - Do not update both npm and pnpm lockfiles unless the dependency change
      intentionally supports both package managers.
    - Treat dependency updates as behavior changes: verify the Next.js build and
@@ -73,9 +75,9 @@ npm run build
 git diff --check
 ```
 
-`npm run lint` currently maps to `next lint`; if it fails with an invalid
-`/workspace/lint` project directory under the installed Next.js CLI, report that
-tooling incompatibility separately from code findings.
+`npm run lint` currently maps to `next lint`; if the installed Next.js CLI treats
+that command as an invalid project directory, report the tooling incompatibility
+separately from code findings.
 
 For gameplay, asset, or scene lifecycle changes, also do a browser smoke test
 when practical:
@@ -88,7 +90,8 @@ when practical:
 ## Review style
 
 - Lead with concrete defects, regressions, leaks, missing assets, and missing
-  tests.
+  verification. Automated tests are not yet standard in this repo, so request
+  focused tests or manual smoke evidence in proportion to the change.
 - Include file and line references whenever possible.
 - Distinguish blocking issues from minor polish.
 - Do not claim this file enables the managed Cursor Bugbot service by itself.

@@ -21,8 +21,9 @@ client-only Phaser 4 game scene.
    - Phaser usage must stay behind client-only components or dynamic imports.
    - Avoid reading `window`, `document`, canvas APIs, or Phaser globals from
      server components, metadata, or module code that can execute during SSR.
-   - Keep `src/app/layout.tsx` metadata references aligned with files checked
-     into `public/`.
+   - Keep `src/app/layout.tsx` metadata references aligned with the mechanism
+     this app uses for absolute asset URLs, whether files in `public/` or App
+     Router metadata/image routes.
    - Check environment-derived metadata such as `NEXT_PUBLIC_SITE_URL` and
      `VERCEL_URL` for preview and production URL correctness.
 

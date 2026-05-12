@@ -28,10 +28,10 @@ game from a client component.
 - Prefer `npm ci` before local verification because the repo contains
   `package-lock.json`.
 - Run `npm run build` for production build and TypeScript coverage.
-- `npm run lint` is still listed in `package.json`, but current Next.js releases
-  in this repo may not expose `next lint`; if it fails with an invalid
-  `/workspace/lint` project-directory error, report that as a tooling
-  incompatibility instead of a source lint failure.
+- `npm run lint` is still listed in `package.json`. If it fails before ESLint
+  runs because Next resolves `lint` as an invalid project directory, report that
+  as a tooling incompatibility. If ESLint runs and reports rule violations,
+  treat those findings as real source issues.
 - There is no dedicated automated test suite in this repository. For gameplay
   changes, ask for or perform a short manual run-through of the affected flows
   in addition to the build.
@@ -59,8 +59,9 @@ game from a client component.
 - `createDungeon(random?)` accepts an injectable random source. Layout or spawn
   changes should keep that seam intact so reviewers and future tests can
   reproduce generated maps.
-- Phaser 4 is pinned to a release candidate. Be cautious with API assumptions
-  from Phaser 3 examples or newer Phaser 4 documentation.
+- Phaser 4 is pinned to `4.0.0-rc.4`. Verify lifecycle and API assumptions
+  against that pinned version, avoid Phaser 3 snippets, and watch for RC-to-RC
+  API differences.
 - Dependency changes that involve `next`, `react`, `react-dom`, `typescript`, or
   `phaser` need an explicit build result because several versions are declared
   as `latest` in `package.json`.

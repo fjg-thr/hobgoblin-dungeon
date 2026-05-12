@@ -78,7 +78,7 @@ Run the most relevant checks for the touched area:
 ```bash
 npm ci
 npm run build
-npm run lint
+npm run lint # known Next CLI incompatibility; report separately if it fails
 git diff --check origin/main...HEAD
 ```
 

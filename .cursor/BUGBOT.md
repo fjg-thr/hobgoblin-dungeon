@@ -64,14 +64,12 @@ game from a client component.
   Layout or spawn changes should keep that seam intact so reviewers and future
   tests can reproduce generated maps.
 - Phaser 4 is pinned to `4.0.0-rc.4`. Verify lifecycle and API assumptions
-  against that pinned version, avoid Phaser 3 snippets, and watch for RC-to-RC
-  API differences.
+  against that pinned version, avoid Phaser 3 snippets, watch for RC-to-RC API
+  differences, and require a targeted gameplay check for Phaser lifecycle
+  changes.
 - Dependency changes that involve `next`, `react`, `react-dom`, or `typescript`
   need an explicit build result because those versions are declared as `latest`
   in `package.json`.
-- Phaser is pinned to `4.0.0-rc.4`; changes to Phaser itself or code that
-  depends on Phaser lifecycle APIs still need an explicit build and targeted
-  gameplay check.
 - For asset-pipeline changes, verify that generated JSON and PNG/audio outputs
   are updated together and that source image prompts or processing tools remain
   in sync with `README.md` and `ASSET_PROMPTS.md`.

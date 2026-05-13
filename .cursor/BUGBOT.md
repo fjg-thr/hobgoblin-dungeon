@@ -21,11 +21,10 @@ Review pull requests for user-visible bugs, regressions, security issues, and ma
 
 ## Validation guidance
 
-When a PR changes code, ask whether these commands should pass locally:
+When a PR changes code, ask whether this command should pass locally:
 
 ```bash
 npm run build
-npm run lint
 ```
 
-If a PR only changes documentation or generated art assets, focus on path correctness and whether the change is intentionally excluded from runtime validation.
+If a PR changes lint tooling, ask reviewers to validate that tooling separately. If a PR only changes documentation or generated art assets, focus on path correctness and whether the change is intentionally excluded from runtime validation.

@@ -6,7 +6,7 @@ Review pull requests for user-visible bugs, regressions, security issues, and ma
 
 - This is a Next.js app that hosts a Phaser-based isometric dungeon prototype.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`.
-- Asset manifests live under `src/game/assets` and `public/assets/**/*.json`; referenced files must exist under `public/assets`.
+- The TypeScript asset manifest lives under `src/game/assets`, and generated sprite/audio metadata lives in `public/assets/**/*.json`; referenced files must exist under `public/assets`.
 - The app is client-heavy, but `src/app/layout.tsx` and other App Router files still need to respect Next.js server/client boundaries.
 
 ## Review priorities

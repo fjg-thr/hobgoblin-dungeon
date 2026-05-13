@@ -15,12 +15,13 @@ Open `http://localhost:3000`.
 
 Cursor Bugbot is configured with repository-specific review guidance in `.cursor/BUGBOT.md`. To deploy it for pull request reviews:
 
-1. Connect this repository in the Cursor dashboard GitHub integration.
-2. Enable Bugbot for the repository from the Cursor Bugbot dashboard.
-3. Merge `.cursor/BUGBOT.md` into the default branch so Bugbot can load the rules for future reviews.
-4. Use `cursor review` or `bugbot run` on a pull request to trigger an on-demand review when automatic reviews are not enabled.
+1. Install or authorize the Cursor/Bugbot GitHub App for this organization or repository with permission to read pull requests and post review feedback.
+2. Connect this repository in the Cursor dashboard GitHub integration.
+3. Enable Bugbot for the repository from the Cursor Bugbot dashboard.
+4. Merge `.cursor/BUGBOT.md` into the default branch so Bugbot can load the rules for future reviews.
+5. Comment `cursor review` or `bugbot run` on a pull request to trigger an on-demand review when automatic reviews are not enabled.
 
-Bugbot should prioritize functional regressions in the Next.js app, Phaser game loop, scene lifecycle, asset manifests, and accessibility-sensitive UI changes.
+Bugbot should prioritize functional regressions in the Next.js app, Phaser game loop, scene lifecycle, asset loading, and accessibility-sensitive UI changes. See the official Cursor Bugbot documentation for current dashboard setup details: https://cursor.com/docs/bugbot.
 
 ## Controls
 

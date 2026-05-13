@@ -7,7 +7,7 @@ Use this guidance when reviewing changes in this repository.
 - This is a Next.js App Router prototype for a dark GBA-inspired isometric dungeon game.
 - Runtime game code uses React only to host a Phaser 4 scene. Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`.
 - Assets are checked into `public/assets` with JSON manifests. The TypeScript manifest in `src/game/assets/manifest.ts` should stay in sync with those files.
-- Dungeon layout, tile blocking, and isometric coordinate helpers live in `src/game/maps/startingDungeon.ts`.
+- Dungeon layout and tile blocking live in `src/game/maps/startingDungeon.ts`; isometric rendering and depth helpers are split between exported tile constants there and scene helpers in `src/game/scenes/DungeonScene.ts`.
 - The UI shell is intentionally small: `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/globals.css`, and `src/game/GameCanvas.tsx`.
 
 ## Review priorities

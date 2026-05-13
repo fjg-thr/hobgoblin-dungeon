@@ -11,6 +11,17 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review Automation
+
+Cursor Bugbot is configured with repository-specific review guidance in `.cursor/BUGBOT.md`. To deploy it for pull request reviews:
+
+1. Connect this repository in the Cursor dashboard GitHub integration.
+2. Enable Bugbot for the repository from the Cursor Bugbot dashboard.
+3. Merge `.cursor/BUGBOT.md` into the default branch so Bugbot can load the rules for future reviews.
+4. Use `cursor review` or `bugbot run` on a pull request to trigger an on-demand review when automatic reviews are not enabled.
+
+Bugbot should prioritize functional regressions in the Next.js app, Phaser game loop, scene lifecycle, asset manifests, and accessibility-sensitive UI changes.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

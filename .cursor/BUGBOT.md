@@ -64,7 +64,7 @@ For substantive code or asset-manifest changes, prefer these checks:
 npm ci
 npm run build
 npx tsc --noEmit
-git diff --check <merge-base>...HEAD
+git diff --check origin/main...HEAD
 git diff --check
 ```
 
@@ -81,6 +81,10 @@ the change under review modifies lint tooling.
 After `npm run build` or `npx tsc --noEmit`, check for generated-file churn such
 as `next-env.d.ts` or `tsconfig.tsbuildinfo` and ensure only intentional changes
 remain.
+
+For metadata or social-preview changes, also confirm that
+`public/opengraph-image.png` is still present and tracked, because static asset
+deletions may not be caught by build or type-check output.
 
 ## Review output
 

@@ -31,6 +31,8 @@ pixel-art and audio assets.
      spawning on blocked tiles.
    - For input changes, verify keyboard, pointer, focus, and mute controls remain
      usable and do not conflict with browser defaults.
+   - For HTML UI, overlays, or control changes, check labels, focus behavior,
+     keyboard access, pointer access, and clear instructions for canvas controls.
 
 4. **Asset contracts**
    - Asset keys, frame sizes, frame counts, row layouts, metadata paths, and file
@@ -62,11 +64,17 @@ For substantive code or asset-manifest changes, prefer these checks:
 npm ci
 npm run build
 npx tsc --noEmit
+git diff --check <merge-base>...HEAD
 git diff --check
 ```
 
-`npm run lint` currently invokes `next lint`, which is not compatible with the
-locked Next.js CLI in this repository and fails by treating `lint` as a project
+The README and existing npm lockfile make npm the default package manager for
+these checks. If a change intentionally makes pnpm canonical, use
+`pnpm install --frozen-lockfile` instead and make sure the package-manager
+decision is documented.
+
+`npm run lint` currently invokes `next lint`, which fails with the current
+Next.js CLI behavior in this repository by treating `lint` as a project
 directory. Do not report that known tooling limitation as a new regression unless
 the change under review modifies lint tooling.
 

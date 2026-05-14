@@ -39,6 +39,10 @@ Use this file as repository-specific context when reviewing pull requests for th
    - Do not add duplicate package-manager workflows. The repository currently contains both npm and pnpm lockfiles, but verification should use npm unless the branch intentionally changes that.
    - Do not rely on `npm run lint` until the script is updated for the locked Next CLI; `next lint` is not available in the current Next 16 CLI.
 
+6. **Metadata and SEO**
+   - `src/app/layout.tsx` references `/opengraph-image.png`; flag changes that leave this without either `public/opengraph-image.png` or a valid App Router metadata image route.
+   - Escalate public metadata changes when title, description, canonical site URL handling, or social preview image dimensions change.
+
 ## Suggested verification
 
 Run these checks for code changes when feasible:
@@ -59,7 +63,6 @@ Notes:
 ## Common false positives to avoid
 
 - Dynamic importing Phaser from the client component is intentional and prevents server-side evaluation of browser-only code.
-- The Open Graph image referenced from `layout.tsx` should either exist at `public/opengraph-image.png` or be replaced with a valid App Router metadata image route.
 - Generated image/audio assets can be large; focus review on whether metadata and manifest references are consistent.
 - The debug overlay and F3 toggle are intentional playtest tooling.
 

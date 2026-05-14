@@ -64,4 +64,3 @@ Notes:
 - `npm ci` may report existing dependency audit findings. Distinguish pre-existing audit output from vulnerabilities introduced by a PR.
 - `npm run build` or TypeScript can update generated local files such as `next-env.d.ts` or `tsconfig.tsbuildinfo`; ensure generated noise is reverted or ignored before review conclusions.
 - For asset-heavy changes, also verify the game loads in a browser and watch the console/network panel for missing asset 404s, Phaser warnings, or audio autoplay issues.
-

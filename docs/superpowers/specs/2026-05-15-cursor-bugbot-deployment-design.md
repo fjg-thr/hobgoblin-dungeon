@@ -38,14 +38,14 @@ on pull_request_target opened, reopened, ready_for_review, synchronize:
     stop to avoid automation loops
 
   find existing PR comments from github-actions[bot]
-    where body contains hidden marker <!-- cursor-bugbot-review -->
+    where body contains hidden marker <!-- cursor-bugbot-review --> and head SHA
 
-  body = marker + "bugbot run" + short explanation + source head SHA
+  body = marker + head SHA + "bugbot run" + short explanation
 
-  if marker comment exists:
-    update it for the latest head SHA
+  if marker comment exists for this head SHA:
+    stop without duplicating the request
   else:
-    create the comment
+    create the comment so Bugbot receives a new comment event
 ```
 
 ## Security and Permissions
@@ -54,12 +54,12 @@ on pull_request_target opened, reopened, ready_for_review, synchronize:
 - Scope token permissions to `issues: write` and `pull-requests: read`.
 - Skip draft PRs to avoid reviewing unfinished work unless the PR is marked ready.
 - Skip bot-authored PRs to reduce comment loops.
-- Use a hidden marker so repeated synchronization updates one comment instead of creating many comments.
+- Use a hidden marker plus the PR head SHA so repeated workflow runs do not duplicate the same review request.
 
 ## Success Criteria
 
 - PRs opened or updated against the repository receive a Bugbot trigger comment.
-- Existing trigger comments are updated instead of duplicated.
+- Existing trigger comments for the same PR head SHA are not duplicated.
 - Workflow is valid YAML and does not execute untrusted PR code.
 - README documents the Cursor dashboard/GitHub App prerequisite.
 

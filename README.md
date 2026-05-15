@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot Reviews
+
+Pull requests are configured to request a Cursor Bugbot review through `.github/workflows/cursor-bugbot-review.yml`. The workflow posts a `bugbot run` comment for each non-draft, human-authored PR head SHA without checking out or executing PR code.
+
+Cursor Bugbot must also be enabled for this repository in the Cursor dashboard and connected GitHub App settings. Without that external setup, the workflow comment is harmless but will not start a Bugbot review.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

@@ -53,8 +53,15 @@ For most code changes, request or run:
 ```bash
 npm ci
 npm run build
-npx tsc --noEmit
+npx tsc --noEmit --incremental false
 ```
+
+`npm run build` can rewrite tracked Next.js generated type references in
+`next-env.d.ts`. Treat that as local tool output unless the change intentionally
+updates Next/TypeScript configuration, and restore the file before finalizing a
+review. If someone runs plain `npx tsc --noEmit`, TypeScript can also create an
+untracked `tsconfig.tsbuildinfo` because `incremental` is enabled; delete it or
+use `--incremental false` as shown above.
 
 `npm run lint` is currently wired to `next lint`, which is not reliable with
 the current Next CLI in this repository. If it fails with an invalid project

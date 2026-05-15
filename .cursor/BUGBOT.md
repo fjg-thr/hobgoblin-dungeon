@@ -88,11 +88,13 @@ should apply once it is run against pull requests or branches.
 - There is currently no committed unit test suite and no `test` script. Ask for
   focused tests only when the changed code creates a practical seam or high
   regression risk.
-- `npm run lint` currently invokes `next lint`, but Next 16.2.4 no longer
-  exposes an integrated `lint` subcommand. The CLI treats `lint` as a project
-  directory and fails with `<project-root>/lint` missing. Prefer build and
-  side-effect-free TypeScript verification until linting is migrated to a
-  direct ESLint CLI/configuration or another explicit linter.
+- `npm run lint` currently invokes `next lint`, but Next as resolved in
+  `package-lock.json` at this deployment (16.2.4) no longer exposes an
+  integrated `lint` subcommand. The CLI treats `lint` as a project directory
+  and fails with `<project-root>/lint` missing. Prefer `npm run build` as an
+  integration check and `npx tsc --noEmit --incremental false` as the
+  side-effect-free TypeScript check until linting is migrated to a direct
+  ESLint CLI/configuration or another explicit linter.
 
 ## Recommended verification
 

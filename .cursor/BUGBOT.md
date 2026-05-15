@@ -90,7 +90,7 @@ should apply once it is run against pull requests or branches.
   regression risk.
 - `npm run lint` currently invokes `next lint`, but Next 16.2.4 no longer
   exposes an integrated `lint` subcommand. The CLI treats `lint` as a project
-  directory and fails with `/workspace/lint` missing. Prefer build and
+  directory and fails with `<project-root>/lint` missing. Prefer build and
   side-effect-free TypeScript verification until linting is migrated to a
   direct ESLint CLI/configuration or another explicit linter.
 
@@ -106,6 +106,7 @@ npm run build
 npx tsc --noEmit --incremental false
 test -f public/opengraph-image.png
 git ls-files --error-unmatch public/opengraph-image.png
+git diff --check origin/main...HEAD
 git diff --check
 ```
 

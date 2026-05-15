@@ -9,7 +9,7 @@ Review pull requests for bugs that would affect runtime behavior, builds, or mai
 - Phaser lifecycle: check for leaked event listeners, timers, tweens, physics objects, or scene state that survives restart/game-over flows unexpectedly.
 - Gameplay regressions: movement, aiming, ammo, enemy spawning, pickups, scoring, collision, camera behavior, start/game-over screens, and mute controls should keep their documented behavior.
 - Asset consistency: references in `src/game/assets/manifest.ts` should match files under `public/assets`, and sprite-sheet frame metadata should remain compatible with the loading code.
-- Build health: call out changes likely to break `npm run lint` or `npm run build`.
+- Build health: call out changes likely to break `npm run build`.
 
 ## Noise to avoid
 
@@ -20,6 +20,5 @@ Review pull requests for bugs that would affect runtime behavior, builds, or mai
 ## Useful local checks
 
 ```bash
-npm run lint
 npm run build
 ```

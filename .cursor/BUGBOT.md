@@ -5,7 +5,7 @@ Ruin Prototype.
 
 ## Project shape
 
-- Next.js App Router application with React and TypeScript.
+- Next.js App Router application with React, TypeScript, and Phaser 4.0.0-rc.4.
 - The playable game is mounted by `src/game/GameCanvas.tsx` and implemented in
   the Phaser scene at `src/game/scenes/DungeonScene.ts`.
 - The dungeon map generator and tile semantics live in
@@ -34,10 +34,12 @@ Ruin Prototype.
    and committed sprite-sheet JSON/PNG/WAV files.
 6. Preserve metadata/share-image consistency. If metadata changes reference a
    public asset, confirm the asset exists and is tracked.
-7. Avoid recommendations that introduce custom CSS or bespoke UI abstractions
-   for ordinary React UI unless the local code already requires it. Prefer the
-   existing Tailwind/global style patterns in this prototype.
-8. Flag package manager drift. The repository currently has both
+7. Verify Phaser API advice against the installed Phaser 4.0.0-rc.4 release
+   candidate; do not assume Phaser 3 examples apply unchanged.
+8. Avoid recommendations that introduce Tailwind, custom CSS frameworks, or
+   bespoke UI abstractions for ordinary React UI unless the change intentionally
+   adds that tooling. Prefer the existing global CSS patterns in this prototype.
+9. Flag package manager drift. The repository currently has both
    `package-lock.json` and `pnpm-lock.yaml`; dependency changes should be
    intentional and keep the relevant lockfile story consistent.
 

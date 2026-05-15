@@ -66,8 +66,8 @@ use `--incremental false` as shown above.
 `npm run lint` is currently wired to `next lint`, which is not reliable with
 the current Next CLI in this repository. If it fails with an invalid project
 directory for `/workspace/lint`, report the tooling limitation instead of
-blocking unrelated changes. Prefer `npm run build` and `npx tsc --noEmit` until
-the lint script is migrated.
+blocking unrelated changes. Prefer `npm run build` and the side-effect-free
+type-check command above until the lint script is migrated.
 
 When metadata or share-image behavior changes, also verify:
 

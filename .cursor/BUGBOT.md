@@ -1,9 +1,9 @@
 # Cursor Bugbot review guidance
 
 Use this guide when reviewing changes in this repository. The managed Bugbot
-service is enabled outside of git through Cursor settings or an admin API; this
-file supplies the repo-specific review policy that Bugbot should apply once it
-is run against pull requests or branches.
+service is enabled outside of git through Cursor product or organization
+configuration; this file supplies the repo-specific review policy that Bugbot
+should apply once it is run against pull requests or branches.
 
 ## Repository profile
 
@@ -88,13 +88,16 @@ is run against pull requests or branches.
 - There is currently no committed unit test suite and no `test` script. Ask for
   focused tests only when the changed code creates a practical seam or high
   regression risk.
-- `npm run lint` currently invokes `next lint`, which is not a reliable gate
-  with the current Next CLI behavior in this repository. Prefer build and
-  side-effect-free TypeScript verification until linting is migrated.
+- `npm run lint` currently invokes `next lint`; with the installed Next CLI in
+  this repository, that command can be interpreted as a project directory named
+  `lint` instead of as a lint subcommand. Prefer build and side-effect-free
+  TypeScript verification until linting is migrated.
 
 ## Recommended verification
 
-Run the strongest applicable subset for the changed files:
+Run the strongest applicable subset for the changed files. The npm commands
+match the checked-in `package-lock.json`; if the team switches to pnpm as the
+authoritative installer, use the equivalent frozen-lockfile pnpm commands.
 
 ```bash
 npm ci

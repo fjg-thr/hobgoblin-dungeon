@@ -33,7 +33,7 @@ or:
 bugbot run
 ```
 
-The companion workflow runs on pull requests when the repository secret `CURSOR_API_KEY` is configured. Without that secret, the workflow skips safely and writes setup guidance to the Actions summary.
+Pull request workflow runs intentionally avoid the `CURSOR_API_KEY` secret and write setup guidance to the Actions summary. The secret-backed Cursor CLI companion review is available from `workflow_dispatch` for maintainer-triggered reviews after `CURSOR_API_KEY` is configured.
 
 ## Controls
 

@@ -4,7 +4,7 @@
 
 **Goal:** Add repository-side automation that requests Cursor Bugbot reviews on pull requests.
 
-**Architecture:** A GitHub Actions workflow listens for pull request lifecycle events and comments `bugbot run` without checking out or executing pull request code. The README documents that Cursor Bugbot must also be enabled in the Cursor dashboard/GitHub App for the comment to have an effect.
+**Architecture:** A GitHub Actions workflow listens for pull request lifecycle events and comments `bugbot run` without checking out or executing pull request code. It uses only `issues: write`, serializes duplicate same-SHA runs with a concurrency group, and pins the GitHub-owned scripting action by commit SHA. The README documents that Cursor Bugbot must also be enabled in the Cursor dashboard/GitHub App for the comment to have an effect.
 
 **Tech Stack:** GitHub Actions, `actions/github-script@v7`, Markdown documentation.
 
@@ -36,9 +36,11 @@ on:
       - synchronize
 
 permissions:
-  contents: read
   issues: write
-  pull-requests: read
+
+concurrency:
+  group: cursor-bugbot-review-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: false
 
 jobs:
   request-bugbot-review:
@@ -47,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comment Bugbot trigger
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
             const marker = '<!-- cursor-bugbot-review -->';

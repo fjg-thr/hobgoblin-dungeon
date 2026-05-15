@@ -29,7 +29,8 @@ Pseudocode:
 
 ```text
 on pull_request_target opened, reopened, ready_for_review, synchronize:
-  grant pull-requests:read and issues:write
+  grant issues:write only
+  serialize runs by PR number and head SHA
 
   if pull request is draft:
     stop without commenting
@@ -51,10 +52,11 @@ on pull_request_target opened, reopened, ready_for_review, synchronize:
 ## Security and Permissions
 
 - Use `pull_request_target` only for commenting metadata; the workflow will not check out or execute pull request code.
-- Scope token permissions to `issues: write` and `pull-requests: read`.
+- Scope token permissions to `issues: write` only.
 - Skip draft PRs to avoid reviewing unfinished work unless the PR is marked ready.
 - Skip bot-authored PRs to reduce comment loops.
 - Use a hidden marker plus the PR head SHA so repeated workflow runs do not duplicate the same review request.
+- Pin the GitHub-owned scripting action by commit SHA to reduce tag-mutation exposure.
 
 ## Success Criteria
 

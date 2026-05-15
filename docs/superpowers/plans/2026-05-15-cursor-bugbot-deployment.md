@@ -138,6 +138,7 @@ Expected result: Next.js build exits with code 0.
 - Stage: `.github/workflows/cursor-bugbot-review.yml`
 - Stage: `README.md`
 - Stage: `docs/superpowers/plans/2026-05-15-cursor-bugbot-deployment.md`
+- Stage: `docs/superpowers/specs/2026-05-15-cursor-bugbot-deployment-design.md`
 
 - [ ] **Step 1: Review git status**
 
@@ -154,7 +155,7 @@ Expected changed files are the workflow, README, and this plan.
 Run:
 
 ```bash
-git add .github/workflows/cursor-bugbot-review.yml README.md docs/superpowers/plans/2026-05-15-cursor-bugbot-deployment.md
+git add .github/workflows/cursor-bugbot-review.yml README.md docs/superpowers/plans/2026-05-15-cursor-bugbot-deployment.md docs/superpowers/specs/2026-05-15-cursor-bugbot-deployment-design.md
 git commit -m "Deploy Cursor Bugbot review workflow"
 ```
 

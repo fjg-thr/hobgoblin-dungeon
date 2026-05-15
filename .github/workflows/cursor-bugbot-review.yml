@@ -51,10 +51,12 @@ jobs:
               owner,
               repo,
               issue_number,
-              body: `${shaMarker}
-bugbot run
-
-Cursor Bugbot review requested for \`${headSha}\`.
-
-_Cursor Bugbot must be enabled for this repository in the Cursor dashboard._`,
+              body: [
+                shaMarker,
+                'bugbot run',
+                '',
+                `Cursor Bugbot review requested for \`${headSha}\`.`,
+                '',
+                '_Cursor Bugbot must be enabled for this repository in the Cursor dashboard._',
+              ].join('\n'),
             });

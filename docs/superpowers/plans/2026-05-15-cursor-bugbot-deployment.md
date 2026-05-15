@@ -78,12 +78,14 @@ jobs:
               owner,
               repo,
               issue_number,
-              body: `${shaMarker}
-bugbot run
-
-Cursor Bugbot review requested for \`${headSha}\`.
-
-_Cursor Bugbot must be enabled for this repository in the Cursor dashboard._`,
+              body: [
+                shaMarker,
+                'bugbot run',
+                '',
+                `Cursor Bugbot review requested for \`${headSha}\`.`,
+                '',
+                '_Cursor Bugbot must be enabled for this repository in the Cursor dashboard._',
+              ].join('\n'),
             });
 ```
 
@@ -92,7 +94,7 @@ _Cursor Bugbot must be enabled for this repository in the Cursor dashboard._`,
 Run:
 
 ```bash
-ruby -e 'require "yaml"; YAML.load_file(".github/workflows/cursor-bugbot-review.yml"); puts "workflow yaml ok"'
+python3 -c "import pathlib, yaml; yaml.safe_load(pathlib.Path('.github/workflows/cursor-bugbot-review.yml').read_text()); print('workflow yaml ok')"
 ```
 
 Expected output:

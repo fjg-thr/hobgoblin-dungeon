@@ -11,6 +11,30 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot Review
+
+This repository includes Cursor Bugbot review guidance in `.cursor/BUGBOT.md` and a GitHub Actions companion workflow in `.github/workflows/cursor-bugbot-review.yml`.
+
+To enable managed Bugbot reviews:
+
+1. Connect this GitHub repository in the Cursor dashboard.
+2. Enable Bugbot for the repository.
+3. Merge `.cursor/BUGBOT.md` into the default branch so Bugbot can read the repository-specific review instructions.
+
+Bugbot can also be triggered manually on a pull request by commenting:
+
+```text
+cursor review
+```
+
+or:
+
+```text
+bugbot run
+```
+
+The companion workflow runs on pull requests when the repository secret `CURSOR_API_KEY` is configured. Without that secret, the workflow skips safely and writes setup guidance to the Actions summary.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

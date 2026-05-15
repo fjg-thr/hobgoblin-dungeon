@@ -1,0 +1,101 @@
+name: Cursor Bugbot Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: cursor-bugbot-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Review pull request
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    env:
+      CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+
+    steps:
+      - name: Check Cursor API key
+        id: cursor-key
+        run: |
+          if [ -z "$CURSOR_API_KEY" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Cursor Bugbot Review"
+              echo ""
+              echo "Skipped: repository secret \`CURSOR_API_KEY\` is not configured."
+              echo "Enable managed Bugbot in Cursor or add the secret to run this workflow."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out repository
+        if: steps.cursor-key.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        if: steps.cursor-key.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Cursor CLI
+        if: steps.cursor-key.outputs.configured == 'true'
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Prepare review prompt
+        if: steps.cursor-key.outputs.configured == 'true'
+        env:
+          BASE_REF: ${{ github.base_ref || 'main' }}
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+
+          {
+            echo "You are Cursor Bugbot reviewing a pull request for this repository."
+            echo ""
+            echo "Review goal:"
+            echo "- Identify concrete bugs, regressions, security issues, and build/runtime failures."
+            echo "- Do not modify files, commit changes, push branches, or post external comments."
+            echo "- If there are no blocking issues, say that clearly and mention any residual risk."
+            echo ""
+            echo "Repository-specific instructions:"
+            sed 's/^/> /' .cursor/BUGBOT.md
+            echo ""
+            echo "Pull request context:"
+            echo "- Base ref: $BASE_REF"
+            echo "- Head ref: $HEAD_REF"
+            echo ""
+            echo "Diff stat:"
+            git diff --stat "origin/$BASE_REF"...HEAD
+            echo ""
+            echo "Diff:"
+            git diff --find-renames --no-ext-diff "origin/$BASE_REF"...HEAD
+          } > /tmp/cursor-bugbot-prompt.md
+
+      - name: Run Cursor Bugbot review
+        if: steps.cursor-key.outputs.configured == 'true'
+        run: |
+          agent -p "$(cat /tmp/cursor-bugbot-prompt.md)" --output-format text | tee /tmp/cursor-bugbot-review.md
+          {
+            echo "### Cursor Bugbot Review"
+            echo ""
+            cat /tmp/cursor-bugbot-review.md
+          } >> "$GITHUB_STEP_SUMMARY"

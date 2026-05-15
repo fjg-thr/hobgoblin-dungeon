@@ -1,8 +1,9 @@
 # Cursor Bugbot Review Guide
 
-This repository is a Next.js app that boots a Phaser-based dungeon game from a
-client-only React shell. When reviewing pull requests, prioritize issues that
-can break runtime gameplay, asset loading, or browser compatibility.
+This repository is a Next.js App Router project that boots a Phaser
+4.0.0-rc.4 dungeon game from a client-only React shell. When reviewing pull
+requests, prioritize issues that can break runtime gameplay, asset loading,
+static metadata, or browser compatibility.
 
 ## Project-specific review priorities
 
@@ -20,6 +21,9 @@ can break runtime gameplay, asset loading, or browser compatibility.
 - Validate asset-manifest changes. Any added asset key should match files under
   `public/assets`, sprite-sheet frame dimensions, metadata JSON, animation row
   indexes, and preload usage.
+- Check static metadata assets. If OpenGraph, Twitter card, icon, or other
+  public metadata references change, confirm the referenced file exists under
+  `public/` and that dimensions/alt text stay consistent.
 - Flag performance risks in the main update loop. Avoid per-frame allocations,
   unbounded object creation, repeated pathfinding work, or scans that scale with
   map size without throttling.
@@ -28,14 +32,20 @@ can break runtime gameplay, asset loading, or browser compatibility.
 - Treat generated assets and processing scripts as reproducible pipelines.
   Changes to tools should keep source paths, output dimensions, alpha handling,
   and manifest references in sync.
+- Watch for package-manager drift. This repo currently has both `package-lock.json`
+  and `pnpm-lock.yaml`; dependency changes should keep the intended lockfile
+  strategy clear and avoid unrelated lockfile churn.
 
 ## Expected verification
 
 - For application changes, prefer `npm run build` as the baseline verification.
-- For TypeScript-only changes, also confirm `npx tsc --noEmit` if build output
-  does not clearly cover the edited paths.
+- For TypeScript-only changes, also confirm `npx tsc --noEmit --incremental false`
+  if build output does not clearly cover the edited paths.
 - If behavior depends on assets, confirm referenced files exist and match the
   manifest dimensions used by Phaser.
+- Do not rely on `npm run lint` until linting is migrated away from `next lint`;
+  with the current lockfile-resolved Next.js version, that script is not a valid
+  integrated lint command.
 
 ## Review style
 

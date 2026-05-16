@@ -30,7 +30,7 @@
 - When runtime sprite sheets or audio assets are added, verify the referenced files exist under `public/assets` and that `assetManifest` paths, frame sizes, animation frame counts, and metadata paths match the generated files.
 - Some runtime sheets use fixed frame dimensions without JSON metadata. Only require JSON when code or the manifest references a `metadataPath`.
 - For generated assets, prefer reviewing the processing script, manifest changes, and final public asset references together. Avoid blocking solely because a binary asset diff cannot be line-reviewed.
-- If `src/app/layout.tsx` metadata changes, confirm referenced public assets such as `/opengraph-image.png` exist and are tracked.
+- If a diff changes OpenGraph or Twitter image URLs, or adds or replaces corresponding public share-image assets, confirm the new referenced public assets exist and are tracked.
 
 ## Verification commands
 
@@ -46,7 +46,7 @@ Notes:
 
 - `npm run build` is the current integration check for this Next.js project.
 - `npm run lint` currently invokes `next lint`; with the lockfile-resolved Next.js version, that subcommand is not available and is interpreted as a project directory. Do not request `npm run lint` until linting is migrated to an explicit supported command.
-- If a diff changes metadata or share-image references, verify the referenced public asset exists and is tracked before requesting image checks, for example with `test -f public/opengraph-image.png` and `git ls-files --error-unmatch public/opengraph-image.png`.
+- If a diff changes OpenGraph or Twitter image URLs, verify the new referenced public asset exists and is tracked before requesting image checks, for example with `test -f public/new-share-image.png` and `git ls-files --error-unmatch public/new-share-image.png`.
 - `next build` may update generated `next-env.d.ts` paths between `.next/dev/types` and `.next/types`; treat that as generated churn unless the diff intentionally changes Next or TypeScript configuration.
 
 ## Comment style

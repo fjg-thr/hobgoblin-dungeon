@@ -6,7 +6,7 @@
 - The React surface is intentionally small. `src/app/page.tsx` renders the page shell, `src/app/layout.tsx` owns metadata, and `src/game/GameCanvas.tsx` dynamically imports Phaser on the client before mounting `DungeonScene`.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`. Treat movement, combat, pickups, score, sound, game-over flow, and debug overlays as shared scene state even when a diff appears localized.
 - Map generation and tile/collision helpers are in `src/game/maps/startingDungeon.ts`; asset paths and frame dimensions are centralized in `src/game/assets/manifest.ts`.
-- Generated or processed assets live under `public/assets`, with source prompts and processing scripts in `ASSET_PROMPTS.md` and `tools/`.
+- Generated or processed assets live under `public/assets`, with source prompts and generation or processing scripts in `ASSET_PROMPTS.md`, `tools/`, and `scripts/`.
 
 ## Review priorities
 

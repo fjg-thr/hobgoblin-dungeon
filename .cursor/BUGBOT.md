@@ -40,14 +40,13 @@ Use the smallest relevant subset for the diff, and suggest broader checks for sc
 npm ci
 npm run build
 npx tsc --noEmit --incremental false
-test -f public/opengraph-image.png
-git ls-files --error-unmatch public/opengraph-image.png
 ```
 
 Notes:
 
 - `npm run build` is the current integration check for this Next.js project.
 - `npm run lint` currently invokes `next lint`; with the lockfile-resolved Next.js version, that subcommand is not available and is interpreted as a project directory. Do not request `npm run lint` until linting is migrated to an explicit supported command.
+- If a diff changes metadata or share-image references, verify the referenced public asset exists and is tracked before requesting image checks, for example with `test -f public/opengraph-image.png` and `git ls-files --error-unmatch public/opengraph-image.png`.
 - `next build` may update generated `next-env.d.ts` paths between `.next/dev/types` and `.next/types`; treat that as generated churn unless the diff intentionally changes Next or TypeScript configuration.
 
 ## Comment style

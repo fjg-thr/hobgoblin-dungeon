@@ -17,7 +17,7 @@ Use this repository-specific guidance when reviewing pull requests for the Hobgo
 
 ## Phaser scene lifecycle
 
-- Asset keys in preload/create code must match `GAME_ASSETS` entries and files under `public/assets`. Missing PNG/JSON/audio pairs are user-facing startup failures.
+- Asset keys in preload/create code must match `assetManifest` entries and files under `public/assets`. Missing PNG/JSON/audio pairs are user-facing startup failures.
 - Ensure generated texture, animation, timer, tween, input, audio, and event resources are cleaned up or safely reused across scene restarts.
 - Verify code does not assume a browser API before Phaser or React has mounted the canvas.
 - Be skeptical of changes that mutate shared Phaser objects from delayed callbacks after shutdown or restart.
@@ -44,7 +44,7 @@ Use this repository-specific guidance when reviewing pull requests for the Hobgo
 ## Accessibility and UX
 
 - React controls should use semantic elements or complete keyboard and ARIA support.
-- Phaser/canvas UI should preserve keyboard-accessible gameplay paths where they already exist, including start, how-to-play, mute, restart, and firing controls.
+- Phaser/canvas UI should preserve existing keyboard-accessible gameplay paths such as movement, starting/firing with Space, closing how-to-play with Escape, and toggling the debug overlay with F3. Treat added pointer-only UI as needing an explicit keyboard or accessibility rationale.
 - Audio changes should respect the scene-level mute state and avoid unexpectedly starting overlapping loops.
 
 ## Suggested verification for relevant changes

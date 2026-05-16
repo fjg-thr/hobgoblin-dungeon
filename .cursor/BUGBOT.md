@@ -15,6 +15,9 @@ static metadata, or browser compatibility.
 - Preserve gameplay state invariants. Health, ammo, cooldowns, invulnerability
   windows, power-up durations, enemy respawn timers, and score changes should
   clamp to intended ranges and avoid duplicate application in a single frame.
+- Review procedural dungeon and spawn rules. Layout, stairs, player and enemy
+  starts, props, reserved tiles, tile codes, and blocked-tile semantics should
+  keep the generated map reachable and internally consistent.
 - Review collision and coordinate conversions carefully. Tile-space,
   world-space, isometric projection, sprite depth, and hitbox math are common
   sources of regressions in this codebase.
@@ -27,8 +30,9 @@ static metadata, or browser compatibility.
 - Flag performance risks in the main update loop. Avoid per-frame allocations,
   unbounded object creation, repeated pathfinding work, or scans that scale with
   map size without throttling.
-- Check browser input and accessibility around React UI. Interactive controls
-  should be keyboard accessible, labeled, and safe for focus management.
+- Check browser input and accessibility around React UI and Phaser canvas UI.
+  Interactive controls and input zones should be keyboard accessible, labeled,
+  and safe for focus management where the platform permits.
 - Treat generated assets and processing scripts as reproducible pipelines.
   Changes to tools should keep source paths, output dimensions, alpha handling,
   and manifest references in sync.

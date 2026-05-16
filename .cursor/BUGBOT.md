@@ -27,8 +27,9 @@ static metadata, or browser compatibility.
 - Flag performance risks in the main update loop. Avoid per-frame allocations,
   unbounded object creation, repeated pathfinding work, or scans that scale with
   map size without throttling.
-- Check browser input and accessibility around React UI. Interactive controls
-  should be keyboard accessible, labeled, and safe for focus management.
+- Check browser input and accessibility around React UI and Phaser/canvas UI.
+  Interactive controls should be keyboard accessible, labeled, and safe for
+  focus management.
 - Treat generated assets and processing scripts as reproducible pipelines.
   Changes to tools should keep source paths, output dimensions, alpha handling,
   and manifest references in sync.

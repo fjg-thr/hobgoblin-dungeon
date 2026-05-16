@@ -49,7 +49,7 @@ pixel-art/audio assets under `public/assets`.
 
 ## Asset and build checks
 
-- New runtime Phaser asset files should be referenced by `assetManifest` and
+- New runtime Phaser sprite sheets should be referenced by `assetManifest` and
   should have JSON frame data that matches the expected sprite dimensions and
   frame names.
 - Public metadata images referenced from `src/app/layout.tsx` must exist under

@@ -36,9 +36,3 @@ When relevant, expect contributors to run:
 ```bash
 npm run build
 ```
-
-If linting is available in the current dependency set, also run:
-
-```bash
-npm run lint
-```

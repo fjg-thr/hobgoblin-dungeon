@@ -32,7 +32,7 @@ Use this repository-specific context when reviewing changes in Hobgoblin Ruin, a
 
 - Prefer `npm run build` for the main integration check.
 - Prefer `npx tsc --noEmit --incremental false` for a side-effect-free TypeScript check.
-- `npm run lint` currently maps to `next lint`; with the lockfile-resolved Next.js version this is not a valid integrated subcommand and may fail with `Invalid project directory provided: /workspace/lint`. Treat that as a tooling limitation unless the PR changes lint setup.
+- `npm run lint` currently maps to `next lint`; with the lockfile-resolved Next.js version this is not a valid integrated subcommand and may fail with `Invalid project directory provided, no such directory: /workspace/lint`. Treat that as a tooling limitation unless the PR changes lint setup.
 - If Next.js generates `next-env.d.ts` route-type churn during local checks, verify whether it is intentional before accepting it.
 - Use `git diff --check` or equivalent whitespace checks for generated guidance and asset metadata edits.
 

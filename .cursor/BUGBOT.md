@@ -4,7 +4,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin prototype.
 
 ## Project context
 
-- This is a private Next.js App Router, React, TypeScript, and Phaser 4 browser game prototype.
+- This is a public Next.js App Router, React, TypeScript, and Phaser 4 browser game prototype.
 - The game runs as a client-side Phaser scene mounted from React. Be strict about client/server boundaries and browser-only APIs.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`; asset metadata lives in `src/game/assets/manifest.ts` and `public/assets/**/*.json`.
 

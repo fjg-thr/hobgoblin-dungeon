@@ -22,7 +22,7 @@ Use this repository-specific context when reviewing changes in Hobgoblin Ruin, a
 4. **Asset and metadata consistency**
    - `src/game/assets/manifest.ts`, `README.md` asset lists, generated JSON metadata, and files in `public/assets/**` should agree on paths, frame sizes, keys, and row/column assumptions.
    - If an asset path is added to the manifest, the matching file should be committed under `public/assets`.
-   - Generated source assets and processing scripts live in `tools/` and `scripts/`; review changes there for deterministic paths and for accidental large or unused artifacts.
+   - Processing scripts live in `tools/` and `scripts/`; source prompts and paths are documented in `ASSET_PROMPTS.md` and `README.md`, with saved source images referenced under `public/assets/source` when present.
 
 5. **Next metadata and public assets**
    - `src/app/layout.tsx` currently references `/opengraph-image.png`. If a change touches share-image metadata or public social-preview assets, verify the referenced file exists or that the metadata intentionally changes.

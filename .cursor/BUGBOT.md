@@ -6,7 +6,7 @@ Use this repository-specific context when reviewing pull requests for the Hobgob
 
 - This is a Next.js App Router, React, TypeScript, and Phaser 4 RC browser game.
 - `src/app/page.tsx` renders the full-screen game shell.
-- `src/game/GameCanvas.tsx` is the client-only Phaser boot boundary. Keep Phaser imports inside the `useEffect` dynamic import path so server rendering does not evaluate browser-only APIs.
+- `src/game/GameCanvas.tsx` is the client-only Phaser boot boundary. Keep runtime Phaser imports inside the `useEffect` dynamic import path so server rendering does not evaluate browser-only APIs; type-only imports are safe.
 - Most gameplay state, rendering, input, audio, enemy behavior, pickups, and HUD logic lives in `src/game/scenes/DungeonScene.ts`.
 - Dungeon generation and tile collision helpers live in `src/game/maps/startingDungeon.ts`.
 - Runtime asset keys and public paths are centralized in `src/game/assets/manifest.ts`; the matching files live under `public/assets`.

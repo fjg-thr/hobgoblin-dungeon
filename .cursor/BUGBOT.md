@@ -43,5 +43,5 @@ npx tsc --noEmit --incremental false
 ```
 
 If a change touches generated assets or processing scripts, also expect the matching
-asset-generation command from `package.json` or `tools/` to be run and checked in with
-the generated outputs.
+asset-generation command from `package.json`, `tools/`, or `scripts/` to be run and
+checked in with the generated outputs.

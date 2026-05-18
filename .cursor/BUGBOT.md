@@ -23,4 +23,4 @@ Use these repository-specific checks when reviewing pull requests.
 ## Verification expectations
 
 - Run `npm run build` for production validation.
-- If linting is available in the current Next.js setup, run `npm run lint` and report any toolchain limitations separately from code issues.
+- Do not assume linting is available until this project adds a Next.js 16-compatible lint setup; if a PR changes lint tooling, verify the new command separately.

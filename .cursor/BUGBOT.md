@@ -21,7 +21,7 @@ Use this repository-specific context when reviewing pull requests for the Hobgob
 2. **Phaser lifecycle and real-time gameplay**
    - Review scene shutdown, restarts, timers, tweens, event listeners, keyboard handlers, pointer handlers, audio nodes, and pooled objects for leaks or duplicate registration.
    - Keep frame-loop math bounded and deterministic enough for variable frame rates; preserve existing delta-time caps and cooldown semantics.
-   - Check input changes against the documented controls in `README.md`.
+   - Check input changes against both the documented controls in `README.md` and the actual keyboard/pointer bindings; flag any doc/code drift.
 
 3. **Gameplay invariants**
    - Keep tile coordinates and world coordinates distinct. Be cautious around isometric projection, depth sorting, collision bounds, and pickup/enemy spawn distances.

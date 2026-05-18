@@ -2,6 +2,8 @@
 
 A first playable web prototype for a dark GBA-inspired isometric dungeon game. The player controls a winged hobgoblin through regenerated dungeon ruins with collision, camera follow, a start screen, life meter, finite ammo, generated pixel-art assets, ramping enemy pressure, powerups, scoring, and a debug overlay.
 
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`.
+
 ## Run
 
 ```bash

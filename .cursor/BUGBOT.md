@@ -49,4 +49,6 @@ npx tsc --noEmit --incremental false
 
 Known limitation: `npm run lint` currently invokes `next lint`, which is not available as an integrated subcommand in the installed Next.js 16 toolchain. Do not block a review on `npm run lint` failing for that known reason unless the lint script or Next.js version changes.
 
+`npm run build` can rewrite tracked `next-env.d.ts` route-type references from `.next/dev/types/routes.d.ts` to `.next/types/routes.d.ts`; revert that incidental churn unless the PR intentionally changes Next.js type generation.
+
 `npx tsc --noEmit` without `--incremental false` can leave `tsconfig.tsbuildinfo`; clean generated artifacts before final diffs.

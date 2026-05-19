@@ -100,8 +100,10 @@ for evidence from a browser smoke test:
 - Start screen enters gameplay and restart returns to a clean run.
 - WASD/arrow movement, mouse aiming, click firing, Space firing, and F3 debug
   toggle still work.
-- Ammo, seeker ammo, heart pickups, quickshot, haste, ward, and blast behavior
-  still match the README description when touched by the change.
+- Ammo, heart pickups, quickshot, haste, ward, and blast behavior still match
+  the README description when touched by the change.
+- Seeker ammo and seeker projectile behavior are code-defined in
+  `DungeonScene`; verify their unlock, pickup, and firing paths when touched.
 - Audio starts only from user interaction, mute toggles all scene audio, and no
   console errors appear when restarting.
 

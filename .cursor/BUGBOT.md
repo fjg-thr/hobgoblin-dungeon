@@ -8,7 +8,7 @@ Use this project context when reviewing pull requests for the Hobgoblin Ruin pro
 - The React entry point is `src/app/page.tsx`; the Phaser bootstrapping component is `src/game/GameCanvas.tsx`.
 - Most gameplay lives in `src/game/scenes/DungeonScene.ts`. Review changes there carefully because movement, combat, spawning, HUD, audio, overlays, and cleanup are currently coupled in one large scene.
 - Dungeon generation and tile collision helpers live in `src/game/maps/startingDungeon.ts`.
-- Asset keys and paths live in `src/game/assets/manifest.ts`; generated files are under `public/assets/`, `tools/`, and `scripts/`.
+- Asset keys and paths live in `src/game/assets/manifest.ts`. Generated asset outputs live under `public/assets/`; generator and processor tooling lives under `tools/` and `scripts/`.
 
 ## High-priority review checks
 

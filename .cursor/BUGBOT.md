@@ -10,7 +10,7 @@ GitHub App; this repository file only customizes review behavior.
   dungeon game.
 - The React surface is intentionally small: `src/app/page.tsx` renders the game
   canvas, `src/app/layout.tsx` defines metadata, and `src/game/GameCanvas.tsx`
-  boots Phaser on the client.
+  boots Phaser on the client with dynamic imports inside `useEffect`.
 - Core gameplay lives in `src/game/scenes/DungeonScene.ts`. It handles Phaser
   lifecycle, rendering, input, combat, power-ups, scoring, audio, and debug UI.
 - Procedural map generation and tile semantics live in
@@ -22,8 +22,10 @@ GitHub App; this repository file only customizes review behavior.
 
 ## Review priorities
 
-1. Preserve client-only Phaser loading. Do not introduce top-level browser or
-   Phaser side effects into server-rendered App Router modules.
+1. Preserve the client-only Phaser boundary. `GameCanvas.tsx` should remain the
+   place that dynamically imports Phaser and `DungeonScene`; do not import
+   game/Phaser code from server-rendered App Router modules or shared modules
+   that may execute during SSR.
 2. Keep TypeScript strict. Avoid `any`, unchecked casts, and untyped asset
    metadata unless a narrow boundary makes the cast unavoidable.
 3. Treat `DungeonScene.ts` changes cautiously. Check lifecycle cleanup, input
@@ -33,9 +35,11 @@ GitHub App; this repository file only customizes review behavior.
    map generation change: health cannot go negative, ammo stays bounded, enemy
    actors are removed or respawned consistently, and blocked tiles remain
    impassable.
-5. For asset changes, confirm every manifest path has a corresponding
-   `public/assets/...` file and every sprite sheet JSON still matches the frame
-   dimensions used by Phaser.
+5. For asset changes, treat `src/game/assets/manifest.ts` as Phaser's runtime
+   source of truth. Confirm every manifest path has a corresponding
+   `public/assets/...` file and every manifest frame size matches the actual PNG
+   sheet layout. Keep sprite sheet JSON sidecars in sync for asset tooling, but
+   do not treat them as the runtime source for Phaser frame dimensions.
 6. Metadata changes in `src/app/layout.tsx` should keep share image dimensions,
    paths, and `metadataBase` behavior valid for both local development and
    deployed environments.
@@ -53,19 +57,25 @@ GitHub App; this repository file only customizes review behavior.
 - Run `npx tsc --noEmit --incremental false` for a side-effect-free TypeScript
   check.
 - The existing `npm run lint` script uses `next lint`; with this repo's current
-  Next.js version that command is not a reliable lint check until the project
-  migrates to an explicit ESLint setup.
+  Next.js version that command fails before linting until the project migrates
+  to an explicit ESLint setup.
 - Production builds may update generated Next.js type files. Treat generated
   file churn as suspicious unless the PR intentionally changes routing or Next
   configuration.
+- Gameplay, map, combat, pickup, or asset-loading changes need a manual smoke
+  test in addition to build/type checks: run `npm run dev`, start and restart a
+  run, move, fire, collect ammo/power-ups, take damage, toggle audio, and verify
+  debug mode if touched.
 
 ## Flag as high risk
 
 - New direct DOM access or `window` usage outside client-only code paths.
-- Phaser objects created without matching cleanup on scene shutdown or React
-  unmount.
+- Phaser objects created without matching cleanup on restart, game teardown, or
+  React unmount.
 - Asset references added outside `assetManifest` without a clear reason.
 - Changes that make map generation nondeterministically produce unreachable
-  starts, missing stairs, or fully blocked corridors.
+  starts, missing stairs, or fully blocked corridors. `createDungeon()` uses a
+  random source at runtime, so intermittent map bugs may require repeated runs
+  or an injected `RandomSource` to reproduce.
 - Silent failures in audio, asset loading, or dynamic imports that would hide a
   broken game boot.

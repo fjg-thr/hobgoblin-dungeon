@@ -55,9 +55,11 @@ product settings and the relevant GitHub integration.
      load committed local assets.
 
 4. **Next.js metadata and routing**
-   - `src/app/layout.tsx` declares OpenGraph/Twitter metadata. If metadata image
-     paths change, verify the corresponding file exists under `public/` and that
-     dimensions/alt text still match the asset.
+   - `src/app/layout.tsx` declares OpenGraph/Twitter metadata. Metadata changes
+     must verify image paths against `public/` and keep dimensions/alt text in
+     sync with the asset. The current `/opengraph-image.png` reference does not
+     have a matching committed file, so review metadata or asset changes for
+     whether they preserve, fix, or intentionally replace that state.
    - The app currently has a single game route. Review new routes for App Router
      conventions and client/server boundaries.
 
@@ -101,6 +103,9 @@ for evidence from a browser smoke test:
 - Start screen enters gameplay and restart returns to a clean run.
 - WASD/arrow movement, mouse aiming, click firing, Space firing, and F3 debug
   toggle still work.
+- The README currently documents `Space` or `J` firing, but `DungeonScene` only
+  binds Space. Flag control or documentation changes that widen or preserve this
+  mismatch without implementing the missing input.
 - Ammo, heart pickups, quickshot, haste, ward, and blast behavior still match
   the README description when touched by the change.
 - Seeker ammo and seeker projectile behavior are code-defined in

@@ -98,7 +98,7 @@ for evidence from a browser smoke test:
 
 - Page loads without SSR or hydration errors.
 - Start screen enters gameplay and restart returns to a clean run.
-- WASD/arrow movement, mouse aiming, click firing, Space/J firing, and F3 debug
+- WASD/arrow movement, mouse aiming, click firing, Space firing, and F3 debug
   toggle still work.
 - Ammo, seeker ammo, heart pickups, quickshot, haste, ward, and blast behavior
   still match the README description when touched by the change.

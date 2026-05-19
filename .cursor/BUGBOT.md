@@ -5,6 +5,10 @@ Next.js App Router prototype that mounts a Phaser 4 game in a client-only React
 component. Reviews should focus on runtime correctness, generated asset
 integrity, and preserving the browser-only game boundary.
 
+This file is repo-side review guidance only. Enabling or configuring the managed
+Cursor Bugbot service for the repository is handled externally through Cursor
+product settings and the relevant GitHub integration.
+
 ## Project shape
 
 - `src/app/page.tsx` renders the game shell through `src/game/GameCanvas.tsx`.

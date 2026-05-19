@@ -37,8 +37,9 @@ product settings and the relevant GitHub integration.
 2. **Gameplay lifecycle**
    - Verify new timers, tweens, events, sounds, keyboard handlers, and pooled
      game objects are destroyed or reused safely.
-   - Check pause, game-over, restart, mute, and start-screen paths for leaked
-     listeners or state that is not reset.
+   - Check game-over, restart, mute, and start-screen paths for leaked
+     listeners or state that is not reset; include pause paths if a change
+     introduces them.
    - For combat or movement changes, inspect collision math, projectile
      despawning, enemy path recalculation, invulnerability windows, and pickup
      gating together instead of reviewing each in isolation.

@@ -8,7 +8,7 @@ Use this guide when reviewing changes for the Hobgoblin Ruin Prototype. The proj
 - `src/game/GameCanvas.tsx` is the browser-only boundary. Phaser must remain dynamically imported inside the client component effect so server rendering and static metadata generation do not import Phaser.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`. Changes there can affect input, scene lifecycle, rendering depth, audio, combat, spawning, pickups, and HUD state at the same time.
 - Static asset paths are centralized in `src/game/assets/manifest.ts`; generated map data and tile codes are in `src/game/maps/startingDungeon.ts`.
-- Sprite sheets and metadata live under `public/assets`. Tooling for generated assets lives under `tools`.
+- Sprite sheets and metadata live under `public/assets`. Tooling for generated assets lives under `tools` and `scripts`.
 
 ## High-priority review checks
 
@@ -31,13 +31,13 @@ Use this guide when reviewing changes for the Hobgoblin Ruin Prototype. The proj
 4. **Spawning, progression, and map collision**
    - Dungeon generation uses tile codes from `startingDungeon.ts`; new tile codes must be handled by rendering, collision, safe-spawn, depth, and debug overlays.
    - Player, enemy, ammo, power-up, and heart spawn logic should avoid walls, blockers, props, chasms, and unsafe proximity to the player unless a behavior change is explicit.
-   - Enemy pressure ramps over time/kills. Brutes, seeker ammo, heart drops, and late-game blast availability are progression-gated; review changes for accidental early unlocks or impossible unlocks.
+   - Enemy pressure ramps over time/kills. Brutes, seeker ammo, heart drops, and power-up availability are progression-gated; review changes for accidental early unlocks or impossible unlocks. Current code unlocks blast after 2 kills or 16 seconds even though README describes blast as rare/late-game, so treat that as an existing documentation mismatch unless the change intentionally fixes it.
    - Check depth ordering for actors, walls, bridges, chasms, props, projectiles, pickups, popups, and HUD after rendering changes.
 
 5. **Assets and generated metadata**
    - Any new asset in `assetManifest` should have a corresponding file under `public/assets` and should be loaded/preloaded before use.
    - Sprite sheet frame dimensions, row indices, animation frame ranges, and JSON metadata must match the generated files.
-   - If a tool under `tools` regenerates assets, confirm the generated JSON and PNG paths stay consistent with `README.md` and `assetManifest`.
+   - If a tool under `tools` or `scripts` regenerates assets or audio, confirm the generated JSON, PNG, and WAV paths stay consistent with `README.md`, `assetManifest`, and audio manifests.
    - Audio keys in `assetManifest.audio` should remain preloaded and should respect the scene-level mute toggle.
 
 6. **App metadata and public assets**
@@ -45,7 +45,7 @@ Use this guide when reviewing changes for the Hobgoblin Ruin Prototype. The proj
    - Keep metadata environment handling compatible with `NEXT_PUBLIC_SITE_URL`, `VERCEL_URL`, and local development.
 
 7. **Documentation consistency**
-   - README controls and gameplay descriptions should match code changes. Pay special attention to Space-vs-`J` firing, seeker ammo behavior, power-up gating, sound controls, and the lack of level-transition behavior for the staircase.
+   - README controls and gameplay descriptions should match code changes. Pay special attention to Space-vs-`J` firing, the current README omission of seeker ammo, the current README/code mismatch around blast being described as late-game, sound controls, and the lack of level-transition behavior for the staircase.
    - Do not treat `package.json`'s `"private": true` as GitHub repository visibility; it only prevents npm publishing.
 
 ## Verification to request or run

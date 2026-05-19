@@ -17,7 +17,7 @@ Use this project context when reviewing pull requests for the Hobgoblin Ruin pro
 - `GameCanvas.tsx` must stay a client component and must not import Phaser at module scope. Phaser should continue to load through dynamic `import("phaser")` inside `useEffect` so server rendering does not evaluate browser-only code.
 - Make sure the Phaser game is destroyed on React unmount and that async boot logic does not create a game after unmount.
 - Preserve strict TypeScript compatibility. The repo has `strict: true` and uses `@/*` paths for `src/*`.
-- If metadata changes in `src/app/layout.tsx`, verify the referenced share-image files exist or intentionally document/fix the current state. The current metadata references `/opengraph-image.png`, and this repo does not currently include `public/opengraph-image.png`.
+- If metadata changes in `src/app/layout.tsx`, keep referenced share-image files in sync. The current metadata references `/opengraph-image.png`, and this repo includes `public/opengraph-image.png`.
 
 ### Phaser scene lifecycle and input
 

@@ -6,8 +6,8 @@ GitHub App; this repository file only customizes review behavior.
 
 ## Project context
 
-- This is a Next.js App Router prototype for a dark GBA-inspired isometric
-  dungeon game.
+- This is the Hobgoblin Ruin Prototype, a Next.js App Router prototype for a
+  dark GBA-inspired isometric dungeon game.
 - The React surface is intentionally small: `src/app/page.tsx` renders the game
   canvas, `src/app/layout.tsx` defines metadata, and `src/game/GameCanvas.tsx`
   boots Phaser on the client with dynamic imports inside `useEffect`.
@@ -23,9 +23,10 @@ GitHub App; this repository file only customizes review behavior.
 ## Review priorities
 
 1. Preserve the client-only Phaser boundary. `GameCanvas.tsx` should remain the
-   place that dynamically imports Phaser and `DungeonScene`; do not import
-   game/Phaser code from server-rendered App Router modules or shared modules
-   that may execute during SSR.
+   place that dynamically imports Phaser and `DungeonScene`. App Router pages
+   may render the client-marked `GameCanvas`; they should not import Phaser,
+   `DungeonScene`, or deeper gameplay modules directly, and neither should
+   shared modules that may execute during SSR.
 2. Keep TypeScript strict. Avoid `any`, unchecked casts, and untyped asset
    metadata unless a narrow boundary makes the cast unavoidable.
 3. Treat `DungeonScene.ts` changes cautiously. Check lifecycle cleanup, input
@@ -56,9 +57,9 @@ GitHub App; this repository file only customizes review behavior.
 - Run `npm run build` for the main integration check.
 - Run `npx tsc --noEmit --incremental false` for a side-effect-free TypeScript
   check.
-- The existing `npm run lint` script uses `next lint`; with this repo's current
-  Next.js version that command fails before linting until the project migrates
-  to an explicit ESLint setup.
+- The existing `npm run lint` script uses `next lint`, which was removed in
+  Next.js 16. With this repo's current Next.js version, that command fails
+  before linting until the project migrates to an explicit ESLint or Biome CLI.
 - Production builds may update generated Next.js type files. Treat generated
   file churn as suspicious unless the PR intentionally changes routing or Next
   configuration.
@@ -76,6 +77,6 @@ GitHub App; this repository file only customizes review behavior.
 - Changes that make map generation nondeterministically produce unreachable
   starts, missing stairs, or fully blocked corridors. `createDungeon()` uses a
   random source at runtime, so intermittent map bugs may require repeated runs
-  or an injected `RandomSource` to reproduce.
+  or a custom random function passed to `createDungeon()` to reproduce.
 - Silent failures in audio, asset loading, or dynamic imports that would hide a
   broken game boot.

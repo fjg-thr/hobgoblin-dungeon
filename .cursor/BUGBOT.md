@@ -25,7 +25,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype.
 3. **Gameplay invariants**
    - Preserve movement, camera follow, collision, finite ammo, health, enemy spawning, pickup effects, scoring, mute state, and debug overlay behavior unless the PR explicitly changes them.
    - Flag changes that can make enemies, pickups, projectiles, damage state, or run timers leak between runs.
-   - Smoke-test keyboard and pointer interactions. Current code binds staff-bolt firing to `Space` and pointer clicks; README text also mentions `J`, so flag changes that widen or preserve that mismatch without implementing it.
+   - Smoke-test keyboard and pointer interactions. Current code binds staff-bolt firing to `Space` and pointer clicks; README text also mentions `J`, so flag PRs that touch input handling or controls docs if they widen that mismatch or rely on `J` without implementing it. Do not block unrelated PRs solely for this existing mismatch.
    - Keep seeker ammo behavior intentional: current code unlocks seeker pickups/projectiles after the configured kill or survival-time threshold, even though README gameplay docs focus on standard ammo.
    - Treat README/code differences around blast timing as existing context unless the PR intentionally fixes them; current code unlocks blast earlier than the README's "late rare power-up" phrasing implies.
 
@@ -37,7 +37,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype.
 
 5. **Next.js metadata and deployment**
    - Keep `metadataBase`, OpenGraph, and Twitter image paths valid for both local development and hosted deployments.
-   - Check consistency between metadata references, share-image files such as `public/opengraph-image.png`, and any deployment-specific URL changes.
+   - Check consistency between metadata references, share-image public assets, and any deployment-specific URL changes when PRs touch metadata, assets, or deployment configuration. The current metadata references `/opengraph-image.png`, but the matching public asset is not present in this checkout; do not block unrelated PRs solely for that existing gap.
    - Avoid adding server-only assumptions that break static or Vercel-style deployments.
 
 ## Verification expectations

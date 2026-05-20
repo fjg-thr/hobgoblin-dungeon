@@ -62,6 +62,9 @@ npx tsc --noEmit --incremental false
 
 Notes:
 
+- `npm ci` currently exits successfully but reports 2 known audit findings
+  (1 moderate, 1 high). Treat new install failures or changed audit output as
+  review-relevant dependency drift.
 - `npm run lint` currently maps to `next lint`, which is not available as an
   integrated subcommand in the lockfile-resolved Next.js version. Prefer the
   build and TypeScript checks until linting is migrated to an explicit ESLint

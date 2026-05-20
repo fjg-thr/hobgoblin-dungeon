@@ -32,8 +32,8 @@ Review this repository as a playable Next.js and Phaser prototype. Prioritize fi
    - Avoid findings about Phaser canvas internals that cannot reasonably be represented as semantic DOM.
 
 5. **Validation**
-   - Prefer findings backed by `npm run build`, `npm run lint`, or TypeScript errors when applicable.
-   - If a script is unavailable or broken, call out the exact command and failure.
+   - When CI, build, lint, or TypeScript output is available, prefer findings backed by that output.
+   - Without command output, identify issues from the diff and repository context instead of assuming local validation ran.
 
 ## Review style
 

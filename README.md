@@ -15,7 +15,9 @@ Open `http://localhost:3000`.
 
 Cursor Bugbot review guidance for this repository lives in `.cursor/BUGBOT.md`.
 Managed Bugbot enablement is handled through Cursor dashboard/GitHub App
-settings; the repository file provides project-specific review context.
+settings; the repository file provides project-specific review context. Confirm
+deployment by checking dashboard/GitHub App access and running a PR review smoke
+check.
 
 ## Controls
 

@@ -60,6 +60,16 @@ Cursor dashboard, organization settings, and GitHub App installation.
   generated churn before clean-worktree verification unless the PR deliberately
   changes Next.js/TypeScript configuration.
 
+## Managed Bugbot deployment checks
+
+- Confirm Bugbot is enabled in the Cursor dashboard or organization settings for
+  the GitHub repository, and that the Cursor GitHub App has access to the repo.
+- Use a pull request smoke check to confirm Bugbot can read the diff and post or
+  surface a review. This repository file only supplies project-specific review
+  context; it is not proof that the managed service is enabled.
+- If a reviewer cannot access the dashboard or GitHub App settings, state that
+  limitation explicitly and verify only the repository guidance in this file.
+
 ## Expected verification for relevant PRs
 
 - Run `npm ci` when dependency or lockfile state matters.

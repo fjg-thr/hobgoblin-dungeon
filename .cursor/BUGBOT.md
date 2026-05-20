@@ -78,9 +78,9 @@ findings with file and line references over broad style advice.
 - Generated outputs should stay deterministic enough for review. Large binary
   asset changes should include matching metadata and, when relevant,
   generator/processor updates.
-- The metadata in `src/app/layout.tsx` references `/opengraph-image.png`;
-  currently `public/opengraph-image.png` is absent. Flag PRs that add or change
-  metadata/share-image references without keeping the public asset in sync.
+- The metadata in `src/app/layout.tsx` references `/opengraph-image.png`.
+  Flag PRs that add or change metadata/share-image references without keeping
+  the corresponding public assets in sync.
 
 ## Verification commands
 

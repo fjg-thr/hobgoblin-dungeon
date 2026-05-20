@@ -11,6 +11,13 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Automated Review
+
+Cursor Bugbot review guidance for this prototype lives in `.cursor/BUGBOT.md`.
+Use it to keep automated PR review focused on Next.js/Phaser boundaries, asset
+integrity, gameplay invariants, and the verification commands expected for code
+changes.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

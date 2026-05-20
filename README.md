@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot
+
+Repository-specific Cursor Bugbot review guidance lives in
+`.cursor/BUGBOT.md`. Keep it updated when gameplay, asset, build, or review
+expectations change.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

@@ -13,6 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { getBrowserStorage, readMutedPreference, writeMutedPreference } from "../persistence/mutePreference";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -1100,7 +1101,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private createMuteButton() {
-    this.muted = this.readMutedPreference();
+    this.muted = readMutedPreference();
     this.sound.mute = this.muted;
 
     const width = MUTE_BUTTON_WIDTH;
@@ -1119,7 +1120,10 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on("pointerdown", (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation();
+      this.toggleMute();
+    });
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -1128,27 +1132,11 @@ export class DungeonScene extends Phaser.Scene {
     this.updateMuteButtonVisuals();
   }
 
-  private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
-  }
-
-  private writeMutedPreference() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
-  }
-
   private toggleMute() {
     const wasMuted = this.muted;
     this.muted = !this.muted;
     this.sound.mute = this.muted;
-    this.writeMutedPreference();
+    writeMutedPreference(getBrowserStorage(), this.muted);
     this.updateMuteButtonVisuals();
     if (wasMuted && !this.muted) {
       this.playSfx("uiToggle", { volume: 0.24 });

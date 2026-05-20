@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review Automation
+
+Cursor Bugbot review guidance for this repository lives in `.cursor/BUGBOT.md`.
+Managed Bugbot enablement is handled through Cursor dashboard/GitHub App
+settings; the repository file provides project-specific review context.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

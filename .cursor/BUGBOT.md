@@ -79,9 +79,8 @@ findings with file and line references over broad style advice.
   asset changes should include matching metadata and, when relevant,
   generator/processor updates.
 - The metadata in `src/app/layout.tsx` references `/opengraph-image.png`.
-  That public asset is not present in this checkout; treat it as an existing
-  baseline issue unless the PR touches metadata/assets, and flag PRs that add or
-  change metadata/share-image references without keeping public assets in sync.
+  Keep that public asset and any future metadata/share-image references in sync
+  with the exact files committed under `public/`.
 
 ## Verification commands
 

@@ -980,6 +980,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -992,7 +993,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1001,7 +1002,9 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    this.keys.shoot.on("down", handleShootKeyDown);
+    this.keys.shootAlt.on("down", handleShootKeyDown);
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();
@@ -1297,7 +1300,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }
@@ -3379,7 +3382,7 @@ export class DungeonScene extends Phaser.Scene {
     const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
     controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
     instructionTextObjects.push(
-      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE/J to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
     );
 
     const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);

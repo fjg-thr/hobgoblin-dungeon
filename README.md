@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Automated Review
+
+Cursor Bugbot uses the repository guidance in `.cursor/BUGBOT.md` when reviewing
+pull requests. Enable Bugbot for this repository from the Cursor dashboard, then
+comment `cursor review` or `bugbot run` on a pull request to trigger a review.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

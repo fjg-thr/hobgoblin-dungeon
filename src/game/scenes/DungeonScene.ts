@@ -13,6 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { SHOOT_KEY_NAMES, getGameOverLayout, readStoredMutePreference, writeStoredMutePreference } from "./uiState";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -970,6 +971,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
+    const shootKeys = SHOOT_KEY_NAMES.map((keyName) => keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[keyName]));
     this.keys = {
       up: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
       down: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
@@ -979,7 +981,8 @@ export class DungeonScene extends Phaser.Scene {
       a: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-      shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shoot: shootKeys[0],
+      shootAlternate: shootKeys[1],
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -992,7 +995,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1001,7 +1004,8 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    shootKeys.forEach((key) => key.on("down", handleShootKeyDown));
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();
@@ -1129,19 +1133,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    return readStoredMutePreference();
   }
 
   private writeMutedPreference() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    writeStoredMutePreference(this.muted);
   }
 
   private toggleMute() {
@@ -3631,21 +3627,38 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.renderGameOverOverlay(true);
+    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
+  }
+
+  private renderGameOverOverlay(animate: boolean) {
+    this.gameOverContainer?.destroy(true);
+    this.gameOverContainer = undefined;
+    this.gameOverButtonBounds = undefined;
+
     const camera = this.cameras.main;
+    const gameOverSprite = this.add.sprite(0, 0, assetManifest.uiSprites.gameOverTitle.key, 0);
+    const button = this.add.image(0, 0, "start_over_button");
+    const layout = getGameOverLayout({
+      cameraWidth: camera.width,
+      cameraHeight: camera.height,
+      titleWidth: gameOverSprite.width,
+      titleHeight: gameOverSprite.height,
+      buttonWidth: button.width,
+      buttonHeight: button.height
+    });
+
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
-    overlay.fillRect(0, 0, camera.width, camera.height);
+    overlay.fillRect(0, 0, layout.overlay.width, layout.overlay.height);
 
-    const panelY = camera.height * 0.43;
-    const gameOverSprite = this.add.sprite(0, 0, assetManifest.uiSprites.gameOverTitle.key, 0);
-    const panelScale = Phaser.Math.Clamp(Math.min((camera.width * 0.5) / gameOverSprite.width, (camera.height * 0.28) / gameOverSprite.height), 0.42, 0.66);
-    gameOverSprite.setScale(panelScale);
+    gameOverSprite.setScale(layout.panelScale);
     gameOverSprite.anims.play(assetManifest.uiSprites.gameOverTitle.key);
     this.addStaticShimmer(gameOverSprite, 0.94, 1, 1000);
 
-    const subtitle = this.add.text(0, gameOverSprite.displayHeight * 0.48, "The ruin keeps its gold.", {
+    const subtitle = this.add.text(0, layout.subtitleY, "The ruin keeps its gold.", {
       fontFamily: "monospace",
-      fontSize: `${Math.round(12 * panelScale * 2.1)}px`,
+      fontSize: `${Math.round(12 * layout.panelScale * 2.1)}px`,
       color: "#d9c79a",
       stroke: "#090909",
       strokeThickness: 3,
@@ -3653,16 +3666,15 @@ export class DungeonScene extends Phaser.Scene {
     });
     subtitle.setOrigin(0.5);
 
-    const finalScoreY = gameOverSprite.displayHeight * 0.64;
     const finalScoreBg = this.add.graphics();
     finalScoreBg.fillStyle(0x070504, 0.86);
-    finalScoreBg.fillRoundedRect(-150, finalScoreY - 22, 300, 46, 5);
+    finalScoreBg.fillRoundedRect(-150, layout.finalScoreY - 22, 300, 46, 5);
     finalScoreBg.lineStyle(2, 0xc4984d, 0.9);
-    finalScoreBg.strokeRoundedRect(-149, finalScoreY - 21, 298, 44, 5);
+    finalScoreBg.strokeRoundedRect(-149, layout.finalScoreY - 21, 298, 44, 5);
 
-    const finalScore = this.add.text(0, finalScoreY, `SCORE ${this.playerScore.toString().padStart(4, "0")}`, {
+    const finalScore = this.add.text(0, layout.finalScoreY, `SCORE ${this.playerScore.toString().padStart(4, "0")}`, {
       fontFamily: "monospace",
-      fontSize: `${Math.round(14 * panelScale * 2.1)}px`,
+      fontSize: `${Math.round(14 * layout.panelScale * 2.1)}px`,
       color: "#ffe3a6",
       stroke: "#120706",
       strokeThickness: 4,
@@ -3670,14 +3682,13 @@ export class DungeonScene extends Phaser.Scene {
     });
     finalScore.setOrigin(0.5);
 
-    const button = this.add.image(0, gameOverSprite.displayHeight * 0.9, "start_over_button");
-    const buttonScale = Phaser.Math.Clamp(Math.min((camera.width * 0.28) / button.width, 0.34), 0.22, 0.36);
-    button.setScale(buttonScale);
+    button.setPosition(0, layout.button.y);
+    button.setScale(layout.button.scale);
     button.setInteractive();
 
     const buttonText = this.add.text(button.x, button.y, "START OVER", {
       fontFamily: "monospace",
-      fontSize: `${Math.round(19 * buttonScale * 2.8)}px`,
+      fontSize: `${Math.round(19 * layout.button.scale * 2.8)}px`,
       color: "#ffe3a6",
       stroke: "#290909",
       strokeThickness: 4,
@@ -3685,21 +3696,35 @@ export class DungeonScene extends Phaser.Scene {
     });
     buttonText.setOrigin(0.5);
 
-    const content = this.add.container(camera.width / 2, panelY, [gameOverSprite, subtitle, button, buttonText, finalScoreBg, finalScore]);
-    content.setAlpha(0);
+    const content = this.add.container(layout.content.x, layout.content.y, [
+      gameOverSprite,
+      subtitle,
+      button,
+      buttonText,
+      finalScoreBg,
+      finalScore
+    ]);
+    content.setAlpha(animate ? 0 : 1);
 
-    const restartZone = this.add.zone(camera.width / 2, panelY + button.y, button.displayWidth, button.displayHeight);
+    const restartZone = this.add.zone(
+      layout.restartZone.x,
+      layout.restartZone.y,
+      layout.restartZone.width,
+      layout.restartZone.height
+    );
     restartZone.setInteractive({ useHandCursor: true });
     restartZone.on("pointerover", () => button.setTint(0xffe0a3));
     restartZone.on("pointerout", () => button.clearTint());
     restartZone.on("pointerdown", () => this.restartGame());
     this.gameOverButtonBounds = this.screenRect(restartZone.x, restartZone.y, restartZone.width, restartZone.height);
-    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
 
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
-    this.gameOverContainer.setAlpha(0);
+    this.gameOverContainer.setAlpha(animate ? 0 : 1);
+    if (!animate) {
+      return;
+    }
     this.tweens.add({
       targets: this.gameOverContainer,
       alpha: 1,
@@ -3864,6 +3889,9 @@ export class DungeonScene extends Phaser.Scene {
       if (shouldReopenHowToPlay) {
         this.showHowToPlayModal(false);
       }
+    }
+    if (this.gameOver) {
+      this.renderGameOverOverlay(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

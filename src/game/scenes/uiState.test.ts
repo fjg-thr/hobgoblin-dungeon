@@ -51,9 +51,9 @@ const throwingStorage: StorageLike = {
 
 describe("uiState helpers", () => {
   test("mute preference helpers tolerate unavailable browser storage", async () => {
-    const module = await loadUiState();
-    const readStoredMutePreference = module.readStoredMutePreference as ReadStoredMutePreference | undefined;
-    const writeStoredMutePreference = module.writeStoredMutePreference as WriteStoredMutePreference | undefined;
+    const uiState = await loadUiState();
+    const readStoredMutePreference = uiState.readStoredMutePreference as ReadStoredMutePreference | undefined;
+    const writeStoredMutePreference = uiState.writeStoredMutePreference as WriteStoredMutePreference | undefined;
 
     expect(typeof readStoredMutePreference).toBe("function");
     expect(typeof writeStoredMutePreference).toBe("function");
@@ -66,9 +66,9 @@ describe("uiState helpers", () => {
   });
 
   test("mute preference helpers persist the muted flag as stable storage values", async () => {
-    const module = await loadUiState();
-    const readStoredMutePreference = module.readStoredMutePreference as ReadStoredMutePreference | undefined;
-    const writeStoredMutePreference = module.writeStoredMutePreference as WriteStoredMutePreference | undefined;
+    const uiState = await loadUiState();
+    const readStoredMutePreference = uiState.readStoredMutePreference as ReadStoredMutePreference | undefined;
+    const writeStoredMutePreference = uiState.writeStoredMutePreference as WriteStoredMutePreference | undefined;
 
     expect(typeof readStoredMutePreference).toBe("function");
     expect(typeof writeStoredMutePreference).toBe("function");
@@ -86,16 +86,16 @@ describe("uiState helpers", () => {
   });
 
   test("documented shooting keys include both Space and J", async () => {
-    const module = await loadUiState();
-    const shootKeyNames = module.SHOOT_KEY_NAMES as readonly string[] | undefined;
+    const uiState = await loadUiState();
+    const shootKeyNames = uiState.SHOOT_KEY_NAMES as readonly string[] | undefined;
 
     expect(shootKeyNames).toContain("SPACE");
     expect(shootKeyNames).toContain("J");
   });
 
   test("game-over layout recomputes overlay and restart bounds for the active camera size", async () => {
-    const module = await loadUiState();
-    const getGameOverLayout = module.getGameOverLayout as GetGameOverLayout | undefined;
+    const uiState = await loadUiState();
+    const getGameOverLayout = uiState.getGameOverLayout as GetGameOverLayout | undefined;
 
     expect(typeof getGameOverLayout).toBe("function");
     if (!getGameOverLayout) {

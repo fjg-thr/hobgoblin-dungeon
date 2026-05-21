@@ -5,5 +5,17 @@ import nextTypescript from "eslint-config-next/typescript";
 export default defineConfig([
   globalIgnores([".next/**", "out/**", "next-env.d.ts"]),
   ...nextVitals,
-  ...nextTypescript
+  ...nextTypescript,
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          varsIgnorePattern: "^_"
+        }
+      ]
+    }
+  }
 ]);

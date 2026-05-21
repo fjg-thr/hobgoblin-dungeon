@@ -11,6 +11,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Deployment metadata
+
+Set `NEXT_PUBLIC_SITE_URL` to the canonical deployed origin so OpenGraph and
+Twitter image metadata resolve to production URLs. Bare hosts such as
+`example.com` are normalized to HTTPS. On Vercel preview deployments,
+`VERCEL_URL` is used when `NEXT_PUBLIC_SITE_URL` is not set; otherwise metadata
+falls back to the repository homepage, `https://hobgoblin-dungeon.vercel.app`.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

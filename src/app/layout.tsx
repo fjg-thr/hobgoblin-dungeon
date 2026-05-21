@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
+import { resolveMetadataBase } from "./metadata-base";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-  : new URL(
-      process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"
-    );
-
+const metadataBase = resolveMetadataBase();
 const title = "Hobgoblin Ruin Prototype";
 const description = "A dark GBA-inspired isometric dungeon prototype.";
 const shareImage = {
@@ -19,7 +13,7 @@ const shareImage = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: siteUrl,
+  metadataBase,
   title,
   description,
   openGraph: {

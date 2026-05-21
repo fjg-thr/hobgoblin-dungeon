@@ -24,6 +24,8 @@ managed-service enablement from this file alone.
   `public/assets`.
 - Styling uses plain global CSS in `src/app/globals.css`; this repo does not
   currently use Tailwind, ShadCN, or Radix.
+- The GitHub repository is public. `package.json` has `"private": true` for npm
+  publishing only; do not treat that field as repository visibility.
 - Asset generator and processor tooling lives under both `tools/` and
   `scripts/`. Generated runtime assets live in `public/assets`.
 - `src/app/layout.tsx` references `/opengraph-image.png`; keep

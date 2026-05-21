@@ -7,6 +7,7 @@ import {
   createDungeon,
   getTileCode,
   isTileBlocked,
+  isTileRenderable,
   tileAssetForCode,
   type DungeonMap,
   type DungeonProp,
@@ -833,12 +834,12 @@ export class DungeonScene extends Phaser.Scene {
     for (let y = 0; y < this.dungeon.height; y += 1) {
       for (let x = 0; x < this.dungeon.width; x += 1) {
         const code = this.getTileCode(x, y);
-        if (code === " " || code === "W") {
+        if (!isTileRenderable(code)) {
           continue;
         }
 
         const world = this.tileCellCenterToWorld(x, y);
-        const assetKey = tileAssetForCode[code as Exclude<TileCode, " ">];
+        const assetKey = tileAssetForCode[code];
         this.addTileImage(assetKey, world, code, x, y);
       }
     }

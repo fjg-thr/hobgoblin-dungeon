@@ -299,3 +299,7 @@ export function getTileCode(dungeon: DungeonMap, x: number, y: number): TileCode
 export function isTileBlocked(code: TileCode): boolean {
   return code === " " || code === "W" || code === "h";
 }
+
+export function isTileRenderable(code: TileCode): code is Exclude<TileCode, " "> {
+  return code !== " ";
+}

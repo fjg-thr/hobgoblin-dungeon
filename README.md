@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Automated Review
+
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. The file documents repository-specific review priorities, known prototype mismatches, and suggested verification commands for pull requests.
+
+Managed Bugbot enablement is configured outside this repository in Cursor product, dashboard, or organization settings. Confirm deployment by checking those settings, verifying GitHub App repository access, and smoke-testing a pull request review when available.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

@@ -5,6 +5,9 @@ type WritableStorage = Pick<Storage, "setItem">;
 
 export const SHOOT_KEY_NAMES = ["SPACE", "J"] as const;
 
+export const isShootRequested = (queued: boolean, keyStates: readonly boolean[]) =>
+  queued || keyStates.some((isDown) => isDown);
+
 export interface GameOverLayoutOptions {
   cameraWidth: number;
   cameraHeight: number;

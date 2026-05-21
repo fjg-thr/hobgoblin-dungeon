@@ -13,7 +13,13 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
-import { SHOOT_KEY_NAMES, getGameOverLayout, readStoredMutePreference, writeStoredMutePreference } from "./uiState";
+import {
+  SHOOT_KEY_NAMES,
+  getGameOverLayout,
+  isShootRequested,
+  readStoredMutePreference,
+  writeStoredMutePreference
+} from "./uiState";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -1293,7 +1299,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = isShootRequested(this.shotQueued, [this.keys.shoot.isDown, this.keys.shootAlternate.isDown]);
     if (!shotRequested) {
       return;
     }

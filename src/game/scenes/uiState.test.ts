@@ -22,6 +22,7 @@ type GetGameOverLayout = (options: GameOverLayoutOptions) => {
   button: { y: number; scale: number };
   restartZone: { x: number; y: number; width: number; height: number };
 };
+type IsShootRequested = (queued: boolean, keyStates: readonly boolean[]) => boolean;
 
 const loadUiState = async (): Promise<ModuleExports> => {
   const moduleUrl = new URL("./uiState.ts", import.meta.url).href;
@@ -91,6 +92,21 @@ describe("uiState helpers", () => {
 
     expect(shootKeyNames).toContain("SPACE");
     expect(shootKeyNames).toContain("J");
+  });
+
+  test("shoot request helper treats queued, Space, and J inputs as equivalent fire requests", async () => {
+    const uiState = await loadUiState();
+    const isShootRequested = uiState.isShootRequested as IsShootRequested | undefined;
+
+    expect(typeof isShootRequested).toBe("function");
+    if (!isShootRequested) {
+      return;
+    }
+
+    expect(isShootRequested(false, [false, false])).toBe(false);
+    expect(isShootRequested(true, [false, false])).toBe(true);
+    expect(isShootRequested(false, [true, false])).toBe(true);
+    expect(isShootRequested(false, [false, true])).toBe(true);
   });
 
   test("game-over layout recomputes overlay and restart bounds for the active camera size", async () => {

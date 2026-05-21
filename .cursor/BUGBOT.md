@@ -51,8 +51,8 @@ pull request review smoke check are still required to verify deployment.
 4. **User-facing UI and accessibility**
    - React UI is minimal and should stay accessible if new menus, buttons, or
      forms are added.
-   - Prefer existing project CSS/Tailwind conventions over introducing a second
-     styling system. This repo does not currently use ShadCN components.
+   - Prefer existing plain CSS conventions over introducing a second styling
+     system. This repo does not currently use ShadCN components.
 
 5. **Build and dependency hygiene**
    - Prefer `npm ci`, `npm run build`, and `npx tsc --noEmit --incremental false`

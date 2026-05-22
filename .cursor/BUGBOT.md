@@ -28,7 +28,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype.
 - `src/game/scenes/DungeonScene.ts` currently binds shooting to `Space` and pointer/click firing. The README also mentions `J`; treat that as a pre-existing docs/code mismatch unless the PR changes controls.
 - README describes blast as a rare late-game power-up, while code currently unlocks blast after early kills or time survived. Treat that as a pre-existing progression-doc mismatch unless a PR intentionally updates power-up balance or docs.
 - Seeker ammo behavior is code-defined and unlocks during a run, but it is not fully documented in README. Review seeker changes against the implementation, not only the docs.
-- `src/app/layout.tsx` references `/opengraph-image.png` for share metadata; if a PR touches metadata, verify the referenced asset is present or update the reference intentionally.
+- `public/opengraph-image.png` is a tracked share-card asset used by `src/app/layout.tsx`; preserve it unless metadata is intentionally changed.
 
 ## UI and accessibility
 

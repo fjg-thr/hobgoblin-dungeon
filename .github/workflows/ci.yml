@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - cursor/cursor-bugbot-deployment-f6ce
+      - cursor/cursor-bugbot-deployment-f654
 
 permissions:
   contents: read

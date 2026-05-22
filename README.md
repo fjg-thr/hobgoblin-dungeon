@@ -15,7 +15,7 @@ Open `http://localhost:3000`.
 
 Cursor Bugbot uses `.cursor/BUGBOT.md` for repository-specific pull request review guidance. Enable Bugbot for this repository from the Cursor dashboard by connecting the GitHub integration, installing the Cursor GitHub App for the repo, and enabling Bugbot on the Bugbot settings page.
 
-Bugbot runs automatically on pull requests when enabled. To request a manual review, add a standalone top-level comment on the PR:
+Depending on Bugbot settings, reviews can run automatically on pull request updates. To request a manual review, add a standalone top-level comment on the PR:
 
 ```text
 cursor review

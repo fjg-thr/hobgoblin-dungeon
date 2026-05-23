@@ -28,8 +28,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build
         run: npm run build
+
+  dependency-verification:
+    name: pnpm frozen install and audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install pnpm dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Audit pnpm production dependencies
+        run: corepack pnpm audit --prod

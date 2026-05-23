@@ -43,6 +43,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype.
 
 ## Verification expectations
 
+- For committed source changes, expect `git diff --check` to pass with no whitespace errors.
 - For app or TypeScript changes, expect `npm run typecheck` and `npm run build` to pass.
 - For npm dependency or lockfile changes, expect `npm ci` and `npm audit --omit=dev` to pass.
 - For pnpm metadata or lockfile changes, expect `corepack pnpm install --frozen-lockfile` and `corepack pnpm audit --prod` to pass.

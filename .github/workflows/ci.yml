@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -25,11 +27,23 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Check committed diff hygiene
+        run: git diff --check HEAD^ HEAD
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit production npm dependencies
+        run: npm audit --omit=dev
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build
         run: npm run build
+
+      - name: Verify pnpm lockfile
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Audit production pnpm dependencies
+        run: corepack pnpm audit --prod

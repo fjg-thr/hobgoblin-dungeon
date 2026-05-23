@@ -29,6 +29,8 @@ bugbot run
 
 GitHub Actions also runs `npm ci`, `npm run typecheck`, and `npm run build` on pull requests so Bugbot review is paired with deterministic checks.
 
+The npm lockfile is the CI install path. The pnpm lockfile and workspace metadata are also maintained so pnpm frozen installs and production audits can be verified when dependency metadata changes.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

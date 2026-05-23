@@ -27,7 +27,7 @@ or:
 bugbot run
 ```
 
-GitHub Actions also runs `npm ci`, `npm run typecheck`, and `npm run build` on pull requests so Bugbot review is paired with deterministic checks.
+GitHub Actions also runs diff hygiene, npm install/audit, typecheck/build, and pnpm lockfile/audit checks on pull requests so Bugbot review is paired with deterministic checks.
 
 ## Controls
 

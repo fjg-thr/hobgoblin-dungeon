@@ -29,7 +29,7 @@ jobs:
 
       - name: Check committed diff hygiene
         run: |
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_name }}" = "${{ github.event.repository.default_branch }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
             git diff --check "${{ github.event.before }}" "${{ github.sha }}"
           elif base_commit=$(git merge-base "origin/${{ github.event.repository.default_branch }}" HEAD 2>/dev/null); then
             git diff --check "$base_commit" HEAD

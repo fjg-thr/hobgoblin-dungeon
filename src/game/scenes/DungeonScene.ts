@@ -363,6 +363,7 @@ const MUTE_BUTTON_WIDTH = 88;
 const MUTE_BUTTON_HEIGHT = HUD_CONTAINER_HEIGHT;
 const MUTE_BUTTON_RIGHT_MARGIN = 18;
 const MUTE_BUTTON_BOTTOM_MARGIN = HUD_CONTAINER_BOTTOM_MARGIN;
+const MUTE_STORAGE_KEY = "hobgoblin-dungeon-muted";
 
 const PROP_RENDER: Record<PropKind, PropRenderConfig> = {
   torch: {
@@ -1133,7 +1134,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem(MUTE_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1141,7 +1146,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem(MUTE_STORAGE_KEY, this.muted ? "1" : "0");
+    } catch {
+      // Storage can be blocked in sandboxed or privacy-restricted contexts.
+    }
   }
 
   private toggleMute() {

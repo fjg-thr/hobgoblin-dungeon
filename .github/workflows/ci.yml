@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -28,7 +28,12 @@ jobs:
           cache: npm
 
       - name: Check committed diff hygiene
-        run: git diff --check HEAD^ HEAD
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --check "${{ github.event.before }}" "${{ github.sha }}"
+          else
+            git diff --check HEAD^ HEAD
+          fi
 
       - name: Install dependencies
         run: npm ci

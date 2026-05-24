@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "cursor/cursor-bugbot-deployment-*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Typecheck and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check committed diff hygiene
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            git diff --check "${{ github.event.before }}" "${{ github.sha }}"
+          elif base_commit=$(git merge-base "origin/${{ github.event.repository.default_branch }}" HEAD 2>/dev/null); then
+            git diff --check "$base_commit" HEAD
+          else
+            git diff --check HEAD^ HEAD
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production npm dependencies
+        run: npm audit --omit=dev
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify pnpm lockfile
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Audit production pnpm dependencies
+        run: corepack pnpm audit --prod

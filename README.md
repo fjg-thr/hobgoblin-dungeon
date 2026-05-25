@@ -11,6 +11,22 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Review Automation
+
+Cursor Bugbot is configured for repository-specific pull request review through `.cursor/BUGBOT.md`. To deploy it, enable the GitHub integration from the Cursor dashboard, make sure the Cursor GitHub App has access to this repository, and enable Bugbot for the repository on the Bugbot settings page.
+
+Bugbot runs automatically on pull requests when enabled. To request a manual review, add a standalone top-level comment on the pull request:
+
+```text
+cursor review
+```
+
+or:
+
+```text
+bugbot run
+```
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

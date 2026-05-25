@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "cursor/**"
+  pull_request:
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check branch whitespace
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        run: |
+          git fetch origin main --depth=1
+          git diff --check "$(git merge-base HEAD origin/main)"..HEAD
+
+      - name: Check main whitespace
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git diff --check "${{ github.event.before }}".."${{ github.sha }}"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Audit npm production dependencies
+        run: npm audit --omit=dev
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Set up pnpm
+        run: corepack enable
+
+      - name: Install pnpm dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Audit pnpm production dependencies
+        run: pnpm audit --prod

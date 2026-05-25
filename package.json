@@ -10,18 +10,23 @@
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",
     "generate:powerups": "node tools/generate_powerup_sprites.mjs",
-    "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
+    "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs",
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "next": "latest",
+    "next": "16.2.4",
     "phaser": "4.0.0-rc.4",
-    "react": "latest",
-    "react-dom": "latest"
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest"
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.3"
+  },
+  "packageManager": "pnpm@11.3.0+sha512.2c403d6594527287672b1f7056343a1f7c3634036a67ffabfcc2b3d7595d843768f8787148d1b57cf7956c90606bbd192857c363af19e96d2d0ec9ec5741d215",
+  "overrides": {
+    "postcss": "8.5.15"
   }
 }

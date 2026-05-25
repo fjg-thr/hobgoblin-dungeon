@@ -54,7 +54,7 @@ If dashboard or GitHub App access is unavailable, state that only repository rev
 
 6. **Documentation and CI**
    - If behavior changes, update README controls, power-up descriptions, known limitations, or asset notes as appropriate.
-   - CI should continue to run whitespace checks, dependency installation, audit, type generation/typecheck, build, and pnpm lockfile verification.
+   - CI runs on pull requests, `main` pushes, and `cursor/**` automation branches; it should continue to run whitespace checks, dependency installation, audit, type generation/typecheck, build, and pnpm lockfile verification.
 
 ## Verification checklist for reviews
 

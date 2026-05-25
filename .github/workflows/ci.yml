@@ -29,7 +29,9 @@ jobs:
       - name: Check whitespace
         shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/main" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --check "$(git merge-base HEAD "origin/${{ github.base_ref }}")"..HEAD
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             git diff --check "${{ github.event.before }}..${{ github.sha }}"
           else
             git diff --check "$(git merge-base HEAD origin/main)"..HEAD

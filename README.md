@@ -13,7 +13,7 @@ Open `http://localhost:3000`.
 
 ## Code Review
 
-Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs whitespace checks, dependency audits, type generation/typecheck, build, and npm/pnpm install verification so automated reviews have a consistent baseline.
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, type generation/typecheck, build, and npm/pnpm install verification so automated reviews have a consistent baseline.
 
 ## Controls
 

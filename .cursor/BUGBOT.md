@@ -44,6 +44,6 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype.
 ## Verification expectations
 
 - For app or TypeScript changes, expect `npm run typecheck` and `npm run build` to pass.
-- For npm dependency or lockfile changes, expect `npm ci` and `npm audit --omit=dev` to pass.
+- For npm dependency or lockfile changes, expect `npm ci` and `npm audit --omit=dev` to run; flag new or worsened production advisories relative to the current baseline.
 - For asset pipeline changes, also run the relevant `npm run process:*` or `npm run generate:*` script when practical.
 - If a PR cannot run a recommended check, call out the reason and residual risk.

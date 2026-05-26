@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "next typegen && tsc --noEmit",
     "lint": "next lint",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
@@ -13,15 +14,19 @@
     "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
   },
   "dependencies": {
-    "next": "latest",
+    "next": "16.2.6",
     "phaser": "4.0.0-rc.4",
-    "react": "latest",
-    "react-dom": "latest"
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest"
-  }
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.15",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.3"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
+  },
+  "packageManager": "pnpm@11.3.0"
 }

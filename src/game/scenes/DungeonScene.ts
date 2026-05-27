@@ -13,6 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { readMutedPreference, writeMutedPreference } from "../storage/mutePreference";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -577,7 +578,7 @@ export class DungeonScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off("resize", this.handleResize, this);
     });
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.showStartScreen();
   }
@@ -586,7 +587,7 @@ export class DungeonScene extends Phaser.Scene {
     const dt = Math.min(deltaMs / 1000, MAX_SIMULATION_DT);
     if (!this.gameStarted) {
       this.updatePlayerVisuals();
-      this.updateCamera(dt);
+      this.updateCamera();
       this.updateFocusMask();
       return;
     }
@@ -598,7 +599,7 @@ export class DungeonScene extends Phaser.Scene {
 
     if (this.playerDying) {
       this.updatePlayerVisuals();
-      this.updateCamera(dt);
+      this.updateCamera();
       this.updateFocusMask();
       return;
     }
@@ -626,7 +627,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateHeartPickups();
     this.updateAmmoPickups();
     this.updatePlayerVisuals();
-    this.updateCamera(dt);
+    this.updateCamera();
     this.updateFocusMask();
     this.updatePowerUpText();
 
@@ -1129,19 +1130,23 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    return readMutedPreference(this.getPreferenceStorage());
   }
 
   private writeMutedPreference() {
+    writeMutedPreference(this.getPreferenceStorage(), this.muted);
+  }
+
+  private getPreferenceStorage(): Storage | undefined {
     if (typeof window === "undefined") {
-      return;
+      return undefined;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      return window.localStorage;
+    } catch {
+      return undefined;
+    }
   }
 
   private toggleMute() {
@@ -2002,7 +2007,7 @@ export class DungeonScene extends Phaser.Scene {
       if (distance > config.alertRange) {
         enemy.sprite.anims.play(`${config.keyPrefix}idle-${enemy.direction}`, true);
       } else {
-        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase, dt) : chase;
+        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase) : chase;
         if (Math.hypot(movement.x, movement.y) > 0.01) {
           enemy.direction = this.directionFromVector(movement);
         }
@@ -2024,7 +2029,7 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
-  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint, _dt: number): TilePoint {
+  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint): TilePoint {
     const config = ENEMY_CONFIG[enemy.kind];
     if (this.hasClearEnemyPath(enemy.tile, this.playerTile, config.radius)) {
       enemy.path = [];
@@ -3615,7 +3620,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3767,7 +3772,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3865,11 +3870,11 @@ export class DungeonScene extends Phaser.Scene {
         this.showHowToPlayModal(false);
       }
     }
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
   }
 
-  private updateCamera(_dt: number) {
+  private updateCamera() {
     const camera = this.cameras.main;
     const world = this.playerViewCenterWorld();
     camera.centerOn(Math.round(world.x), Math.round(world.y));

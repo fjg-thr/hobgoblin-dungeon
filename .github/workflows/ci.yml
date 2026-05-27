@@ -37,6 +37,11 @@ jobs:
             git diff --check "$(git merge-base HEAD origin/main)"..HEAD
           fi
 
+      - name: Verify OpenGraph image asset
+        run: |
+          test -f public/opengraph-image.png
+          git ls-tree -r HEAD -- public/opengraph-image.png
+
       - name: Install npm dependencies
         run: npm ci
 

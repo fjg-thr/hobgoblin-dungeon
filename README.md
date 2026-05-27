@@ -9,6 +9,13 @@ npm install
 npm run dev
 ```
 
+Or, with the pinned pnpm version declared in `package.json`:
+
+```bash
+corepack pnpm install
+corepack pnpm dev
+```
+
 Open `http://localhost:3000`.
 
 ## Code Review

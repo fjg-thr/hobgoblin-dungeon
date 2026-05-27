@@ -15,6 +15,8 @@ Open `http://localhost:3000`.
 
 Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, type generation/typecheck, build, and npm/pnpm install verification so automated reviews have a consistent baseline.
 
+Local setup uses npm for the quickstart above; CI also verifies the pinned pnpm lockfile declared by `packageManager` to catch lockfile drift across both supported install paths.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

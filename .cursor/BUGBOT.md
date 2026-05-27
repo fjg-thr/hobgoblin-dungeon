@@ -66,7 +66,7 @@ Ask for evidence appropriate to the diff:
 - `npm run typecheck`
 - `npm run build`
 - `corepack pnpm install --frozen-lockfile`
-- `pnpm audit --prod`
+- `corepack pnpm audit --prod`
 - `test -f public/opengraph-image.png && git ls-tree -r HEAD -- public/opengraph-image.png`
 
 For gameplay changes, also request a manual smoke pass:

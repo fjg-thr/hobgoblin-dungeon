@@ -57,8 +57,6 @@ runtime contract file references them incorrectly:
 - `public/assets/**/*-original.json`
 - `public/assets/audio/audio-manifest.json`
 - `public/assets/**/**-sprite-sheet.json`
-- `tools/**`
-- `scripts/**`
 - `ASSET_PROMPTS.md`
 - `package-lock.json`
 - `pnpm-lock.yaml`
@@ -66,6 +64,10 @@ runtime contract file references them incorrectly:
 
 Generated asset changes are usually expected. Review `src/game/assets/manifest.ts`
 when asset paths, keys, frame sizes, or metadata contracts change.
+
+Treat `tools/**` and `scripts/**` as lower-priority than runtime code, but review
+them when a PR changes asset generation behavior, package scripts, audio
+generation, or the generated contracts consumed by the game.
 
 ## Review style
 
@@ -88,13 +90,10 @@ Primary automated gate:
 npm run build
 ```
 
-Secondary check, if available in the installed Next.js version:
+Do not require `npm run lint` as a review gate until the lint script is migrated
+off legacy `next lint` for the installed Next.js version.
 
-```bash
-npm run lint
-```
-
-There is no committed unit, integration, or end-to-end test suite. For gameplay
-changes, ask for a manual smoke check covering start, movement/collision,
-shooting/ammo, enemy spawn/pathing, power-ups, damage/death, game over, restart,
-mute persistence, and window resize.
+There is no committed unit, integration, lint, or end-to-end test suite. For
+gameplay changes, ask for a manual smoke check covering start,
+movement/collision, shooting/ammo, enemy spawn/pathing, power-ups, damage/death,
+game over, restart, mute persistence, and window resize.

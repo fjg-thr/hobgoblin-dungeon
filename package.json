@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:assets": "node scripts/generate-required-assets.mjs",
+    "validate:assets": "node scripts/validate-assets.mjs",
+    "predev": "npm run generate:assets",
     "dev": "next dev",
+    "prebuild": "npm run generate:assets && npm run validate:assets",
     "build": "next build",
     "lint": "next lint",
     "process:assets": "python3 tools/process_assets.py",

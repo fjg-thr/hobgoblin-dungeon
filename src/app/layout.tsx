@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-  : new URL(
-      process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"
-    );
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const siteUrlSource = configuredSiteUrl
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+const siteUrl = new URL(siteUrlSource.includes("://") ? siteUrlSource : `https://${siteUrlSource}`);
 
 const title = "Hobgoblin Ruin Prototype";
 const description = "A dark GBA-inspired isometric dungeon prototype.";

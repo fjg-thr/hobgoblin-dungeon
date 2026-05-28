@@ -833,7 +833,7 @@ export class DungeonScene extends Phaser.Scene {
     for (let y = 0; y < this.dungeon.height; y += 1) {
       for (let x = 0; x < this.dungeon.width; x += 1) {
         const code = this.getTileCode(x, y);
-        if (code === " " || code === "W") {
+        if (code === " ") {
           continue;
         }
 
@@ -1805,18 +1805,21 @@ export class DungeonScene extends Phaser.Scene {
 
   private trySpawnHeartDropWave() {
     if (this.heartPickups.length >= MAX_ACTIVE_HEART_PICKUPS) {
-      return;
+      return false;
     }
 
     const openSlots = MAX_ACTIVE_HEART_PICKUPS - this.heartPickups.length;
     const count = Math.min(openSlots, Phaser.Math.Between(HEART_DROP_MIN_COUNT, HEART_DROP_MAX_COUNT));
+    let spawned = 0;
     for (let i = 0; i < count; i += 1) {
       const tile = this.findSafeSpawnTile(HEART_PICKUP_SAFE_DISTANCE);
       if (!tile) {
-        return;
+        return spawned > 0;
       }
       this.spawnHeartPickup(tile);
+      spawned += 1;
     }
+    return spawned > 0;
   }
 
   private updateAmmoPickups() {
@@ -2425,8 +2428,7 @@ export class DungeonScene extends Phaser.Scene {
       });
       this.requestHitStop(DEATH_HIT_STOP_MS);
       this.spawnDeathSprite(enemy.kind, enemy.tile, config.spriteScale);
-      if (this.enemyKills >= this.nextHeartDropKill) {
-        this.trySpawnHeartDropWave();
+      if (this.enemyKills >= this.nextHeartDropKill && this.trySpawnHeartDropWave()) {
         this.nextHeartDropKill += HEART_DROP_KILL_STEP;
       }
       enemy.respawnAtMs = this.time.now + config.respawnMs;
@@ -2578,11 +2580,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private requestHitStop(durationMs: number) {
-    this.hitStopUntilMs = Math.max(this.hitStopUntilMs, performance.now() + durationMs);
+    this.hitStopUntilMs = Math.max(this.hitStopUntilMs, this.time.now + durationMs);
   }
 
   private isHitStopped() {
-    return performance.now() < this.hitStopUntilMs;
+    return this.time.now < this.hitStopUntilMs;
   }
 
   private knockEnemyBack(enemy: EnemyActor, vector: TilePoint) {
@@ -3631,6 +3633,18 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.renderGameOverUi(true);
+  }
+
+  private renderGameOverUi(animate: boolean) {
+    this.input.off("pointerdown", this.handleGameOverPointerDown, this);
+    this.gameOverButtonBounds = undefined;
+    if (this.gameOverContainer) {
+      this.tweens.killTweensOf(this.gameOverContainer);
+      this.gameOverContainer.destroy(true);
+    }
+    this.gameOverContainer = undefined;
+
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
@@ -3699,7 +3713,12 @@ export class DungeonScene extends Phaser.Scene {
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
-    this.gameOverContainer.setAlpha(0);
+    this.gameOverContainer.setAlpha(animate ? 0 : 1);
+    content.setAlpha(animate ? 0 : 1);
+    if (!animate) {
+      return;
+    }
+
     this.tweens.add({
       targets: this.gameOverContainer,
       alpha: 1,
@@ -3864,6 +3883,8 @@ export class DungeonScene extends Phaser.Scene {
       if (shouldReopenHowToPlay) {
         this.showHowToPlayModal(false);
       }
+    } else if (this.gameOver) {
+      this.renderGameOverUi(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

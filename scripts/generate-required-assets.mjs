@@ -452,6 +452,17 @@ const writePng = (relativePath, canvas) => {
   generated += 1;
 };
 
+const writeText = (relativePath, content) => {
+  const path = absolutePath(relativePath);
+  if (!force && existsSync(path)) {
+    skipped += 1;
+    return;
+  }
+  ensureParent(path);
+  writeFileSync(path, `${content.trimEnd()}\n`);
+  generated += 1;
+};
+
 const envelope = (time, duration, attack = 0.008, release = 0.08) => {
   const attackGain = Math.min(1, time / attack);
   const releaseGain = Math.min(1, (duration - time) / release);
@@ -570,6 +581,75 @@ const imageAssets = [
 });
 
 imageAssets.forEach(([relativePath, draw]) => writePng(relativePath, draw()));
+
+const json = (value) => JSON.stringify(value, null, 2);
+
+const metadataAssets = [
+  ["public/assets/characters/hobgoblin-sprite-sheet.json", {
+    image: "/assets/characters/hobgoblin-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["southeast", "southwest", "northeast", "northwest"],
+    framesPerRow: 10
+  }],
+  ["public/assets/characters/goblin-sprite-sheet.json", {
+    image: "/assets/characters/goblin-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["southeast", "southwest", "northeast", "northwest"],
+    framesPerRow: 10
+  }],
+  ["public/assets/characters/brute-sprite-sheet.json", {
+    image: "/assets/characters/brute-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["southeast", "southwest", "northeast", "northwest"],
+    framesPerRow: 10
+  }],
+  ["public/assets/characters/actor-deaths-sprite-sheet.json", {
+    image: "/assets/characters/actor-deaths-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["hobgoblin", "goblin", "brute"],
+    framesPerRow: 8
+  }],
+  ["public/assets/effects/combat-juice-sprite-sheet.json", {
+    image: "/assets/effects/combat-juice-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["hit", "deathPoof"],
+    framesPerRow: 8
+  }],
+  ["public/assets/effects/pickup-intent-effects-sprite-sheet.json", {
+    image: "/assets/effects/pickup-intent-effects-sprite-sheet.png",
+    frameWidth: 64,
+    frameHeight: 64,
+    rows: ["haste-afterimage", "burst-charge", "seeker-orbit"],
+    framesPerRow: 8
+  }],
+  ["public/assets/effects/powerups-sprite-sheet.json", {
+    image: "/assets/effects/powerups-sprite-sheet.png",
+    frameWidth: 32,
+    frameHeight: 32,
+    rows: ["quickshot", "haste", "ward", "blast"],
+    framesPerRow: 8
+  }],
+  ["public/assets/effects/ammo-pickup-sprite-sheet.json", {
+    image: "/assets/effects/ammo-pickup-sprite-sheet.png",
+    frameWidth: 32,
+    frameHeight: 32,
+    frames: 8
+  }],
+  ["public/assets/effects/staff-bolt-sprite-sheet.json", {
+    image: "/assets/effects/staff-bolt-sprite-sheet.png",
+    frameWidth: 32,
+    frameHeight: 32,
+    rows: ["fly", "impact"],
+    framesPerRow: 8
+  }]
+];
+
+metadataAssets.forEach(([relativePath, metadata]) => writeText(relativePath, json(metadata)));
 
 const audioAssets = [
   ["staff_shot", 0.18, (time, duration) => triangleWave(420 + 920 * (1 - time / duration), time) * envelope(time, duration, 0.004, 0.12)],

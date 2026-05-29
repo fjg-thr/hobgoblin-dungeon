@@ -2,9 +2,9 @@ interface ShootKeyLike {
   isDown: boolean;
 }
 
-export interface ShootInputKeys {
-  shoot: ShootKeyLike;
-  shootAlt?: ShootKeyLike;
+export interface ShootInputKeys<TShootKey extends ShootKeyLike = ShootKeyLike> {
+  shoot: TShootKey;
+  shootAlt?: TShootKey;
 }
 
 export const isShootRequested = (shotQueued: boolean, keys: ShootInputKeys): boolean => {

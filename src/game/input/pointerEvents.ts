@@ -1,7 +1,11 @@
 interface PointerEventLike {
-  stopPropagation?: () => void;
+  stopPropagation?: unknown;
 }
 
 export const stopPointerEventPropagation = (event?: PointerEventLike) => {
-  event?.stopPropagation?.();
+  if (typeof event?.stopPropagation !== "function") {
+    return;
+  }
+
+  event.stopPropagation();
 };

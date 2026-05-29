@@ -31,7 +31,7 @@ interface TilePoint {
   y: number;
 }
 
-type DungeonInputKeys = Record<string, Phaser.Input.Keyboard.Key> & ShootInputKeys;
+type DungeonInputKeys = Record<string, Phaser.Input.Keyboard.Key> & ShootInputKeys<Phaser.Input.Keyboard.Key>;
 
 interface WorldPoint {
   x: number;

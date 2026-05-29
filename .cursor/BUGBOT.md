@@ -39,13 +39,13 @@ If dashboard or GitHub App access is unavailable, state that only repository rev
    - Power-ups are progression-gated in code: quickshot from start, haste after 1 kill or 12 seconds, blast after 2 kills or 16 seconds, and ward after 10 kills or 90 seconds.
 
 3. **Controls and accessibility**
-   - Current code binds keyboard firing to `SPACE` and pointer/click firing. The README still mentions `J`; treat that mismatch as existing documentation debt unless a PR intentionally touches controls/docs.
+   - Current code binds keyboard firing to `SPACE` and pointer/click firing. Keep README controls and in-game instructions aligned with the active input bindings.
    - Start screen, how-to-play, mute, restart, and game-over interactions should work with the active input model and not trap players.
 
 4. **Assets and manifests**
    - Runtime asset files referenced by `src/game/assets/manifest.ts` must exist under `public/assets/**`, with matching frame sizes and JSON metadata.
    - Avoid committing regenerated binary assets unless the associated manifest/tooling changes are included and the visual/runtime behavior is intentional.
-   - `src/app/layout.tsx` references `/opengraph-image.png`; keep `public/opengraph-image.png` present when touching metadata or public assets.
+   - Metadata or public asset references should point only at committed files; verify any newly referenced `public/**` assets exist.
 
 5. **Performance and maintainability**
    - Be cautious with allocations in `update` loops, per-frame tweens, and particle/effect creation. Prefer existing pools and cleanup paths.

@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import { assetManifest, type AudioAssetKey, type TileAssetKey } from "../assets/manifest";
 import { stopPointerEventPropagation } from "../input/pointerEvents";
-import { isShootRequested, type ShootInputKeys } from "../input/shooting";
+import { forEachShootKey, isShootRequested, type ShootInputKeys } from "../input/shooting";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
@@ -998,7 +998,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1007,7 +1007,8 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    forEachShootKey(this.keys, (key) => key.on("down", handleShootKeyDown));
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();
@@ -3383,7 +3384,7 @@ export class DungeonScene extends Phaser.Scene {
     const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
     controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
     instructionTextObjects.push(
-      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE or J to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
     );
 
     const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);

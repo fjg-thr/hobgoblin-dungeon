@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isShootRequested } from "./shooting";
+import { forEachShootKey, isShootRequested } from "./shooting";
 
 const key = (isDown: boolean) => ({ isDown });
 
@@ -11,5 +11,17 @@ describe("isShootRequested", () => {
         shootAlt: key(true)
       })
     ).toBe(true);
+  });
+});
+
+describe("forEachShootKey", () => {
+  it("visits primary and alternate fire keys", () => {
+    const shoot = key(false);
+    const shootAlt = key(false);
+    const visited: Array<{ isDown: boolean }> = [];
+
+    forEachShootKey({ shoot, shootAlt }, (shootKey) => visited.push(shootKey));
+
+    expect(visited).toEqual([shoot, shootAlt]);
   });
 });

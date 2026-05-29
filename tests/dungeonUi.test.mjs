@@ -83,6 +83,10 @@ test("game-over tween cleanup includes the overlay container and its descendants
     getAll: () => [childA, childB]
   };
 
-  assert.deepEqual(gameOverTweenTargets(container), [container, childA, childB]);
-  assert.deepEqual(gameOverTweenTargets(undefined), []);
+  const targets = gameOverTweenTargets(container);
+  assert.equal(targets.length, 3);
+  assert.equal(targets[0], container);
+  assert.equal(targets[1], childA);
+  assert.equal(targets[2], childB);
+  assert.equal(gameOverTweenTargets(undefined).length, 0);
 });

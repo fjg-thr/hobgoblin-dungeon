@@ -15,7 +15,7 @@
     "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
   },
   "dependencies": {
-    "next": "latest",
+    "next": "^16.2.6",
     "phaser": "4.0.0-rc.4",
     "react": "latest",
     "react-dom": "latest"
@@ -29,5 +29,8 @@
     "typescript": "latest",
     "typescript-eslint": "^8.60.0",
     "vitest": "^4.1.7"
+  },
+  "overrides": {
+    "postcss": "^8.5.15"
   }
 }

@@ -65,6 +65,7 @@ Ask for evidence appropriate to the diff:
 - `npm audit --omit=dev`
 - `npm run typecheck`
 - `npm run build`
+- `corepack enable`
 - `corepack pnpm install --frozen-lockfile`
 - `pnpm audit --prod`
 

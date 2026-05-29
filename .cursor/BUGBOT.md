@@ -45,7 +45,6 @@ TypeScript, and Phaser.
 For code changes, prefer findings that can be verified with one of:
 
 - `npm run build`
-- `npm run lint`
 - A focused manual check of the game at `http://localhost:3000`
 
 When reporting a bug, include the player-visible symptom or the exact code path that

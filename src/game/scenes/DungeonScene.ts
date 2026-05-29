@@ -13,7 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
-import { gameOverOverlayLayout, stopPropagation } from "./uiLayout";
+import { gameOverOverlayLayout, gameOverTweenTargets, stopPropagation } from "./uiLayout";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -3644,11 +3644,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private renderGameOverOverlay(animate: boolean) {
-    if (this.gameOverContainer) {
-      this.tweens.killTweensOf(this.gameOverContainer);
-      this.gameOverContainer.destroy(true);
-    }
-    this.gameOverButtonBounds = undefined;
+    this.destroyGameOverOverlay();
 
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
@@ -3740,6 +3736,16 @@ export class DungeonScene extends Phaser.Scene {
     }
   }
 
+  private destroyGameOverOverlay() {
+    const tweenTargets = gameOverTweenTargets(this.gameOverContainer);
+    if (tweenTargets.length > 0) {
+      this.tweens.killTweensOf(tweenTargets);
+    }
+    this.gameOverContainer?.destroy(true);
+    this.gameOverContainer = undefined;
+    this.gameOverButtonBounds = undefined;
+  }
+
   private handleGameOverPointerDown(pointer: Phaser.Input.Pointer) {
     if (!this.gameOver || !this.gameOverButtonBounds) {
       return;
@@ -3755,9 +3761,7 @@ export class DungeonScene extends Phaser.Scene {
     this.gameOver = false;
     this.playerDying = false;
     this.input.off("pointerdown", this.handleGameOverPointerDown, this);
-    this.gameOverButtonBounds = undefined;
-    this.gameOverContainer?.destroy(true);
-    this.gameOverContainer = undefined;
+    this.destroyGameOverOverlay();
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerInvulnerableUntilMs = 0;
     this.playerPowerFlashUntilMs = 0;

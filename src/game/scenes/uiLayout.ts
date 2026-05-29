@@ -25,10 +25,24 @@ interface PropagationEvent {
   stopPropagation: () => void;
 }
 
+interface GameObjectContainer<TChild> {
+  getAll: () => TChild[];
+}
+
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 export const stopPropagation = (event?: PropagationEvent) => {
   event?.stopPropagation();
+};
+
+export const gameOverTweenTargets = <TContainer extends GameObjectContainer<TChild>, TChild>(
+  container?: TContainer
+): Array<TContainer | TChild> => {
+  if (!container) {
+    return [];
+  }
+
+  return [container, ...container.getAll()];
 };
 
 export const gameOverOverlayLayout = ({

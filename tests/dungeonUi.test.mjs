@@ -74,19 +74,28 @@ test("game-over overlay layout recomputes restart hit area for the current viewp
   assert.ok(compact.restartZone.height < wide.restartZone.height);
 });
 
-test("game-over tween cleanup includes the overlay container and its descendants", async () => {
+test("game-over tween cleanup includes the overlay container and nested descendants", async () => {
   const { gameOverTweenTargets } = await loadTypescriptModule("src/game/scenes/uiLayout.ts");
-  const childA = { name: "title" };
-  const childB = { name: "content" };
+  const title = { name: "title" };
+  const button = { name: "button" };
+  const content = {
+    name: "content",
+    getAll: () => [title, button]
+  };
+  const overlay = { name: "overlay" };
+  const restartZone = { name: "restartZone" };
   const container = {
-    name: "overlay",
-    getAll: () => [childA, childB]
+    name: "gameOver",
+    getAll: () => [overlay, content, restartZone]
   };
 
   const targets = gameOverTweenTargets(container);
-  assert.equal(targets.length, 3);
+  assert.equal(targets.length, 6);
   assert.equal(targets[0], container);
-  assert.equal(targets[1], childA);
-  assert.equal(targets[2], childB);
+  assert.equal(targets[1], overlay);
+  assert.equal(targets[2], content);
+  assert.equal(targets[3], title);
+  assert.equal(targets[4], button);
+  assert.equal(targets[5], restartZone);
   assert.equal(gameOverTweenTargets(undefined).length, 0);
 });

@@ -25,24 +25,37 @@ interface PropagationEvent {
   stopPropagation: () => void;
 }
 
-interface GameObjectContainer<TChild> {
-  getAll: () => TChild[];
+interface GameObjectContainer {
+  getAll: () => object[];
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+const hasGameObjectChildren = (target: object): target is object & GameObjectContainer =>
+  typeof (target as { getAll?: unknown }).getAll === "function";
+
+const collectTweenTargets = (target: object, targets: object[]) => {
+  targets.push(target);
+
+  if (!hasGameObjectChildren(target)) {
+    return;
+  }
+
+  target.getAll().forEach((child) => collectTweenTargets(child, targets));
+};
 
 export const stopPropagation = (event?: PropagationEvent) => {
   event?.stopPropagation();
 };
 
-export const gameOverTweenTargets = <TContainer extends GameObjectContainer<TChild>, TChild>(
-  container?: TContainer
-): Array<TContainer | TChild> => {
+export const gameOverTweenTargets = (container?: object): object[] => {
   if (!container) {
     return [];
   }
 
-  return [container, ...container.getAll()];
+  const targets: object[] = [];
+  collectTweenTargets(container, targets);
+  return targets;
 };
 
 export const gameOverOverlayLayout = ({

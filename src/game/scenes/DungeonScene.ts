@@ -1,5 +1,7 @@
 import * as Phaser from "phaser";
 import { assetManifest, type AudioAssetKey, type TileAssetKey } from "../assets/manifest";
+import { stopPointerEventPropagation } from "../input/pointerEvents";
+import { isShootRequested, type ShootInputKeys } from "../input/shooting";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
@@ -13,6 +15,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { readMutedPreference as readStoredMutedPreference, writeMutedPreference as writeStoredMutedPreference } from "../preferences/mutePreference";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -27,6 +30,8 @@ interface TilePoint {
   x: number;
   y: number;
 }
+
+type DungeonInputKeys = Record<string, Phaser.Input.Keyboard.Key> & ShootInputKeys;
 
 interface WorldPoint {
   x: number;
@@ -420,7 +425,7 @@ export class DungeonScene extends Phaser.Scene {
   private playerPowerFlashUntilMs = 0;
   private player?: Phaser.GameObjects.Sprite;
   private shadow?: Phaser.GameObjects.Image;
-  private keys?: Record<string, Phaser.Input.Keyboard.Key>;
+  private keys?: DungeonInputKeys;
   private debugGraphics?: Phaser.GameObjects.Graphics;
   private hudGraphics?: Phaser.GameObjects.Graphics;
   private scoreText?: Phaser.GameObjects.Text;
@@ -980,6 +985,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -1119,7 +1125,13 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        stopPointerEventPropagation(event);
+        this.toggleMute();
+      }
+    );
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -1129,19 +1141,11 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    return readStoredMutedPreference();
   }
 
   private writeMutedPreference() {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    writeStoredMutedPreference(this.muted);
   }
 
   private toggleMute() {
@@ -1297,7 +1301,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = isShootRequested(this.shotQueued, this.keys);
     if (!shotRequested) {
       return;
     }

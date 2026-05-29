@@ -13,6 +13,7 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { gameOverOverlayLayout, stopPropagation } from "./uiLayout";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -1119,7 +1120,13 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: { stopPropagation: () => void }) => {
+        stopPropagation(event);
+        this.toggleMute();
+      }
+    );
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -3631,21 +3638,40 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.input.off("pointerdown", this.handleGameOverPointerDown, this);
+    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
+    this.renderGameOverOverlay(true);
+  }
+
+  private renderGameOverOverlay(animate: boolean) {
+    if (this.gameOverContainer) {
+      this.tweens.killTweensOf(this.gameOverContainer);
+      this.gameOverContainer.destroy(true);
+    }
+    this.gameOverButtonBounds = undefined;
+
     const camera = this.cameras.main;
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
     overlay.fillRect(0, 0, camera.width, camera.height);
 
-    const panelY = camera.height * 0.43;
     const gameOverSprite = this.add.sprite(0, 0, assetManifest.uiSprites.gameOverTitle.key, 0);
-    const panelScale = Phaser.Math.Clamp(Math.min((camera.width * 0.5) / gameOverSprite.width, (camera.height * 0.28) / gameOverSprite.height), 0.42, 0.66);
-    gameOverSprite.setScale(panelScale);
+    const button = this.add.image(0, 0, "start_over_button");
+    const layout = gameOverOverlayLayout({
+      viewportWidth: camera.width,
+      viewportHeight: camera.height,
+      titleWidth: gameOverSprite.width,
+      titleHeight: gameOverSprite.height,
+      restartButtonWidth: button.width,
+      restartButtonHeight: button.height
+    });
+    gameOverSprite.setScale(layout.panelScale);
     gameOverSprite.anims.play(assetManifest.uiSprites.gameOverTitle.key);
     this.addStaticShimmer(gameOverSprite, 0.94, 1, 1000);
 
     const subtitle = this.add.text(0, gameOverSprite.displayHeight * 0.48, "The ruin keeps its gold.", {
       fontFamily: "monospace",
-      fontSize: `${Math.round(12 * panelScale * 2.1)}px`,
+      fontSize: `${Math.round(12 * layout.panelScale * 2.1)}px`,
       color: "#d9c79a",
       stroke: "#090909",
       strokeThickness: 3,
@@ -3662,7 +3688,7 @@ export class DungeonScene extends Phaser.Scene {
 
     const finalScore = this.add.text(0, finalScoreY, `SCORE ${this.playerScore.toString().padStart(4, "0")}`, {
       fontFamily: "monospace",
-      fontSize: `${Math.round(14 * panelScale * 2.1)}px`,
+      fontSize: `${Math.round(14 * layout.panelScale * 2.1)}px`,
       color: "#ffe3a6",
       stroke: "#120706",
       strokeThickness: 4,
@@ -3670,14 +3696,13 @@ export class DungeonScene extends Phaser.Scene {
     });
     finalScore.setOrigin(0.5);
 
-    const button = this.add.image(0, gameOverSprite.displayHeight * 0.9, "start_over_button");
-    const buttonScale = Phaser.Math.Clamp(Math.min((camera.width * 0.28) / button.width, 0.34), 0.22, 0.36);
-    button.setScale(buttonScale);
+    button.setPosition(0, layout.restartButtonY);
+    button.setScale(layout.restartButtonScale);
     button.setInteractive();
 
     const buttonText = this.add.text(button.x, button.y, "START OVER", {
       fontFamily: "monospace",
-      fontSize: `${Math.round(19 * buttonScale * 2.8)}px`,
+      fontSize: `${Math.round(19 * layout.restartButtonScale * 2.8)}px`,
       color: "#ffe3a6",
       stroke: "#290909",
       strokeThickness: 4,
@@ -3685,33 +3710,34 @@ export class DungeonScene extends Phaser.Scene {
     });
     buttonText.setOrigin(0.5);
 
-    const content = this.add.container(camera.width / 2, panelY, [gameOverSprite, subtitle, button, buttonText, finalScoreBg, finalScore]);
-    content.setAlpha(0);
+    const content = this.add.container(layout.contentX, layout.panelY, [gameOverSprite, subtitle, button, buttonText, finalScoreBg, finalScore]);
+    content.setAlpha(animate ? 0 : 1);
 
-    const restartZone = this.add.zone(camera.width / 2, panelY + button.y, button.displayWidth, button.displayHeight);
+    const restartZone = this.add.zone(layout.restartZone.centerX, layout.restartZone.centerY, layout.restartZone.width, layout.restartZone.height);
     restartZone.setInteractive({ useHandCursor: true });
     restartZone.on("pointerover", () => button.setTint(0xffe0a3));
     restartZone.on("pointerout", () => button.clearTint());
     restartZone.on("pointerdown", () => this.restartGame());
     this.gameOverButtonBounds = this.screenRect(restartZone.x, restartZone.y, restartZone.width, restartZone.height);
-    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
 
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
-    this.gameOverContainer.setAlpha(0);
-    this.tweens.add({
-      targets: this.gameOverContainer,
-      alpha: 1,
-      duration: 180,
-      ease: "Sine.easeOut"
-    });
-    this.tweens.add({
-      targets: content,
-      alpha: 1,
-      duration: 260,
-      ease: "Sine.easeOut"
-    });
+    this.gameOverContainer.setAlpha(animate ? 0 : 1);
+    if (animate) {
+      this.tweens.add({
+        targets: this.gameOverContainer,
+        alpha: 1,
+        duration: 180,
+        ease: "Sine.easeOut"
+      });
+      this.tweens.add({
+        targets: content,
+        alpha: 1,
+        duration: 260,
+        ease: "Sine.easeOut"
+      });
+    }
   }
 
   private handleGameOverPointerDown(pointer: Phaser.Input.Pointer) {
@@ -3864,6 +3890,9 @@ export class DungeonScene extends Phaser.Scene {
       if (shouldReopenHowToPlay) {
         this.showHowToPlayModal(false);
       }
+    }
+    if (this.gameOver && this.gameOverContainer) {
+      this.renderGameOverOverlay(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

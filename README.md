@@ -11,11 +11,15 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review
+
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, type generation/typecheck, build, and npm/pnpm install verification so automated reviews have a consistent baseline.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions
 - Move the mouse to aim; shots snap to 15-degree angles
-- `Space` or `J`: fire the staff bolt toward the current aim point
+- `Space`: fire the staff bolt toward the current aim point
 - Click: aim and fire once
 - Ammo is finite; collect red staff-shard pickups to reload
 - Collect animated power-ups: quickshot fires faster, haste moves faster, ward blocks damage, and rare late-game blast detonates nearby enemies

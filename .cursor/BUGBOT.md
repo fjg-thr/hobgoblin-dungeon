@@ -14,6 +14,10 @@ When validating a deployment, check the external service boundaries:
 
 If dashboard or GitHub App access is unavailable, state that only repository review guidance and CI scaffolding were verified.
 
+## Deployment baseline
+
+This deployment pins package versions so npm and pnpm resolve the same dependency graph in CI. It also patches Next.js to the audited `16.2.6` release; the base lockfile's `16.2.4` resolution is covered by current production audit advisories. Treat that Next.js patch as dependency hardening and ask for at least a build/start smoke check when reviewing changes to this deployment baseline.
+
 ## Project map
 
 - `src/app/page.tsx` mounts the client-only game canvas.

@@ -71,7 +71,10 @@ Ask for evidence appropriate to the diff:
 - `npm run build`
 - `corepack pnpm install --frozen-lockfile`
 - `corepack pnpm audit --prod`
+- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
 - `test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png`
+
+When a PR touches the dev/typegen workflow, also run `npm run dev`, stop the server, and confirm `git diff --exit-code -- next-env.d.ts` so Next's generated route-type import does not leave a tracked diff after shutdown.
 
 For gameplay changes, also request a manual smoke pass:
 

@@ -62,3 +62,6 @@ jobs:
 
       - name: Audit production pnpm dependencies
         run: corepack pnpm audit --prod
+
+      - name: Verify generated files are stable
+        run: git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml

@@ -4,6 +4,7 @@ __pycache__/
 out/
 dist/
 tmp/
+next-env.d.ts
 tsconfig.tsbuildinfo
 .npmrc
 .env*

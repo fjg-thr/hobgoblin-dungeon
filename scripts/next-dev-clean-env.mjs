@@ -3,13 +3,10 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 
+import { shutdownSignalExitCodes, shutdownSignals } from "./next-dev-clean-env-signals.mjs";
+
 const require = createRequire(import.meta.url);
 const nextBinPath = require.resolve("next/dist/bin/next");
-
-const signalExitCodes = new Map([
-  ["SIGINT", 130],
-  ["SIGTERM", 143]
-]);
 
 let restoredRouteTypes = false;
 
@@ -39,14 +36,15 @@ const forwardSignal = (signal) => {
   }
 };
 
-process.on("SIGINT", () => forwardSignal("SIGINT"));
-process.on("SIGTERM", () => forwardSignal("SIGTERM"));
+shutdownSignals.forEach((signal) => {
+  process.on(signal, () => forwardSignal(signal));
+});
 
 devServer.on("exit", (code, signal) => {
   restoreRouteTypes();
 
   if (signal) {
-    process.exit(signalExitCodes.get(signal) ?? 1);
+    process.exit(shutdownSignalExitCodes.get(signal) ?? 1);
   }
 
   process.exit(code ?? 0);

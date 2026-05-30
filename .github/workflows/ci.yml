@@ -51,6 +51,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test dev server cleanup wrapper
+        run: npm run test:dev-wrapper
+
       - name: Build
         run: npm run build
 

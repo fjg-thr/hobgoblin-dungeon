@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - cursor/cursor-bugbot-deployment-961d
 
 jobs:
   verify:
@@ -26,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Type check
-        run: npm run lint
+        run: npm run typecheck
 
       - name: Build
         run: npm run build

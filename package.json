@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint",
+    "lint": "next typegen && tsc --noEmit",
+    "test": "vitest run",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",
@@ -22,6 +23,15 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "^4.1.7"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.15"
+    }
   }
 }

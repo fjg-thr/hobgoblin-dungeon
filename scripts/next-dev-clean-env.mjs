@@ -39,8 +39,14 @@ const forwardSignal = (signal) => {
   }
 };
 
-process.on("SIGINT", () => forwardSignal("SIGINT"));
-process.on("SIGTERM", () => forwardSignal("SIGTERM"));
+const shutdown = (signal) => {
+  forwardSignal(signal);
+  restoreRouteTypes();
+  process.exit(signalExitCodes.get(signal) ?? 1);
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
 
 devServer.on("exit", (code, signal) => {
   restoreRouteTypes();

@@ -13,7 +13,7 @@ Open `http://localhost:3000`.
 
 ## Cursor Bugbot
 
-This repo includes project-specific Cursor Bugbot review rules in `.cursor/BUGBOT.md`. To run Bugbot on pull requests, enable this repository in the Cursor Bugbot dashboard after the GitHub integration is installed. Reviews can also be triggered manually on a pull request with `cursor review` or `bugbot run`.
+This repo includes project-specific Cursor Bugbot review rules in `.cursor/BUGBOT.md`. To run Bugbot on pull requests, enable this repository in the Cursor Bugbot dashboard after the GitHub integration is installed. Reviews can also be triggered manually by commenting `cursor review` or `bugbot run` on a pull request.
 
 ## Controls
 

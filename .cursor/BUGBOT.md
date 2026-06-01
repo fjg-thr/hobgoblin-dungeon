@@ -1,84 +1,65 @@
 # Cursor Bugbot review guide
 
-Use this project-specific guide when reviewing pull requests for Hobgoblin Ruin Prototype. The repository is a Next.js app that hosts a Phaser 4 dungeon scene with generated pixel-art/audio assets.
+Use this project-specific guide when reviewing pull requests for Hobgoblin Ruin Prototype, a Next.js app that mounts a Phaser 4 dungeon scene with generated pixel-art/audio assets.
 
-## Managed-service verification
+## Managed-service boundary
 
-This file gives Cursor Bugbot repository context. It does not, by itself, prove that the managed Bugbot service is enabled.
-
-When validating a deployment, check the external service boundaries:
-
-- Cursor dashboard/org settings show Bugbot enabled for this repository.
-- The Cursor/GitHub App has access to `fjg-thr/hobgoblin-dungeon`.
-- A pull request review smoke check confirms Bugbot can see the diff and post findings.
-
-If dashboard or GitHub App access is unavailable, state that only repository review guidance and CI scaffolding were verified.
+This file gives Bugbot repository context only. It does not prove the managed service is enabled. To validate deployment, confirm Cursor dashboard/org settings, GitHub App access to `fjg-thr/hobgoblin-dungeon`, and a PR review smoke check. If those are unavailable, state that only repo guidance and CI were verified.
 
 ## Deployment baseline
 
-This deployment pins package versions so npm and pnpm resolve the same dependency graph in CI. It also patches Next.js to the audited `16.2.6` release; the base lockfile's `16.2.4` resolution is covered by current production audit advisories. Treat that Next.js patch as dependency hardening and ask for at least a build/start smoke check when reviewing changes to this deployment baseline.
+Package versions are pinned so npm and pnpm resolve the same graph in CI. Next.js is patched to audited `16.2.6`; treat that as dependency hardening and ask for build/start smoke evidence when reviewing baseline changes.
 
 ## Project map
 
-- `src/app/page.tsx` mounts the client-only game canvas.
-- `src/game/GameCanvas.tsx` creates and owns the Phaser game instance.
-- `src/game/scenes/DungeonScene.ts` contains gameplay, input, spawning, combat, UI overlays, audio triggers, and most tuning constants.
-- `src/game/maps/startingDungeon.ts` generates the room/corridor dungeon layout and collision-relevant tiles.
-- `src/game/assets/manifest.ts` declares runtime asset keys, paths, sprite dimensions, and animation metadata.
-- `public/assets/**` contains runtime sprites, sprite-sheet JSON, audio, and source/generated visual assets.
-- `tools/**` and `scripts/**` contain generator/processor tooling for assets and procedural audio.
+- `src/app/page.tsx`: client-only game canvas entry.
+- `src/game/GameCanvas.tsx`: Phaser game lifecycle owner.
+- `src/game/scenes/DungeonScene.ts`: gameplay, input, spawning, combat, UI, audio, and most tuning.
+- `src/game/maps/startingDungeon.ts`: dungeon generation and collision-relevant tiles.
+- `src/game/assets/manifest.ts`: runtime asset keys, paths, dimensions, animation metadata.
+- `public/assets/**`: sprites, sprite-sheet JSON, audio, source/generated assets.
+- `tools/**` and `scripts/**`: asset/audio generator and processor tooling.
 
 ## Review priorities
 
-1. **Runtime safety in the browser**
-   - Phaser and browser globals must stay behind client boundaries. Do not introduce server-side imports that construct Phaser during Next.js rendering.
-   - Clean up Phaser game instances, input handlers, tweens, timers, and audio objects when React remounts or the scene shuts down.
-   - Guard against repeated scene creation, duplicate listeners, and stale object references after restart/game-over flows.
+1. **Browser/runtime safety**
+   - Keep Phaser/browser globals behind client boundaries; avoid server-side imports that construct Phaser during Next.js rendering.
+   - Clean up Phaser games, listeners, tweens, timers, and audio objects across React remounts, scene shutdown, restart, and game-over flows.
 
 2. **Gameplay invariants**
-   - Movement uses isometric tile coordinates and simple collision/proximity checks. Changes to tile math, pathing, or radius constants can break wall collision, enemy navigation, and camera follow.
-   - Player health max is 3. Heart pickups restore missing hearts without increasing max health.
-   - Standard ammo starts finite; ammo pickups reload. Seeker ammo is code-defined and unlocks after 4 kills or 30 seconds, with seeker pickups/projectiles thereafter.
-   - Brutes unlock after 3 kills or 22 seconds. Verify spawn-pressure changes do not overwhelm early runs.
-   - Power-ups are progression-gated in code: quickshot from start, haste after 1 kill or 12 seconds, blast after 2 kills or 16 seconds, and ward after 10 kills or 90 seconds.
+   - Movement, collision, enemy navigation, and camera follow depend on isometric tile math plus simple proximity checks.
+   - Player max health is 3; heart pickups restore missing hearts only.
+   - Standard ammo is finite and pickup-reloaded. Seeker ammo is code-defined and unlocks after 4 kills or 30s.
+   - Brutes unlock after 3 kills or 22s; avoid overwhelming early spawn pressure.
+   - Power-ups are code-gated: quickshot from start, haste after 1 kill/12s, blast after 2 kills/16s, ward after 10 kills/90s.
 
-3. **Controls and accessibility**
-   - Current code binds keyboard firing to `SPACE` and pointer/click firing. The README still mentions `J`; treat that mismatch as existing documentation debt unless a PR intentionally touches controls/docs.
-   - Start screen, how-to-play, mute, restart, and game-over interactions should work with the active input model and not trap players.
+3. **Controls and UI**
+   - Current code fires with `SPACE` and pointer/click. README also mentions `J`; treat that as existing doc debt unless a PR touches controls/docs.
+   - Start, how-to-play, mute, restart, and game-over interactions must remain reachable and not trap input.
 
-4. **Assets and manifests**
-   - Runtime asset files referenced by `src/game/assets/manifest.ts` must exist under `public/assets/**`, with matching frame sizes and JSON metadata.
-   - Avoid committing regenerated binary assets unless the associated manifest/tooling changes are included and the visual/runtime behavior is intentional.
-   - `src/app/layout.tsx` references `/opengraph-image.png`; keep `public/opengraph-image.png` present when touching metadata or public assets.
+4. **Assets and metadata**
+   - Assets referenced by `src/game/assets/manifest.ts` must exist under `public/assets/**` with matching frame sizes/JSON.
+   - Commit regenerated binary assets only with intentional manifest/tooling changes.
+   - `src/app/layout.tsx` references `/opengraph-image.png`; keep `public/opengraph-image.png` tracked.
 
-5. **Performance and maintainability**
-   - Be cautious with allocations in `update` loops, per-frame tweens, and particle/effect creation. Prefer existing pools and cleanup paths.
-   - `DungeonScene.ts` is large; localized changes are preferred. Extract only when it clearly reduces risk for the touched behavior.
-   - Keep tuning constants named and near related systems; avoid magic numbers inside hot gameplay methods.
+5. **Maintainability**
+   - Be cautious with per-frame allocations, tweens, and effect creation; prefer existing pools/cleanup paths.
+   - `DungeonScene.ts` is large. Prefer localized changes; extract only when it reduces risk for the touched behavior.
+   - Keep tuning constants named and near related systems.
 
-6. **Documentation and CI**
-   - If behavior changes, update README controls, power-up descriptions, known limitations, or asset notes as appropriate.
-   - CI runs on pull requests, `main` pushes, and `cursor/**` automation branches; it should continue to run whitespace checks, dependency installation, audit, type generation/typecheck, build, and pnpm lockfile verification.
+6. **Docs and CI**
+   - Update README when controls, power-ups, limitations, or assets change.
+   - CI should keep whitespace, install, audit, typegen/typecheck, build, pnpm, and generated-file stability checks.
 
-## Verification checklist for reviews
+## Verification evidence
 
-Ask for evidence appropriate to the diff:
+Ask for checks appropriate to the diff:
 
 - `git diff --check "$(git merge-base HEAD origin/main)"..HEAD`
-- `npm ci`
-- `npm audit --omit=dev`
-- `npm run typecheck`
-- `npm run build`
-- `corepack pnpm install --frozen-lockfile`
-- `corepack pnpm audit --prod`
-- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
 - `test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png`
+- `npm ci && npm audit --omit=dev`
+- `npm run typecheck && npm run build`
+- `corepack pnpm install --frozen-lockfile && corepack pnpm audit --prod`
+- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
 
-When a PR touches the dev/typegen workflow, also run `npm run dev`, stop the server, and confirm `git diff --exit-code -- next-env.d.ts` so Next's generated route-type import does not leave a tracked diff after shutdown.
-
-For gameplay changes, also request a manual smoke pass:
-
-- Start screen opens; how-to-play opens/closes.
-- Movement works with WASD or arrows.
-- Pointer aiming and click firing work; `SPACE` firing works.
-- Ammo pickups, at least one power-up, damage, death/game-over, restart, and mute toggle behave as expected.
+For dev/typegen changes, run `npm run dev`, stop it gracefully, then confirm `git diff --exit-code -- next-env.d.ts`. For gameplay changes, smoke start/how-to-play, movement, pointer/click and `SPACE` firing, pickups, damage, death/restart, and mute.

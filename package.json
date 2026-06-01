@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@11.5.0",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/next-dev-clean-env.mjs",
     "build": "next build",
     "lint": "next lint",
     "process:assets": "python3 tools/process_assets.py",

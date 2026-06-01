@@ -228,6 +228,7 @@ const HEART_DROP_MAX_COUNT = 3;
 const MAX_ACTIVE_HEART_PICKUPS = 3;
 const HEART_PICKUP_SAFE_DISTANCE = 2.4;
 const FOCUS_MASK_KEY = "player_focus_mask";
+const MUTE_STORAGE_KEY = "hobgoblin-dungeon-muted";
 const FOCUS_MASK_ALPHA = 1;
 const FOCUS_MASK_PIXEL_SIZE = 8;
 const FOCUS_MASK_INNER_RADIUS_RATIO = 0.075;
@@ -1133,7 +1134,11 @@ export class DungeonScene extends Phaser.Scene {
       return false;
     }
 
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    try {
+      return window.localStorage.getItem(MUTE_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
   }
 
   private writeMutedPreference() {
@@ -1141,7 +1146,11 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+    try {
+      window.localStorage.setItem(MUTE_STORAGE_KEY, this.muted ? "1" : "0");
+    } catch {
+      // Storage may be blocked in sandboxed or privacy-restricted browsers.
+    }
   }
 
   private toggleMute() {
@@ -3631,7 +3640,14 @@ export class DungeonScene extends Phaser.Scene {
     this.clearProjectiles();
     this.stopBackgroundMusic();
     this.playSfx("gameOver", { volume: 0.42 });
+    this.renderGameOverOverlay(true);
+    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
+  }
+
+  private renderGameOverOverlay(animate: boolean) {
     const camera = this.cameras.main;
+    this.gameOverContainer?.destroy(true);
+
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
     overlay.fillRect(0, 0, camera.width, camera.height);
@@ -3694,11 +3710,17 @@ export class DungeonScene extends Phaser.Scene {
     restartZone.on("pointerout", () => button.clearTint());
     restartZone.on("pointerdown", () => this.restartGame());
     this.gameOverButtonBounds = this.screenRect(restartZone.x, restartZone.y, restartZone.width, restartZone.height);
-    this.input.on("pointerdown", this.handleGameOverPointerDown, this);
 
     this.gameOverContainer = this.add.container(0, 0, [overlay, content, restartZone]);
     this.gameOverContainer.setScrollFactor(0);
     this.gameOverContainer.setDepth(HUD_DEPTH + 40);
+
+    if (!animate) {
+      content.setAlpha(1);
+      this.gameOverContainer.setAlpha(1);
+      return;
+    }
+
     this.gameOverContainer.setAlpha(0);
     this.tweens.add({
       targets: this.gameOverContainer,
@@ -3864,6 +3886,9 @@ export class DungeonScene extends Phaser.Scene {
       if (shouldReopenHowToPlay) {
         this.showHowToPlayModal(false);
       }
+    }
+    if (this.gameOver) {
+      this.renderGameOverOverlay(false);
     }
     this.updateCamera(1);
     this.updateFocusMask(true);

@@ -1,10 +1,22 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
 const nextBinPath = require.resolve("next/dist/bin/next");
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const nextEnvPath = join(repoRoot, "next-env.d.ts");
+const productionNextEnv = `/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+import "./.next/types/routes.d.ts";
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+`;
 
 const signalExitCodes = new Map([
   ["SIGINT", 130],
@@ -19,6 +31,7 @@ const restoreRouteTypes = () => {
   }
 
   restoredRouteTypes = true;
+  writeFileSync(nextEnvPath, productionNextEnv);
 
   const result = spawnSync(process.execPath, [nextBinPath, "typegen"], {
     stdio: "ignore"

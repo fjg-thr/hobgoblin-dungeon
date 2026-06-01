@@ -443,6 +443,7 @@ export class DungeonScene extends Phaser.Scene {
   private focusMaskSignature = "";
   private gameOverContainer?: Phaser.GameObjects.Container;
   private gameOverButtonBounds?: Phaser.Geom.Rectangle;
+  private gameOverTweens: Phaser.Tweens.Tween[] = [];
   private startContainer?: Phaser.GameObjects.Container;
   private startButtonBounds?: Phaser.Geom.Rectangle;
   private howToPlayButtonBounds?: Phaser.Geom.Rectangle;
@@ -1231,7 +1232,7 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private addStaticShimmer(target: Phaser.GameObjects.GameObject, fromAlpha: number, toAlpha: number, duration: number) {
-    this.tweens.add({
+    return this.tweens.add({
       targets: target,
       alpha: { from: fromAlpha, to: toAlpha },
       duration,
@@ -3646,7 +3647,7 @@ export class DungeonScene extends Phaser.Scene {
 
   private renderGameOverOverlay(animate: boolean) {
     const camera = this.cameras.main;
-    this.gameOverContainer?.destroy(true);
+    this.destroyGameOverOverlay();
 
     const overlay = this.add.graphics();
     overlay.fillStyle(0x020303, 0.74);
@@ -3657,7 +3658,7 @@ export class DungeonScene extends Phaser.Scene {
     const panelScale = Phaser.Math.Clamp(Math.min((camera.width * 0.5) / gameOverSprite.width, (camera.height * 0.28) / gameOverSprite.height), 0.42, 0.66);
     gameOverSprite.setScale(panelScale);
     gameOverSprite.anims.play(assetManifest.uiSprites.gameOverTitle.key);
-    this.addStaticShimmer(gameOverSprite, 0.94, 1, 1000);
+    this.gameOverTweens.push(this.addStaticShimmer(gameOverSprite, 0.94, 1, 1000));
 
     const subtitle = this.add.text(0, gameOverSprite.displayHeight * 0.48, "The ruin keeps its gold.", {
       fontFamily: "monospace",
@@ -3722,18 +3723,29 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     this.gameOverContainer.setAlpha(0);
-    this.tweens.add({
-      targets: this.gameOverContainer,
-      alpha: 1,
-      duration: 180,
-      ease: "Sine.easeOut"
-    });
-    this.tweens.add({
-      targets: content,
-      alpha: 1,
-      duration: 260,
-      ease: "Sine.easeOut"
-    });
+    this.gameOverTweens.push(
+      this.tweens.add({
+        targets: this.gameOverContainer,
+        alpha: 1,
+        duration: 180,
+        ease: "Sine.easeOut"
+      })
+    );
+    this.gameOverTweens.push(
+      this.tweens.add({
+        targets: content,
+        alpha: 1,
+        duration: 260,
+        ease: "Sine.easeOut"
+      })
+    );
+  }
+
+  private destroyGameOverOverlay() {
+    this.gameOverTweens.forEach((tween) => tween.remove());
+    this.gameOverTweens = [];
+    this.gameOverContainer?.destroy(true);
+    this.gameOverContainer = undefined;
   }
 
   private handleGameOverPointerDown(pointer: Phaser.Input.Pointer) {
@@ -3752,8 +3764,7 @@ export class DungeonScene extends Phaser.Scene {
     this.playerDying = false;
     this.input.off("pointerdown", this.handleGameOverPointerDown, this);
     this.gameOverButtonBounds = undefined;
-    this.gameOverContainer?.destroy(true);
-    this.gameOverContainer = undefined;
+    this.destroyGameOverOverlay();
     this.playerHealth = MAX_PLAYER_HEALTH;
     this.playerInvulnerableUntilMs = 0;
     this.playerPowerFlashUntilMs = 0;

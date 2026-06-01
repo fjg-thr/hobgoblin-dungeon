@@ -9,9 +9,14 @@ const normalizeSiteUrl = (value?: string) => {
     return undefined;
   }
 
-  const urlValue = /^https?:\/\//i.test(trimmedValue)
-    ? trimmedValue
-    : `https://${trimmedValue}`;
+  const hasHttpScheme = /^https?:\/\//i.test(trimmedValue);
+  const hasExplicitScheme = /^[a-z][a-z\d+.-]*:/i.test(trimmedValue);
+  const isHostWithPort = /^[^/:?#]+:\d+(?:[/?#]|$)/.test(trimmedValue);
+  if (hasExplicitScheme && !hasHttpScheme && !isHostWithPort) {
+    return undefined;
+  }
+
+  const urlValue = hasHttpScheme ? trimmedValue : `https://${trimmedValue}`;
 
   try {
     const parsedUrl = new URL(urlValue);

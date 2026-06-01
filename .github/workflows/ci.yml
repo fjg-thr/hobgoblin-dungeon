@@ -32,7 +32,12 @@ jobs:
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             git diff --check "$(git merge-base HEAD "origin/${{ github.base_ref }}")"..HEAD
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            git diff --check "${{ github.event.before }}..${{ github.sha }}"
+            before="${{ github.event.before }}"
+            if [[ "$before" =~ ^0+$ ]] || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+              git show --check --format= HEAD
+            else
+              git diff --check "$before..${{ github.sha }}"
+            fi
           else
             git diff --check "$(git merge-base HEAD origin/main)"..HEAD
           fi

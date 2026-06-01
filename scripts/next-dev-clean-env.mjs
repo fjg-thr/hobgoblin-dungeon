@@ -7,7 +7,9 @@ const require = createRequire(import.meta.url);
 const nextBinPath = require.resolve("next/dist/bin/next");
 
 const signalExitCodes = new Map([
+  ["SIGHUP", 129],
   ["SIGINT", 130],
+  ["SIGQUIT", 131],
   ["SIGTERM", 143]
 ]);
 
@@ -39,8 +41,9 @@ const forwardSignal = (signal) => {
   }
 };
 
-process.on("SIGINT", () => forwardSignal("SIGINT"));
-process.on("SIGTERM", () => forwardSignal("SIGTERM"));
+for (const signal of signalExitCodes.keys()) {
+  process.on(signal, () => forwardSignal(signal));
+}
 
 devServer.on("exit", (code, signal) => {
   restoreRouteTypes();

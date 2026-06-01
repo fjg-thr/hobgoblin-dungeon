@@ -9,12 +9,15 @@ const normalizeSiteUrl = (value?: string) => {
     return undefined;
   }
 
-  const urlValue = /^[a-z][a-z\d+.-]*:/i.test(trimmedValue)
+  const urlValue = /^https?:\/\//i.test(trimmedValue)
     ? trimmedValue
     : `https://${trimmedValue}`;
 
   try {
-    return new URL(urlValue);
+    const parsedUrl = new URL(urlValue);
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:"
+      ? parsedUrl
+      : undefined;
   } catch {
     return undefined;
   }

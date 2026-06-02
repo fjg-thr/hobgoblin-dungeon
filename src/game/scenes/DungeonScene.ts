@@ -1119,7 +1119,13 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
+    this.muteButtonZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        this.stopUiPointerEvent(event);
+        this.toggleMute();
+      }
+    );
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -1376,8 +1382,16 @@ export class DungeonScene extends Phaser.Scene {
     };
   }
 
-  private handleAimPointerDown(pointer: Phaser.Input.Pointer) {
+  private stopUiPointerEvent(event?: Phaser.Types.Input.EventData) {
+    event?.stopPropagation();
+  }
+
+  private handleAimPointerDown(pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject[]) {
     if (!this.gameStarted || this.gameOver) {
+      return;
+    }
+
+    if (gameObjects.length > 0) {
       return;
     }
 
@@ -3231,14 +3245,26 @@ export class DungeonScene extends Phaser.Scene {
     startZone.setInteractive({ useHandCursor: true });
     startZone.on("pointerover", () => button.setTint(0xffe0a3));
     startZone.on("pointerout", () => button.clearTint());
-    startZone.on("pointerdown", () => this.startGame());
+    startZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        this.stopUiPointerEvent(event);
+        this.startGame();
+      }
+    );
     this.startButtonBounds = this.screenRect(startZone.x, startZone.y, startZone.width, startZone.height);
 
     const howToPlayZone = this.add.zone(camera.width / 2, panelY + howToPlayButton.y, howToPlayButton.displayWidth, howToPlayButton.displayHeight);
     howToPlayZone.setInteractive({ useHandCursor: true });
     howToPlayZone.on("pointerover", () => howToPlayButton.setTint(0xffe0a3));
     howToPlayZone.on("pointerout", () => howToPlayButton.clearTint());
-    howToPlayZone.on("pointerdown", () => this.showHowToPlayModal());
+    howToPlayZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        this.stopUiPointerEvent(event);
+        this.showHowToPlayModal();
+      }
+    );
     this.howToPlayButtonBounds = this.screenRect(howToPlayZone.x, howToPlayZone.y, howToPlayZone.width, howToPlayZone.height);
 
     this.input.on("pointerdown", this.handleStartPointerDown, this);
@@ -3298,6 +3324,10 @@ export class DungeonScene extends Phaser.Scene {
 
     const blocker = this.add.zone(centerX, centerY, camera.width, camera.height);
     blocker.setInteractive({ useHandCursor: false });
+    blocker.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => this.stopUiPointerEvent(event)
+    );
 
     const overlay = this.add.graphics();
     overlay.fillStyle(0x010202, 0.78);
@@ -3458,7 +3488,13 @@ export class DungeonScene extends Phaser.Scene {
     closeZone.setInteractive({ useHandCursor: true });
     closeZone.on("pointerover", () => closeButton.setTint(0xffe0a3));
     closeZone.on("pointerout", () => closeButton.clearTint());
-    closeZone.on("pointerdown", () => this.hideHowToPlayModal());
+    closeZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        this.stopUiPointerEvent(event);
+        this.hideHowToPlayModal();
+      }
+    );
     this.closeHowToPlayButtonBounds = this.screenRect(closeZone.x, closeZone.y, closeZone.width, closeZone.height);
 
     const panelContent = this.add.container(centerX, centerY, [
@@ -3692,7 +3728,13 @@ export class DungeonScene extends Phaser.Scene {
     restartZone.setInteractive({ useHandCursor: true });
     restartZone.on("pointerover", () => button.setTint(0xffe0a3));
     restartZone.on("pointerout", () => button.clearTint());
-    restartZone.on("pointerdown", () => this.restartGame());
+    restartZone.on(
+      "pointerdown",
+      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        this.stopUiPointerEvent(event);
+        this.restartGame();
+      }
+    );
     this.gameOverButtonBounds = this.screenRect(restartZone.x, restartZone.y, restartZone.width, restartZone.height);
     this.input.on("pointerdown", this.handleGameOverPointerDown, this);
 
@@ -3725,6 +3767,10 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private restartGame() {
+    if (!this.gameOver) {
+      return;
+    }
+
     this.gameStarted = true;
     this.gameOver = false;
     this.playerDying = false;

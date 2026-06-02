@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Review Automation
+
+This repository includes Cursor Bugbot review guidance in `.cursor/BUGBOT.md` and a GitHub Actions CI workflow that runs `npm ci`, `npm run typecheck`, and `npm run build` for pull requests.
+
+To finish enabling automated reviews, connect the repository in the Cursor dashboard, install the Cursor GitHub App for `fjg-thr/hobgoblin-dungeon`, and enable Bugbot for pull request reviews. After Bugbot is enabled, reviewers can also request an on-demand review by commenting `cursor review` or `bugbot run` on a pull request.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

@@ -3274,8 +3274,12 @@ export class DungeonScene extends Phaser.Scene {
     this.startContainer.setDepth(HUD_DEPTH + 30);
   }
 
-  private handleStartPointerDown(pointer: Phaser.Input.Pointer) {
+  private handleStartPointerDown(pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject[]) {
     if (this.gameStarted) {
+      return;
+    }
+
+    if (gameObjects.length > 0) {
       return;
     }
 
@@ -3756,8 +3760,12 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
-  private handleGameOverPointerDown(pointer: Phaser.Input.Pointer) {
+  private handleGameOverPointerDown(pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject[]) {
     if (!this.gameOver || !this.gameOverButtonBounds) {
+      return;
+    }
+
+    if (gameObjects.length > 0) {
       return;
     }
 

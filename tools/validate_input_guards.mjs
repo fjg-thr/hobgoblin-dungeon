@@ -15,6 +15,18 @@ const checks = [
     passes: /if\s*\(\s*gameObjects\.length\s*>\s*0\s*\)\s*{\s*return;\s*}/s.test(sceneSource)
   },
   {
+    name: "scene-level start input receives and ignores game object hits",
+    passes:
+      /handleStartPointerDown\(\s*pointer:\s*Phaser\.Input\.Pointer,\s*gameObjects:\s*Phaser\.GameObjects\.GameObject\[\]/.test(sceneSource) &&
+      /private handleStartPointerDown[\s\S]*?if\s*\(\s*gameObjects\.length\s*>\s*0\s*\)\s*{\s*return;\s*}/.test(sceneSource)
+  },
+  {
+    name: "scene-level game-over input receives and ignores game object hits",
+    passes:
+      /handleGameOverPointerDown\(\s*pointer:\s*Phaser\.Input\.Pointer,\s*gameObjects:\s*Phaser\.GameObjects\.GameObject\[\]/.test(sceneSource) &&
+      /private handleGameOverPointerDown[\s\S]*?if\s*\(\s*gameObjects\.length\s*>\s*0\s*\)\s*{\s*return;\s*}/.test(sceneSource)
+  },
+  {
     name: "all interactive UI pointer callbacks stop propagation",
     passes: stopPropagationCallCount >= 6
   },

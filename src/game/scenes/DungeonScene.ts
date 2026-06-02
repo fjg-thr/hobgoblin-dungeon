@@ -3488,7 +3488,7 @@ export class DungeonScene extends Phaser.Scene {
     });
     closeText.setOrigin(0.5);
 
-    const closeZone = this.add.zone(centerX, centerY + closeButton.y, closeButton.displayWidth, closeButton.displayHeight);
+    const closeZone = this.add.zone(closeButton.x, closeButton.y, closeButton.displayWidth, closeButton.displayHeight);
     closeZone.setInteractive({ useHandCursor: true });
     closeZone.on("pointerover", () => closeButton.setTint(0xffe0a3));
     closeZone.on("pointerout", () => closeButton.clearTint());
@@ -3499,7 +3499,7 @@ export class DungeonScene extends Phaser.Scene {
         this.hideHowToPlayModal();
       }
     );
-    this.closeHowToPlayButtonBounds = this.screenRect(closeZone.x, closeZone.y, closeZone.width, closeZone.height);
+    this.closeHowToPlayButtonBounds = this.screenRect(centerX + closeZone.x, centerY + closeZone.y, closeZone.width, closeZone.height);
 
     const panelContent = this.add.container(centerX, centerY, [
       panel,
@@ -3519,10 +3519,11 @@ export class DungeonScene extends Phaser.Scene {
       torch,
       treasure,
       closeButton,
-      closeText
+      closeText,
+      closeZone
     ]);
 
-    this.howToPlayContainer = this.add.container(0, 0, [overlay, blocker, panelContent, closeZone]);
+    this.howToPlayContainer = this.add.container(0, 0, [overlay, blocker, panelContent]);
     this.howToPlayContainer.setScrollFactor(0);
     this.howToPlayContainer.setDepth(HUD_DEPTH + 70);
     if (playSound) {

@@ -27,6 +27,10 @@ const checks = [
       /private handleGameOverPointerDown[\s\S]*?if\s*\(\s*gameObjects\.length\s*>\s*0\s*\)\s*{\s*return;\s*}/.test(sceneSource)
   },
   {
+    name: "how-to-play back hit zone shares panel button coordinates",
+    passes: /const closeZone = this\.add\.zone\(closeButton\.x,\s*closeButton\.y,\s*closeButton\.displayWidth,\s*closeButton\.displayHeight\)/.test(sceneSource)
+  },
+  {
     name: "all interactive UI pointer callbacks stop propagation",
     passes: stopPropagationCallCount >= 6
   },

@@ -7,6 +7,7 @@
     "build": "next build",
     "lint": "next lint",
     "validate:assets": "node tools/validate_manifest_assets.mjs",
+    "validate:gameplay": "node tools/validate_gameplay_invariants.mjs",
     "validate:input-guards": "node tools/validate_input_guards.mjs",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",

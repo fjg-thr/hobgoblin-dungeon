@@ -167,6 +167,7 @@ const BLAST_HIT_STOP_MS = 82;
 const DAMAGE_NUMBER_POOL_LIMIT = 18;
 const COMBAT_EFFECT_POOL_LIMIT = 28;
 const PLAYER_INVULN_MS = 900;
+const RUN_START_INVULN_MS = 2500;
 const PLAYER_POWER_FLASH_MS = 900;
 const PLAYER_DEATH_GAME_OVER_DELAY_MS = 560;
 const PROJECTILE_RADIUS = 0.12;
@@ -3653,6 +3654,7 @@ export class DungeonScene extends Phaser.Scene {
     this.startContainer?.destroy(true);
     this.startContainer = undefined;
     this.playerHealth = MAX_PLAYER_HEALTH;
+    this.playerInvulnerableUntilMs = this.time.now + RUN_START_INVULN_MS;
     this.playerScore = 0;
     this.nextShotAtMs = 0;
     this.shotQueued = false;
@@ -3809,7 +3811,7 @@ export class DungeonScene extends Phaser.Scene {
     this.gameOverContainer?.destroy(true);
     this.gameOverContainer = undefined;
     this.playerHealth = MAX_PLAYER_HEALTH;
-    this.playerInvulnerableUntilMs = 0;
+    this.playerInvulnerableUntilMs = this.time.now + RUN_START_INVULN_MS;
     this.playerPowerFlashUntilMs = 0;
     this.playerScore = 0;
     this.enemyKills = 0;

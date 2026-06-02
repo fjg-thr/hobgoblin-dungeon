@@ -15,7 +15,7 @@
     "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
   },
   "dependencies": {
-    "next": "16.2.4",
+    "next": "16.2.7",
     "phaser": "4.0.0-rc.4",
     "react": "19.2.5",
     "react-dom": "19.2.5"

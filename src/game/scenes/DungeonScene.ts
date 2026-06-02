@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
 import { assetManifest, type AudioAssetKey, type TileAssetKey } from "../assets/manifest";
+import { SHOOT_CONTROL_LABEL, SHOOT_KEY_BINDINGS, isShootInputActive } from "../controls";
 import {
   HALF_TILE_HEIGHT,
   HALF_TILE_WIDTH,
@@ -979,7 +980,8 @@ export class DungeonScene extends Phaser.Scene {
       a: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-      shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[SHOOT_KEY_BINDINGS[0].phaserKeyCode]),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[SHOOT_KEY_BINDINGS[1].phaserKeyCode]),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -992,7 +994,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1001,6 +1003,10 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
+    };
+
+    SHOOT_KEY_BINDINGS.forEach(({ inputKey }) => {
+      this.keys?.[inputKey].on("down", handleShootKeyDown);
     });
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
@@ -1297,7 +1303,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = isShootInputActive(this.shotQueued, this.keys);
     if (!shotRequested) {
       return;
     }
@@ -3379,7 +3385,7 @@ export class DungeonScene extends Phaser.Scene {
     const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
     controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
     instructionTextObjects.push(
-      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+      ...this.addInstructionCard(controlCard, "Controls", `WASD or arrows move. Aim with the cursor. Click or press ${SHOOT_CONTROL_LABEL} to fire.`, headingSize, bodySize, assetTopPadding, assetSlotHeight)
     );
 
     const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);

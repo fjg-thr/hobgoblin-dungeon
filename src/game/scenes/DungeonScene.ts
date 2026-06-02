@@ -1386,12 +1386,26 @@ export class DungeonScene extends Phaser.Scene {
     event?.stopPropagation();
   }
 
+  private isMuteButtonPointer(pointer: Phaser.Input.Pointer) {
+    const camera = this.cameras.main;
+    return Phaser.Geom.Rectangle.Contains(
+      new Phaser.Geom.Rectangle(
+        camera.width - MUTE_BUTTON_RIGHT_MARGIN - MUTE_BUTTON_WIDTH,
+        camera.height - MUTE_BUTTON_BOTTOM_MARGIN - MUTE_BUTTON_HEIGHT,
+        MUTE_BUTTON_WIDTH,
+        MUTE_BUTTON_HEIGHT
+      ),
+      pointer.x,
+      pointer.y
+    );
+  }
+
   private handleAimPointerDown(pointer: Phaser.Input.Pointer, gameObjects: Phaser.GameObjects.GameObject[]) {
     if (!this.gameStarted || this.gameOver) {
       return;
     }
 
-    if (gameObjects.length > 0) {
+    if (this.isMuteButtonPointer(pointer)) {
       return;
     }
 
@@ -3330,7 +3344,14 @@ export class DungeonScene extends Phaser.Scene {
     blocker.setInteractive({ useHandCursor: false });
     blocker.on(
       "pointerdown",
-      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => this.stopUiPointerEvent(event)
+      (pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+        if (this.closeHowToPlayButtonBounds && Phaser.Geom.Rectangle.Contains(this.closeHowToPlayButtonBounds, pointer.x, pointer.y)) {
+          this.hideHowToPlayModal();
+          this.stopUiPointerEvent(event);
+          return;
+        }
+        this.stopUiPointerEvent(event);
+      }
     );
 
     const overlay = this.add.graphics();

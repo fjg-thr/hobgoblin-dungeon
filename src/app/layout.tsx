@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-  : new URL(
-      process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"
-    );
+const defaultSiteUrl = "https://hobgoblin-dungeon.vercel.app";
+const configuredSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+  process.env.VERCEL_URL ||
+  process.env.URL ||
+  defaultSiteUrl;
+const normalizedSiteUrl = configuredSiteUrl.startsWith("http")
+  ? configuredSiteUrl
+  : `https://${configuredSiteUrl}`;
+const siteUrl = new URL(normalizedSiteUrl);
 
 const title = "Hobgoblin Ruin Prototype";
 const description = "A dark GBA-inspired isometric dungeon prototype.";

@@ -12,6 +12,38 @@ const socialImageUrls = [...indexHtml.matchAll(socialImageMetaTagPattern)].map(
   (match) => match[1]
 );
 
+const isIPv4Loopback = (address) => isIP(address) === 4 && address.startsWith("127.");
+
+const isIPv4MappedLoopback = (address) => {
+  const mappedPrefix = "::ffff:";
+
+  if (!address.startsWith(mappedPrefix)) {
+    return false;
+  }
+
+  const mappedAddress = address.slice(mappedPrefix.length);
+  if (isIPv4Loopback(mappedAddress)) {
+    return true;
+  }
+
+  const mappedHextets = mappedAddress.split(":");
+  if (mappedHextets.length !== 2) {
+    return false;
+  }
+
+  const highBits = Number.parseInt(mappedHextets[0], 16);
+  const lowBits = Number.parseInt(mappedHextets[1], 16);
+  const isValidMappedAddress =
+    Number.isInteger(highBits) &&
+    Number.isInteger(lowBits) &&
+    highBits >= 0 &&
+    highBits <= 0xffff &&
+    lowBits >= 0 &&
+    lowBits <= 0xffff;
+
+  return isValidMappedAddress && highBits >> 8 === 127;
+};
+
 const isLoopbackHostname = (hostname) => {
   const normalizedHostname = hostname.toLowerCase().replace(/^\[(.*)\]$/, "$1");
 
@@ -23,11 +55,7 @@ const isLoopbackHostname = (hostname) => {
     return true;
   }
 
-  if (isIP(normalizedHostname) === 4) {
-    return normalizedHostname.startsWith("127.");
-  }
-
-  return normalizedHostname.startsWith("::ffff:127.");
+  return isIPv4Loopback(normalizedHostname) || isIPv4MappedLoopback(normalizedHostname);
 };
 
 if (socialImageUrls.length === 0) {

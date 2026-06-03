@@ -45,7 +45,10 @@ const isIPv4MappedLoopback = (address) => {
 };
 
 const isLoopbackHostname = (hostname) => {
-  const normalizedHostname = hostname.toLowerCase().replace(/^\[(.*)\]$/, "$1");
+  const normalizedHostname = hostname
+    .toLowerCase()
+    .replace(/^\[(.*)\]$/, "$1")
+    .replace(/\.+$/, "");
 
   if (normalizedHostname === "localhost" || normalizedHostname.endsWith(".localhost")) {
     return true;

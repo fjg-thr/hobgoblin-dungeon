@@ -8,10 +8,15 @@ const configuredSiteUrl =
   process.env.VERCEL_URL ||
   process.env.URL ||
   defaultSiteUrl;
-const normalizedSiteUrl = configuredSiteUrl.startsWith("http")
+const hasHttpProtocol = /^https?:\/\//i.test(configuredSiteUrl);
+const normalizedSiteUrl = hasHttpProtocol
   ? configuredSiteUrl
   : `https://${configuredSiteUrl}`;
 const siteUrl = new URL(normalizedSiteUrl);
+
+if (siteUrl.protocol !== "http:" && siteUrl.protocol !== "https:") {
+  throw new Error(`Site URL must use http or https: ${configuredSiteUrl}`);
+}
 
 const title = "Hobgoblin Ruin Prototype";
 const description = "A dark GBA-inspired isometric dungeon prototype.";

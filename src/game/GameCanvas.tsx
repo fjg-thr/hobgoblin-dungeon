@@ -12,6 +12,7 @@ export default function GameCanvas() {
       return;
     }
 
+    const host = hostRef.current;
     let cancelled = false;
 
     async function bootGame(host: HTMLDivElement) {
@@ -51,7 +52,7 @@ export default function GameCanvas() {
       gameRef.current = new Phaser.Game(config);
     }
 
-    void bootGame(hostRef.current);
+    void bootGame(host);
 
     return () => {
       cancelled = true;

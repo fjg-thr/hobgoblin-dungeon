@@ -13,6 +13,8 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
+import { enemySpawnDistanceForActiveCount, selectInitialEnemyStarts } from "../enemySpawnSelection";
+import { getStorageFromSource, readStorageFlag, type StorageLike, writeStorageFlag } from "../storagePreference";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -281,6 +283,7 @@ const ENEMY_CONFIG: Record<EnemyKind, EnemyConfig> = {
     }
   }
 };
+const INITIAL_ENEMY_SPAWN_DISTANCE = ENEMY_CONFIG.goblin.alertRange + 0.75;
 
 const POWERUP_CONFIG: Record<PowerUpKind, PowerUpConfig> = {
   quickshot: {
@@ -363,6 +366,7 @@ const MUTE_BUTTON_WIDTH = 88;
 const MUTE_BUTTON_HEIGHT = HUD_CONTAINER_HEIGHT;
 const MUTE_BUTTON_RIGHT_MARGIN = 18;
 const MUTE_BUTTON_BOTTOM_MARGIN = HUD_CONTAINER_BOTTOM_MARGIN;
+const MUTED_STORAGE_KEY = "hobgoblin-dungeon-muted";
 
 const PROP_RENDER: Record<PropKind, PropRenderConfig> = {
   torch: {
@@ -958,8 +962,9 @@ export class DungeonScene extends Phaser.Scene {
     this.seekerOrbitSprite.anims.play("seeker-orbit-loop");
   }
 
-  private createEnemies() {
-    this.dungeon.enemyStarts.forEach((start) => {
+  private createEnemies(count = this.dungeon.enemyStarts.length, minDistanceFromPlayer = 0) {
+    const starts = selectInitialEnemyStarts(this.dungeon.enemyStarts, this.playerTile, count, minDistanceFromPlayer);
+    starts.forEach((start) => {
       this.spawnEnemy(start);
     });
   }
@@ -1129,19 +1134,15 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private readMutedPreference(): boolean {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    return window.localStorage.getItem("hobgoblin-dungeon-muted") === "1";
+    return readStorageFlag(this.getBrowserStorage(), MUTED_STORAGE_KEY);
   }
 
   private writeMutedPreference() {
-    if (typeof window === "undefined") {
-      return;
-    }
+    writeStorageFlag(this.getBrowserStorage(), MUTED_STORAGE_KEY, this.muted);
+  }
 
-    window.localStorage.setItem("hobgoblin-dungeon-muted", this.muted ? "1" : "0");
+  private getBrowserStorage(): StorageLike | undefined {
+    return getStorageFromSource(typeof window === "undefined" ? undefined : window);
   }
 
   private toggleMute() {
@@ -1476,8 +1477,9 @@ export class DungeonScene extends Phaser.Scene {
     if (now >= this.nextDifficultyCheckAtMs) {
       this.nextDifficultyCheckAtMs = now + this.currentDifficultySpawnCheckMs();
       const targetEnemyCount = this.targetEnemyCount();
-      if (this.activeEnemyCount() < targetEnemyCount && this.enemies.length < MAX_ENEMIES) {
-        const spawnTile = this.findSafeSpawnTile(ENEMY_SAFE_SPAWN_DISTANCE);
+      const activeEnemyCount = this.activeEnemyCount();
+      if (activeEnemyCount < targetEnemyCount && this.enemies.length < MAX_ENEMIES) {
+        const spawnTile = this.findSafeSpawnTile(enemySpawnDistanceForActiveCount(activeEnemyCount, ENEMY_SAFE_SPAWN_DISTANCE, INITIAL_ENEMY_SPAWN_DISTANCE));
         if (spawnTile) {
           this.spawnEnemy(spawnTile, this.chooseEnemyKind());
         }
@@ -3605,8 +3607,8 @@ export class DungeonScene extends Phaser.Scene {
     this.clearEnemies();
     this.prepareNewDungeon();
     this.playerDirection = "southeast";
-    this.createEnemies();
     this.startRunTimers();
+    this.createEnemies(this.targetEnemyCount(), INITIAL_ENEMY_SPAWN_DISTANCE);
     this.player?.setTexture(assetManifest.character.key, 0);
     this.player?.clearTint().setAlpha(1);
     this.player?.anims.play("idle-southeast", true);
@@ -3725,6 +3727,10 @@ export class DungeonScene extends Phaser.Scene {
   }
 
   private restartGame() {
+    if (!this.gameOver) {
+      return;
+    }
+
     this.gameStarted = true;
     this.gameOver = false;
     this.playerDying = false;
@@ -3760,8 +3766,8 @@ export class DungeonScene extends Phaser.Scene {
     this.player?.setTexture(assetManifest.character.key, 0);
     this.player?.clearTint().setAlpha(1);
     this.player?.anims.play("idle-southeast", true);
-    this.createEnemies();
     this.startRunTimers();
+    this.createEnemies(this.targetEnemyCount(), INITIAL_ENEMY_SPAWN_DISTANCE);
     this.drawLifeMeter();
     this.updateScoreText();
     this.updateAmmoText();

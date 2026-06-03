@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"tests/**/*.ts\" \"*.config.ts\" --max-warnings=0",
+    "test": "tsx --test tests/*.test.ts",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",
@@ -22,6 +23,9 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.7",
+    "tsx": "^4.22.4",
     "typescript": "latest"
   }
 }

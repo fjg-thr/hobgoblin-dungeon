@@ -577,7 +577,7 @@ export class DungeonScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off("resize", this.handleResize, this);
     });
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.showStartScreen();
   }
@@ -586,7 +586,7 @@ export class DungeonScene extends Phaser.Scene {
     const dt = Math.min(deltaMs / 1000, MAX_SIMULATION_DT);
     if (!this.gameStarted) {
       this.updatePlayerVisuals();
-      this.updateCamera(dt);
+      this.updateCamera();
       this.updateFocusMask();
       return;
     }
@@ -598,7 +598,7 @@ export class DungeonScene extends Phaser.Scene {
 
     if (this.playerDying) {
       this.updatePlayerVisuals();
-      this.updateCamera(dt);
+      this.updateCamera();
       this.updateFocusMask();
       return;
     }
@@ -626,7 +626,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateHeartPickups();
     this.updateAmmoPickups();
     this.updatePlayerVisuals();
-    this.updateCamera(dt);
+    this.updateCamera();
     this.updateFocusMask();
     this.updatePowerUpText();
 
@@ -980,8 +980,20 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
+    };
+
+    const handleShootKeyDown = () => {
+      if (!this.gameStarted) {
+        if (this.howToPlayContainer) {
+          return;
+        }
+        this.startGame();
+        return;
+      }
+      this.shotQueued = true;
     };
 
     this.keys.debug.on("down", () => {
@@ -992,16 +1004,8 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
-      if (!this.gameStarted) {
-        if (this.howToPlayContainer) {
-          return;
-        }
-        this.startGame();
-        return;
-      }
-      this.shotQueued = true;
-    });
+    this.keys.shoot.on("down", handleShootKeyDown);
+    this.keys.shootAlt.on("down", handleShootKeyDown);
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();
@@ -1297,7 +1301,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }
@@ -2002,7 +2006,7 @@ export class DungeonScene extends Phaser.Scene {
       if (distance > config.alertRange) {
         enemy.sprite.anims.play(`${config.keyPrefix}idle-${enemy.direction}`, true);
       } else {
-        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase, dt) : chase;
+        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase) : chase;
         if (Math.hypot(movement.x, movement.y) > 0.01) {
           enemy.direction = this.directionFromVector(movement);
         }
@@ -2024,7 +2028,7 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
-  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint, _dt: number): TilePoint {
+  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint): TilePoint {
     const config = ENEMY_CONFIG[enemy.kind];
     if (this.hasClearEnemyPath(enemy.tile, this.playerTile, config.radius)) {
       enemy.path = [];
@@ -3379,7 +3383,7 @@ export class DungeonScene extends Phaser.Scene {
     const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
     controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
     instructionTextObjects.push(
-      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE or J to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
     );
 
     const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);
@@ -3615,7 +3619,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3767,7 +3771,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3865,11 +3869,11 @@ export class DungeonScene extends Phaser.Scene {
         this.showHowToPlayModal(false);
       }
     }
-    this.updateCamera(1);
+    this.updateCamera();
     this.updateFocusMask(true);
   }
 
-  private updateCamera(_dt: number) {
+  private updateCamera() {
     const camera = this.cameras.main;
     const world = this.playerViewCenterWorld();
     camera.centerOn(Math.round(world.x), Math.round(world.y));

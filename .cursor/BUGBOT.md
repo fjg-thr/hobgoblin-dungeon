@@ -49,7 +49,7 @@ Package versions are pinned so npm and pnpm resolve the same graph in CI. Next.j
 
 6. **Docs and CI**
    - Update README when controls, power-ups, limitations, or assets change.
-   - CI should keep whitespace, install, audit, typegen/typecheck, build, pnpm, and generated-file stability checks.
+   - CI should keep whitespace, install, audit, typegen/typecheck, build, dev/prod HTTP smoke, pnpm, and generated-file stability checks.
 
 ## Verification evidence
 
@@ -59,7 +59,9 @@ Ask for checks appropriate to the diff:
 - `test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png`
 - `npm ci && npm audit --omit=dev`
 - `npm run typecheck && npm run build`
+- `npm run dev -- --hostname 127.0.0.1 --port 3000` plus HTTP 200 smoke, graceful stop, and clean `next-env.d.ts`
+- `npm exec next start -- --hostname 127.0.0.1 --port 3001` plus HTTP 200 smoke after build
 - `corepack pnpm install --frozen-lockfile && corepack pnpm audit --prod`
 - `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
 
-For dev/typegen changes, run `npm run dev`, stop it gracefully, then confirm `git diff --exit-code -- next-env.d.ts`. For gameplay changes, smoke start/how-to-play, movement, pointer/click and `SPACE` firing, pickups, damage, death/restart, and mute.
+For gameplay changes, smoke start/how-to-play, movement, pointer/click and `SPACE` firing, pickups, damage, death/restart, and mute.

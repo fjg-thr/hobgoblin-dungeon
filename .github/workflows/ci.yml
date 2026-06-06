@@ -122,4 +122,4 @@ jobs:
         run: corepack pnpm audit --prod
 
       - name: Verify generated files are stable
-        run: git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml
+        run: git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml pnpm-workspace.yaml

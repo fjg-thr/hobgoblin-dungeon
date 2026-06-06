@@ -3382,7 +3382,7 @@ export class DungeonScene extends Phaser.Scene {
     const controlIcon = this.add.image(controlAsset.x, controlAsset.y, "keyboard_hint_panel");
     controlIcon.setScale((isTiny ? 0.14 : isCompact ? 0.19 : 0.23) * Math.min(1, assetScale + 0.24));
     instructionTextObjects.push(
-      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
+      ...this.addInstructionCard(controlCard, "Controls", "WASD or arrows move. Aim with the cursor. Click or press SPACE or J to fire.", headingSize, bodySize, assetTopPadding, assetSlotHeight)
     );
 
     const boltCard = this.gridCardBounds(1, gridColumns, gridSidePadding, gridTop, cardWidth, cardHeight, gridGap, halfWidth);

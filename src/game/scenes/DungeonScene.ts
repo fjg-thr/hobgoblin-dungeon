@@ -1300,7 +1300,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
     if (!shotRequested) {
       return;
     }

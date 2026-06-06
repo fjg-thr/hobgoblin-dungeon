@@ -62,6 +62,6 @@ Ask for checks appropriate to the diff:
 - `npm run dev -- --hostname 127.0.0.1 --port 3000` plus HTTP 200 smoke, graceful stop, and clean `next-env.d.ts`
 - `npm exec next start -- --hostname 127.0.0.1 --port 3001` plus HTTP 200 smoke after build
 - `corepack pnpm install --frozen-lockfile && corepack pnpm audit --prod`
-- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
+- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml pnpm-workspace.yaml`
 
 For gameplay changes, smoke start/how-to-play, movement, pointer/click and `SPACE` firing, pickups, damage, death/restart, and mute.

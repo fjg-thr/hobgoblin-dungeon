@@ -10,5 +10,16 @@ export default defineConfig([
     "out/**",
     "dist/**",
     "node_modules/**"
-  ])
+  ]),
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_"
+        }
+      ]
+    }
+  }
 ]);

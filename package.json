@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "lint": "next lint",
+    "lint": "tsc --noEmit --incremental false",
+    "test:maps": "rm -rf tmp/dungeon-generation && tsc --ignoreConfig src/game/maps/startingDungeon.ts --target ES2020 --module Node16 --moduleResolution node16 --outDir tmp/dungeon-generation --skipLibCheck --esModuleInterop && node scripts/check-dungeon-generation.mjs",
     "process:assets": "python3 tools/process_assets.py",
     "process:death-assets": "node tools/process_actor_death_assets.mjs",
     "process:combat-juice": "node tools/process_combat_juice_assets.mjs",
@@ -13,15 +14,23 @@
     "generate:combat-assets": "node tools/generate_brute_ammo_sprites.mjs"
   },
   "dependencies": {
-    "next": "latest",
+    "next": "^16.2.7",
     "phaser": "4.0.0-rc.4",
-    "react": "latest",
-    "react-dom": "latest"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest"
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.10"
+    }
   }
 }

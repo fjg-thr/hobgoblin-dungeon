@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "cursor/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check whitespace
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --check "$(git merge-base HEAD "origin/${{ github.base_ref }}")"..HEAD
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            git diff --check "${{ github.event.before }}..${{ github.sha }}"
+          else
+            git diff --check "$(git merge-base HEAD origin/main)"..HEAD
+          fi
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Audit production npm dependencies
+        run: npm audit --omit=dev
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Smoke test dev server
+        shell: bash
+        run: |
+          setsid npm run dev -- --hostname 127.0.0.1 --port 3000 &
+          server_pid=$!
+
+          cleanup() {
+            kill -INT -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" || true
+          }
+
+          trap cleanup EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:3000/; then
+              cleanup
+              trap - EXIT
+
+              for cleanup_attempt in {1..10}; do
+                if git diff --quiet -- next-env.d.ts; then
+                  exit 0
+                fi
+
+                sleep 1
+              done
+
+              git diff -- next-env.d.ts
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          exit 1
+
+      - name: Smoke test production server
+        shell: bash
+        run: |
+          setsid npm exec next start -- --hostname 127.0.0.1 --port 3001 &
+          server_pid=$!
+
+          cleanup() {
+            kill -TERM -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" || true
+          }
+
+          trap cleanup EXIT
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:3001/; then
+              exit 0
+            fi
+
+            sleep 1
+          done
+
+          exit 1
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install pnpm dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Audit production pnpm dependencies
+        run: corepack pnpm audit --prod
+
+      - name: Verify generated files are stable
+        run: git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml

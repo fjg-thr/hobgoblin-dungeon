@@ -980,6 +980,7 @@ export class DungeonScene extends Phaser.Scene {
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
       shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+      shootAlt: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -992,7 +993,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    this.keys.shoot.on("down", () => {
+    const handleShootKeyDown = () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1001,7 +1002,9 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
-    });
+    };
+    this.keys.shoot.on("down", handleShootKeyDown);
+    this.keys.shootAlt.on("down", handleShootKeyDown);
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();

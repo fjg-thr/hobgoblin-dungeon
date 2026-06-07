@@ -11,6 +11,12 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Deployment Metadata
+
+Set `NEXT_PUBLIC_SITE_URL` to the canonical production origin so social share
+metadata uses the deployed URL. Vercel deployment URLs are also detected, and
+local development falls back to `http://localhost:3000`.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

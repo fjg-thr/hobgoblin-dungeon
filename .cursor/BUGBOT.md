@@ -24,7 +24,7 @@ Flag issues as blocking when a change can cause any of the following:
 - Keep the Phaser canvas mounted from a client component; do not import Phaser from server components or layouts.
 - Dynamic imports should preserve browser-only execution for the game runtime.
 - Verify React effects that create game instances have deterministic cleanup and do not create duplicate Phaser games during rerenders.
-- Avoid introducing custom CSS unless it is clearly necessary; prefer existing Tailwind/global styling patterns already used by the app.
+- Avoid introducing new styling systems; prefer the existing global CSS patterns already used by the app.
 
 ## Testing expectations
 

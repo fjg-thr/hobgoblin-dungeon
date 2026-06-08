@@ -71,13 +71,19 @@ jobs:
           trap cleanup EXIT
 
           for attempt in {1..30}; do
-            if curl --fail --silent --output /dev/null http://127.0.0.1:3001/; then
+            result=$(curl --silent --output /dev/null --write-out "%{http_code} %{size_download}" http://127.0.0.1:3001/ || true)
+            code="${result%% *}"
+            bytes="${result##* }"
+
+            if [[ "$code" == "200" ]]; then
+              echo "prod_smoke_http=$code bytes=$bytes"
               exit 0
             fi
 
             sleep 1
           done
 
+          echo "prod_smoke_failed_last=$result"
           exit 1
 
       - name: Enable Corepack

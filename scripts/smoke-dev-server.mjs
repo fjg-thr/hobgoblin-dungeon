@@ -55,7 +55,7 @@ export const waitForHttpOk = async (
       });
       const body = await response.arrayBuffer();
 
-      if (response.ok) {
+      if (response.status === 200) {
         return {
           bytes: body.byteLength,
           status: response.status

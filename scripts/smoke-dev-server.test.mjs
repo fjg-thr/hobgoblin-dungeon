@@ -61,3 +61,23 @@ test("waitForHttpOk waits for a 200 response and reports downloaded bytes", asyn
     await close(server);
   }
 });
+
+test("waitForHttpOk rejects successful non-200 responses", async () => {
+  const server = createServer((_request, response) => {
+    response.writeHead(204);
+    response.end();
+  });
+  const address = await listen(server);
+
+  try {
+    await assert.rejects(
+      waitForHttpOk(`http://127.0.0.1:${address.port}/`, {
+        intervalMs: 10,
+        timeoutMs: 25
+      }),
+      /HTTP 204/
+    );
+  } finally {
+    await close(server);
+  }
+});

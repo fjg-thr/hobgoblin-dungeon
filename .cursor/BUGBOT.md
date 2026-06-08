@@ -8,7 +8,7 @@ This file gives Bugbot repository context only. It does not prove the managed se
 
 ## Deployment baseline
 
-Package versions are pinned so npm and pnpm resolve the same graph in CI. Next.js is patched to audited `16.2.6`; treat that as dependency hardening and ask for build/start smoke evidence when reviewing baseline changes.
+Package versions use committed npm/pnpm lockfiles and audited pinned top-level dependencies in CI. Next.js is patched to audited `16.2.6`; treat that as dependency hardening and ask for build/start smoke evidence when reviewing baseline changes.
 
 ## Project map
 

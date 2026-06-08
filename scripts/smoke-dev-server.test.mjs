@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { test } from "node:test";
 
-import { getAvailablePort, waitForHttpOk } from "./smoke-dev-server.mjs";
+import { getAvailablePort, stopProcessGroup, waitForHttpOk } from "./smoke-dev-server.mjs";
 
 const listen = (server, port = 0, host = "127.0.0.1") =>
   new Promise((resolve, reject) => {
@@ -79,5 +80,35 @@ test("waitForHttpOk rejects successful non-200 responses", async () => {
     );
   } finally {
     await close(server);
+  }
+});
+
+test("stopProcessGroup escalates when a child ignores the shutdown signal", async () => {
+  const child = spawn(
+    process.execPath,
+    [
+      "-e",
+      "process.on('SIGINT', () => {}); console.log('ready'); setInterval(() => {}, 1000);"
+    ],
+    {
+      detached: true,
+      stdio: ["ignore", "pipe", "ignore"]
+    }
+  );
+
+  const childReady = new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.stdout.once("data", resolve);
+  });
+
+  try {
+    await childReady;
+    await stopProcessGroup(child, { timeoutMs: 50 });
+
+    assert.equal(child.signalCode, "SIGKILL");
+  } finally {
+    if (child.pid && child.exitCode === null && child.signalCode === null) {
+      process.kill(-child.pid, "SIGKILL");
+    }
   }
 });

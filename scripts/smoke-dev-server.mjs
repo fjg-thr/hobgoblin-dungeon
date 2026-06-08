@@ -111,7 +111,7 @@ const waitForChildExit = async (child) => {
   await once(child, "exit");
 };
 
-const stopProcessGroup = async (
+export const stopProcessGroup = async (
   child,
   { signal = "SIGINT", timeoutMs = DEFAULT_SHUTDOWN_TIMEOUT_MS } = {}
 ) => {

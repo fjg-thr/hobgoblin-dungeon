@@ -124,7 +124,17 @@ export const stopProcessGroup = async (
   }
 
   await Promise.race([waitForChildExit(child), delay(timeoutMs)]);
-  await waitForProcessGroupExit(child.pid, { timeoutMs });
+  try {
+    await waitForProcessGroupExit(child.pid, { timeoutMs });
+  } catch (error) {
+    if (!isProcessGroupAlive(child.pid) || signal === "SIGKILL") {
+      throw error;
+    }
+
+    process.kill(-child.pid, "SIGKILL");
+    await Promise.race([waitForChildExit(child), delay(timeoutMs)]);
+    await waitForProcessGroupExit(child.pid, { timeoutMs });
+  }
 };
 
 const waitForGitClean = async (

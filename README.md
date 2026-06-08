@@ -20,7 +20,7 @@ Open `http://localhost:3000`.
 
 ## Code Review
 
-Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, type generation/typecheck, build, HTTP smoke tests, and npm/pnpm install verification so automated reviews have a consistent baseline.
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, smoke helper tests, type generation/typecheck, build, dynamic-port HTTP smoke tests, and npm/pnpm install verification so automated reviews have a consistent baseline.
 The Bugbot deployment baseline also pins package versions and includes the audited Next.js patch level required for production dependency checks.
 
 ## Controls

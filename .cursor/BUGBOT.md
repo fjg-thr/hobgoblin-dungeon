@@ -58,9 +58,9 @@ Ask for checks appropriate to the diff:
 - `git diff --check "$(git merge-base HEAD origin/main)"..HEAD`
 - `test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png`
 - `npm ci && npm audit --omit=dev`
-- `npm run typecheck && npm run build`
+- `npm run test:smoke && npm run typecheck && npm run build`
 - `npm run smoke:dev` for HTTP 200 dev smoke, graceful stop, and clean `next-env.d.ts`
-- `npm exec next start -- --hostname 127.0.0.1 --port 3001` plus HTTP 200 smoke after build
+- `npm run smoke:prod` for dynamic-port HTTP 200 production smoke after build
 - `corepack pnpm install --frozen-lockfile && corepack pnpm audit --prod`
 - `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml pnpm-workspace.yaml`
 

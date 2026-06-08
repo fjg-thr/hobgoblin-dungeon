@@ -48,6 +48,9 @@ jobs:
       - name: Audit production npm dependencies
         run: npm audit --omit=dev
 
+      - name: Test smoke helpers
+        run: npm run test:smoke
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -58,33 +61,7 @@ jobs:
         run: npm run smoke:dev
 
       - name: Smoke test production server
-        shell: bash
-        run: |
-          setsid npm exec next start -- --hostname 127.0.0.1 --port 3001 &
-          server_pid=$!
-
-          cleanup() {
-            kill -TERM -- "-$server_pid" 2>/dev/null || true
-            wait "$server_pid" || true
-          }
-
-          trap cleanup EXIT
-
-          for attempt in {1..30}; do
-            result=$(curl --silent --output /dev/null --write-out "%{http_code} %{size_download}" http://127.0.0.1:3001/ || true)
-            code="${result%% *}"
-            bytes="${result##* }"
-
-            if [[ "$code" == "200" ]]; then
-              echo "prod_smoke_http=$code bytes=$bytes"
-              exit 0
-            fi
-
-            sleep 1
-          done
-
-          echo "prod_smoke_failed_last=$result"
-          exit 1
+        run: npm run smoke:prod
 
       - name: Enable Corepack
         run: corepack enable

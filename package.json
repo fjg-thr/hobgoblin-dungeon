@@ -6,6 +6,8 @@
     "dev": "node scripts/next-dev-clean-env.mjs",
     "build": "next build",
     "smoke:dev": "node scripts/smoke-dev-server.mjs",
+    "smoke:prod": "node scripts/smoke-prod-server.mjs",
+    "test:smoke": "node --test scripts/smoke-dev-server.test.mjs scripts/smoke-prod-server.test.mjs",
     "test:smoke-dev": "node --test scripts/smoke-dev-server.test.mjs",
     "typecheck": "next typegen && tsc --noEmit",
     "process:assets": "python3 tools/process_assets.py",

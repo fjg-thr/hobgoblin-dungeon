@@ -62,6 +62,12 @@ Hobgoblin Ruin Prototype.
 - Asset generation and processing tools under `tools/` and `scripts/` are part
   of the production pipeline; review path handling, output dimensions, frame
   metadata, and idempotency.
+- Production builds can rewrite `next-env.d.ts` between `.next/dev/types` and
+  `.next/types` route references. Treat that as generated build churn unless a
+  PR intentionally changes Next.js routing or TypeScript configuration.
+- `npm audit --omit=dev` currently reports baseline Next.js/PostCSS advisories
+  from the locked dependency graph. Treat those as existing dependency-hardening
+  work unless a PR touches dependencies or claims to remediate audit findings.
 
 ## Verification expectations
 
@@ -70,6 +76,8 @@ Ask for checks appropriate to the diff:
 - `git diff --check "$(git merge-base HEAD origin/main)"..HEAD`
 - `npm ci` when dependency or lockfile behavior needs validation
 - `npm run build` for app, TypeScript, metadata, or asset-manifest changes
+- `npm audit --omit=dev` for dependency changes, with any remaining advisories
+  explained as either fixed, newly introduced, or pre-existing baseline risk
 - Relevant `npm run process:*` or `npm run generate:*` scripts for asset pipeline
   changes when practical
 

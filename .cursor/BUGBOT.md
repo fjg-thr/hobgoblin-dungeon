@@ -15,7 +15,7 @@ Review this repository as a playable Next.js + Phaser game prototype. Prioritize
 
 ### Phaser and Next.js lifecycle
 
-- Flag any top-level or server-side Phaser import. Phaser must stay behind client-only dynamic imports.
+- Flag Phaser imports that are reachable from server components or non-game modules. The client-only game scene may import Phaser because `GameCanvas.tsx` loads it through a dynamic client-side import.
 - Flag newly registered `input`, `scale`, DOM, timer, scene event, or animation listeners that do not have a matching teardown on scene shutdown, modal close, restart, or component unmount.
 - Flag new tweens, timers, textures, particles, or display objects that can survive `restartGame()`, scene shutdown, or game unmount without being stopped or destroyed.
 - Be especially strict about React Strict Mode double-mount behavior in `GameCanvas.tsx`.

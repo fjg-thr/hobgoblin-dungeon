@@ -11,6 +11,10 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot
+
+Repository-specific Bugbot review rules live in `.cursor/BUGBOT.md`. To deploy Bugbot for PR reviews, enable this repository in the Cursor dashboard under Integrations / Bugbot. Once enabled, Bugbot reviews new or updated PRs automatically; it can also be triggered manually on a PR with `cursor review` or `bugbot run`.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

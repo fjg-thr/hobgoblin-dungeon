@@ -45,7 +45,7 @@ Review this repository as a playable Next.js + Phaser game prototype. Prioritize
 
 - Prefer focused changes in the large `DungeonScene.ts`; flag unrelated refactors that obscure gameplay behavior.
 - TypeScript strictness should be preserved. Do not accept `any`, non-null assertions, or casts that hide unsafe runtime states without a clear invariant.
-- For runtime changes, expect evidence from `npm run build` and, when touching lintable source patterns, `npm run lint` if available in the checkout.
+- For runtime changes, expect evidence from `npm run build`. The current `npm run lint` script uses legacy `next lint` and does not run under the installed Next.js 16 CLI, so do not require it as review evidence until that script is migrated.
 - There is no dedicated test script today. Do not require a new test framework for every small PR, but flag high-risk gameplay logic with no meaningful validation path.
 
 ## What to ignore

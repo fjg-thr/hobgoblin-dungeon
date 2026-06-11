@@ -87,7 +87,7 @@ Because the implementation is repository configuration and documentation, verifi
 **Files:**
 - Modify: git index only
 
-- [ ] **Step 1: Stage and commit the configuration**
+- [x] **Step 1: Stage and commit the configuration**
 
 Run:
 
@@ -98,13 +98,13 @@ git commit -m "chore: add cursor bugbot review rules"
 
 Expected: commit succeeds on branch `cursor/cursor-bugbot-deployment-31bf`.
 
-- [ ] **Step 2: Push the branch**
+- [x] **Step 2: Push the branch**
 
 Run: `git push -u origin cursor/cursor-bugbot-deployment-31bf`
 
 Expected: push succeeds.
 
-- [ ] **Step 3: Run build verification**
+- [x] **Step 3: Run build verification**
 
 Run: `npm run build`
 

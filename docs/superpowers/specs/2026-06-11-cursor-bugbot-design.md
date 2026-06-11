@@ -17,6 +17,7 @@ The selected approach is option 1. It is the smallest deployable repository chan
 - `.cursor/BUGBOT.md` is the single source of review guidance for Cursor Bugbot.
 - The file describes repository context, high-value failure modes, low-value comments to avoid, and expected review tone.
 - Cursor's hosted Bugbot integration must be enabled outside the repository for pull request reviews to run automatically or by comment trigger.
+- This branch deploys the rules only after its pull request is merged to the default branch; until then, Bugbot may not use these rules for unrelated pull requests.
 
 ## Components and Data Flow
 
@@ -26,7 +27,7 @@ The selected approach is option 1. It is the smallest deployable repository chan
 
 ## Error Handling
 
-If Bugbot does not run, the likely cause is integration configuration outside this repository: the GitHub repository is not connected in the Cursor dashboard, Bugbot is disabled for the repo, triggers are set to manual-only, or required organization permissions are missing.
+If Bugbot does not run, the likely cause is integration configuration outside this repository: the GitHub repository is not connected in the Cursor dashboard, Bugbot is disabled for the repo, triggers are set to manual-only, required organization permissions are missing, or this rules file has not yet been merged to the default branch.
 
 ## Testing
 

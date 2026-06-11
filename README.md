@@ -11,6 +11,19 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Bugbot
+
+This repo includes project-specific Cursor Bugbot rules in `.cursor/BUGBOT.md`.
+After the repository is connected in the Cursor dashboard, enable Bugbot for PR
+reviews from the Bugbot tab or with the admin API:
+
+```bash
+curl -X POST https://api.cursor.com/bugbot/repo/update \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"repoUrl":"https://github.com/fjg-thr/hobgoblin-dungeon","enabled":true}'
+```
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

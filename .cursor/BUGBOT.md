@@ -41,10 +41,10 @@ Run the narrowest relevant checks for the PR, and prefer these baseline checks
 when the change affects app code, assets, or configuration:
 
 ```bash
-npm install
+npm ci
 npm run build
 npx tsc --noEmit
-git diff --check
+git diff --check <base>...HEAD
 ```
 
 `npm run lint` currently maps to `next lint`; if the installed Next.js version no

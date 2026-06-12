@@ -4,8 +4,8 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin prototype.
 
 ## Project shape
 
-- Next.js App Router app with a React client entry point in `src/app/page.tsx`.
-- The Phaser game is mounted by `src/game/GameCanvas.tsx`.
+- Next.js App Router page at `src/app/page.tsx` renders the client-only `src/game/GameCanvas.tsx`.
+- The Phaser game is mounted from `src/game/GameCanvas.tsx`.
 - Most gameplay lives in `src/game/scenes/DungeonScene.ts`; map helpers are in `src/game/maps/startingDungeon.ts`.
 - Asset keys and paths are centralized in `src/game/assets/manifest.ts`.
 - Generated and processed asset/audio tooling lives under both `tools/` and `scripts/`; generated runtime assets live under `public/assets`.

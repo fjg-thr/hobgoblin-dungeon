@@ -8,13 +8,12 @@ through Cursor dashboard settings and the Cursor GitHub App installation.
 
 - This is a Next.js App Router prototype for a Phaser-based isometric dungeon
   game.
-- The app shell lives in `src/app/`.
-- Phaser is booted from the client-only `src/game/GameCanvas.tsx` component.
-- Most gameplay logic is in `src/game/scenes/DungeonScene.ts`.
-- Dungeon generation and tile semantics live in
-  `src/game/maps/startingDungeon.ts`.
-- Runtime asset paths and sprite metadata are centralized in
-  `src/game/assets/manifest.ts` and must match files under `public/assets/`.
+- App shell: `src/app/`.
+- Client Phaser boot: `src/game/GameCanvas.tsx`.
+- Main runtime scene: `src/game/scenes/DungeonScene.ts`.
+- Dungeon generation: `src/game/maps/startingDungeon.ts`.
+- Asset paths and sprite metadata: `src/game/assets/manifest.ts` and
+  `public/assets/`.
 - The README documents npm-based setup; `package-lock.json` is the primary
   lockfile.
 
@@ -26,18 +25,18 @@ through Cursor dashboard settings and the Cursor GitHub App installation.
    - Ensure Phaser imports remain client-safe and game boot code handles async
      cancellation and React unmounts.
 
-2. **Phaser lifecycle and cleanup**
+2. **Phaser lifecycle**
    - Flag scene, input, timer, tween, audio, event, or DOM listeners that can
      survive scene restart or component unmount.
-   - Watch for object pools, sprites, graphics, particles, sounds, and arrays
-     that grow without cleanup during repeated play sessions.
+   - Watch for pools, sprites, graphics, particles, sounds, and arrays that grow
+     during repeated play sessions.
 
 3. **Gameplay invariants**
    - Check tile/world coordinate conversions, isometric depth ordering, collision
      bounds, safe spawn distances, pickup caps, health caps, ammo caps,
-     cooldowns, and invulnerability windows for off-by-one or stale-state bugs.
-   - Verify destroyed enemies, projectiles, pickups, effects, and UI elements are
-     removed from all owning collections.
+     cooldowns, and invulnerability windows.
+   - Verify destroyed enemies, projectiles, pickups, effects, and UI elements
+     leave all owning collections.
    - Check gameplay changes against `README.md`, especially controls, power-up
      behavior, ammo behavior, hearts, scoring, and known limitations. Do not
      block unrelated PRs solely because an existing README/code mismatch remains.
@@ -52,11 +51,9 @@ through Cursor dashboard settings and the Cursor GitHub App installation.
      processor tooling in `tools/` and `scripts/`.
 
 5. **Performance in the game loop**
-   - Pay close attention to allocations inside `update`, per-frame pathfinding,
-     unbounded random searches, repeated texture creation, excessive
-     text/graphics creation, and high-frequency audio playback.
-   - Prefer findings tied to measurable or likely frame-rate impact over general
-     style suggestions.
+   - Check allocations inside `update`, per-frame pathfinding, unbounded random
+     searches, repeated texture creation, excessive text/graphics creation, and
+     high-frequency audio playback.
 
 6. **Package and deployment safety**
    - Dependency changes should update `package-lock.json` consistently with
@@ -76,16 +73,6 @@ through Cursor dashboard settings and the Cursor GitHub App installation.
   may lag behind.
 - Blast is implemented as a progression-gated power-up in
   `POWERUP_CONFIG.blast`; review balance changes against both code and docs.
-
-## Finding style
-
-- Prioritize concrete bugs and regressions over cosmetic style issues.
-- Use file and line references whenever possible.
-- Treat missing tests as important when logic is extracted or changed in a
-  testable module; this prototype currently has no established test suite, so
-  suggest focused coverage rather than broad rewrites.
-- Avoid blocking comments for speculative architecture concerns unless they are
-  likely to produce a user-visible defect.
 
 ## Expected local checks
 

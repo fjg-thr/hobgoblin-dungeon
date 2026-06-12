@@ -32,6 +32,7 @@ This file provides Bugbot with repository context only. It does not prove the ma
 
 3. **Controls and UI**
    - Current code fires with `SPACE` and pointer/click. README also mentions `J`; treat that as existing doc debt unless a PR touches controls or docs.
+   - README describes blast as late/rare, while code unlocks blast after 2 kills or 16s; treat that as existing doc debt unless a PR touches power-up timing or docs.
    - Start, how-to-play, mute, restart, and game-over interactions must remain reachable and must not trap input.
 
 4. **Assets and metadata**

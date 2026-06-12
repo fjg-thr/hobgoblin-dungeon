@@ -56,7 +56,7 @@ npm run build
 npx tsc --noEmit
 ```
 
-For formatting-only or documentation-only PRs, use a narrower check such as:
+For documentation-only or config-only PRs, use a narrower check such as:
 
 ```bash
 git diff --check origin/main...HEAD

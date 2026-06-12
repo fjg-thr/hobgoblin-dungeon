@@ -72,7 +72,9 @@ through Cursor dashboard settings and the Cursor GitHub App installation.
   kill/time gate and uses seeker pickups/projectiles, even though README coverage
   may lag behind.
 - Blast is implemented as a progression-gated power-up in
-  `POWERUP_CONFIG.blast`; review balance changes against both code and docs.
+  `POWERUP_CONFIG.blast`. The README describes blast as rare late-game, while
+  the current code unlocks it after a low kill/time gate; treat that as existing
+  context unless a PR intentionally changes power-up balance or docs.
 
 ## Expected local checks
 

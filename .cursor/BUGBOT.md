@@ -1,65 +1,42 @@
-# Cursor Bugbot review guide
+# Cursor Bugbot Review Guide
 
-Use this project-specific guide when reviewing pull requests for Hobgoblin Ruin Prototype, a Next.js app that mounts a Phaser 4 dungeon scene with generated pixel-art/audio assets.
+Use this guide when reviewing changes in this repository. Keep reviews focused on defects, regressions, and missing verification that matter for this Next.js and Phaser game prototype.
 
-## Managed-service boundary
+## Repo map
 
-This file gives Bugbot repository context only. It does not prove the managed service is enabled. To validate deployment, confirm Cursor dashboard/org settings, GitHub App access to `fjg-thr/hobgoblin-dungeon`, and a PR review smoke check. If those are unavailable, state that only repo guidance and CI were verified.
-
-## Deployment baseline
-
-Package versions are pinned so npm and pnpm resolve the same graph in CI. Next.js is patched to audited `16.2.6`; treat that as dependency hardening and ask for build/start smoke evidence when reviewing baseline changes.
-
-## Project map
-
-- `src/app/page.tsx`: client-only game canvas entry.
-- `src/game/GameCanvas.tsx`: Phaser game lifecycle owner.
-- `src/game/scenes/DungeonScene.ts`: gameplay, input, spawning, combat, UI, audio, and most tuning.
-- `src/game/maps/startingDungeon.ts`: dungeon generation and collision-relevant tiles.
-- `src/game/assets/manifest.ts`: runtime asset keys, paths, dimensions, animation metadata.
-- `public/assets/**`: sprites, sprite-sheet JSON, audio, source/generated assets.
-- `tools/**` and `scripts/**`: asset/audio generator and processor tooling.
+- `src/app/` is the Next.js App Router shell. `page.tsx` renders the game and `layout.tsx` owns metadata.
+- `src/game/GameCanvas.tsx` is the client-only React boundary that starts and tears down Phaser.
+- `src/game/scenes/DungeonScene.ts` contains most runtime gameplay, UI overlays, input, enemy waves, pickups, audio, and restart behavior.
+- `src/game/maps/startingDungeon.ts` builds the generated dungeon layout and collision-relevant tile data.
+- `src/game/assets/manifest.ts` maps asset keys to runtime files in `public/assets/`.
+- `tools/` and `scripts/` contain local asset/audio generators and processors. Treat generated PNG, WAV, and JSON output as runtime assets, not source-only fixtures.
 
 ## Review priorities
 
-1. **Browser/runtime safety**
-   - Keep Phaser/browser globals behind client boundaries; avoid server-side imports that construct Phaser during Next.js rendering.
-   - Clean up Phaser games, listeners, tweens, timers, and audio objects across React remounts, scene shutdown, restart, and game-over flows.
+1. Protect the React/Phaser lifecycle boundary. Verify Phaser game creation stays client-only, cleanup destroys scenes/listeners/timers, and React renders do not start duplicate games.
+2. Watch for `DungeonScene` state leaks. Restart and game-over paths should reset timers, input state, enemies, projectiles, pickups, score, health, ammo, powerups, UI, audio state, and collision/debug overlays.
+3. Keep per-frame code lean. Flag avoidable allocations, unbounded arrays, repeated texture/audio lookups, or expensive geometry work inside update loops.
+4. Preserve strict TypeScript and Next build behavior. Do not rely on browser globals outside client code, and avoid app-router generated type churn unless intentionally changing routing/types.
+5. Review asset-manifest changes as contracts. New or renamed assets need matching files, frame metadata, loader keys, animation names, and call sites.
 
-2. **Gameplay invariants**
-   - Movement, collision, enemy navigation, and camera follow depend on isometric tile math plus simple proximity checks.
-   - Player max health is 3; heart pickups restore missing hearts only.
-   - Standard ammo is finite and pickup-reloaded. Seeker ammo is code-defined and unlocks after 4 kills or 30s.
-   - Brutes unlock after 3 kills or 22s; avoid overwhelming early spawn pressure.
-   - Power-ups are code-gated: quickshot from start, haste after 1 kill/12s, blast after 2 kills/16s, ward after 10 kills/90s.
+## Gameplay invariants
 
-3. **Controls and UI**
-   - Current code fires with `SPACE` and pointer/click. README also mentions `J`; treat that as existing doc debt unless a PR touches controls/docs.
-   - Start, how-to-play, mute, restart, and game-over interactions must remain reachable and not trap input.
+- Movement supports WASD and arrows. Aiming follows the pointer; clicking fires once.
+- Current code fires keyboard shots with `SPACE`. The README also mentions `J`; treat that as an existing docs/code mismatch unless an input-control PR intentionally changes it.
+- Ammo is finite and reloads from staff-shard pickups. Seeker ammo exists in code and unlocks by kill/time progression, even though README coverage is incomplete.
+- Hearts restore missing health but do not increase max health.
+- Powerups are progression-gated. README wording says blast is late/rare, while code currently unlocks blast after early kill/time thresholds; do not block unrelated PRs solely for that existing mismatch.
+- Ward blocks damage, quickshot changes fire cadence, haste changes movement speed, and blast detonates nearby enemies. Ensure expiration and restart cleanup are explicit.
 
-4. **Assets and metadata**
-   - Assets referenced by `src/game/assets/manifest.ts` must exist under `public/assets/**` with matching frame sizes/JSON.
-   - Commit regenerated binary assets only with intentional manifest/tooling changes.
-   - `src/app/layout.tsx` references `/opengraph-image.png`; keep `public/opengraph-image.png` tracked.
+## UI, accessibility, and docs
 
-5. **Maintainability**
-   - Be cautious with per-frame allocations, tweens, and effect creation; prefer existing pools/cleanup paths.
-   - `DungeonScene.ts` is large. Prefer localized changes; extract only when it reduces risk for the touched behavior.
-   - Keep tuning constants named and near related systems.
+- Phaser UI hit zones should remain keyboard/mouse safe where applicable and must not leave invisible blockers active after modal or scene transitions.
+- React/Next UI changes should use semantic elements and avoid custom CSS unless Tailwind/global styles already cover the need.
+- README or asset prompt updates should match runtime behavior when a PR intentionally changes controls, powerups, assets, or setup commands.
 
-6. **Docs and CI**
-   - Update README when controls, power-ups, limitations, or assets change.
-   - CI should keep whitespace, install, audit, typegen/typecheck, build, pnpm, and generated-file stability checks.
+## Verification expectations
 
-## Verification evidence
-
-Ask for checks appropriate to the diff:
-
-- `git diff --check "$(git merge-base HEAD origin/main)"..HEAD`
-- `test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png`
-- `npm ci && npm audit --omit=dev`
-- `npm run typecheck && npm run build`
-- `corepack pnpm install --frozen-lockfile && corepack pnpm audit --prod`
-- `git diff --exit-code -- next-env.d.ts package-lock.json pnpm-lock.yaml`
-
-For dev/typegen changes, run `npm run dev`, stop it gracefully, then confirm `git diff --exit-code -- next-env.d.ts`. For gameplay changes, smoke start/how-to-play, movement, pointer/click and `SPACE` firing, pickups, damage, death/restart, and mute.
+- For code changes, prefer `npm ci`, `npm run build`, and `npx tsc --noEmit`. `next lint` is not reliable in this Next 16 setup.
+- For asset work, verify generated files are intentional and that source prompts/tools remain reproducible enough for future edits.
+- Check for accidental generated artifacts such as `.next/`, `tsconfig.tsbuildinfo`, or `next-env.d.ts` route-type rewrites.
+- Managed Cursor Bugbot enablement is external to this repository. Confirm Cursor dashboard/org settings, Cursor GitHub App access for `fjg-thr/hobgoblin-dungeon`, and a PR review/status smoke check when those controls are available. This file only supplies repo-specific review context.

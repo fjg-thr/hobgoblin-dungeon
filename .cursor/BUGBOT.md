@@ -31,7 +31,7 @@ Use this guide when reviewing changes in this repository. Keep reviews focused o
 ## UI, accessibility, and docs
 
 - Phaser UI hit zones should remain keyboard/mouse safe where applicable and must not leave invisible blockers active after modal or scene transitions.
-- React/Next UI changes should use semantic elements and avoid custom CSS unless Tailwind/global styles already cover the need.
+- React/Next UI changes should use semantic elements and prefer existing `src/app/globals.css` patterns over introducing new styling approaches.
 - README or asset prompt updates should match runtime behavior when a PR intentionally changes controls, powerups, assets, or setup commands.
 
 ## Verification expectations

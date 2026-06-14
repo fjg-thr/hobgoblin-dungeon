@@ -6,6 +6,8 @@ This repository is a first-playable web prototype for a dark GBA-inspired isomet
 
 The Phaser game code intentionally carries prototype complexity, especially around dungeon generation, collision, combat, enemy pressure, powerups, scoring, audio, and debug rendering. Review comments should prioritize concrete behavioral bugs over broad architecture preferences.
 
+This file supplies repository review guidance only. Enabling Bugbot still requires Cursor dashboard, GitHub App, or Cursor Admin API configuration outside this repository.
+
 ## Review priorities
 
 Flag issues that can break gameplay, rendering, deployment, or future iteration:
@@ -35,7 +37,7 @@ For code changes, expect these commands to be run when practical:
 
 ```bash
 npm run build
-npm run lint
+npx tsc --noEmit
 ```
 
 If a change only updates documentation or Cursor configuration, a syntax/readability check of the changed files is sufficient.

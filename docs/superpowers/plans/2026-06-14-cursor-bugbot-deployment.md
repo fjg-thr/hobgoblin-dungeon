@@ -139,7 +139,7 @@ Create `.github/pull_request_template.md` with:
 ```markdown
 ## Summary
 
-- 
+- Describe the change.
 
 ## Verification
 
@@ -169,17 +169,17 @@ Expected: command exits `0` and prints the Bugbot checklist line.
 Run:
 
 ```bash
-git diff -- .cursor/BUGBOT.md docs/cursor-bugbot.md .github/pull_request_template.md
+git diff -- .cursor/BUGBOT.md docs/cursor-bugbot.md .github/pull_request_template.md docs/superpowers/specs/2026-06-14-cursor-bugbot-deployment-design.md docs/superpowers/plans/2026-06-14-cursor-bugbot-deployment.md
 ```
 
-Expected: only the three intended files are shown.
+Expected: only the intended Bugbot rules, deployment documentation, PR template, spec, and plan files are shown.
 
 - [ ] **Step 2: Commit and push implementation**
 
 Run:
 
 ```bash
-git add .cursor/BUGBOT.md docs/cursor-bugbot.md .github/pull_request_template.md docs/superpowers/plans/2026-06-14-cursor-bugbot-deployment.md
+git add .cursor/BUGBOT.md docs/cursor-bugbot.md .github/pull_request_template.md docs/superpowers/specs/2026-06-14-cursor-bugbot-deployment-design.md docs/superpowers/plans/2026-06-14-cursor-bugbot-deployment.md
 git commit -m "Configure Cursor Bugbot review guidance"
 git push -u origin cursor/cursor-bugbot-deployment-5e3f
 ```

@@ -40,7 +40,7 @@ For asset or gameplay changes, also expect a short manual smoke test covering ga
 
 ## Hosted Bugbot activation
 
-This file supplies project-specific rules. To run Bugbot on pull requests, the Cursor GitHub app must also be enabled for `https://github.com/fjg-thr/hobgoblin-dungeon` in the Cursor dashboard under Integrations and Bugbot. If API enablement is available, enable this repository with:
+This file supplies project-specific rules. To run Bugbot on pull requests, the Cursor GitHub app must also be enabled for `https://github.com/fjg-thr/hobgoblin-dungeon` in the Cursor dashboard under Integrations and Bugbot. If API credentials are available, the same repository enablement can be requested with `POST https://api.cursor.com/bugbot/repo/update`:
 
 ```json
 {

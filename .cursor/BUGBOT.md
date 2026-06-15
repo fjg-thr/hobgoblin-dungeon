@@ -56,4 +56,3 @@ Repository files alone cannot prove that Cursor Bugbot is enabled. To confirm de
 2. The Cursor GitHub App has access to `fjg-thr/hobgoblin-dungeon`.
 3. Bugbot is enabled for this repository and configured to review pull requests.
 4. A pull request smoke check receives an automatic Bugbot review, or a maintainer can trigger one with a comment such as `cursor review` or `bugbot run`.
-

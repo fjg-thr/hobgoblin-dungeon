@@ -95,4 +95,3 @@ Notes:
   unless the PR intentionally changes generated typing behavior.
 - This package has no `npm start` script. Runtime smoke tests should use a
   Next-appropriate start command only when smoke-test infrastructure is added.
-

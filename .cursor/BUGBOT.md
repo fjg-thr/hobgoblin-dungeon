@@ -100,7 +100,7 @@ deployment still needs:
 1. Cursor dashboard/org Bugbot settings enabled for this repository.
 2. Cursor GitHub App installed with access to `fjg-thr/hobgoblin-dungeon`.
 3. A PR smoke check where Bugbot reviews automatically or responds to
-   `bugbot run` / `@cursor review`.
+   `bugbot run` / `cursor review`.
 
 If any of those external checks are unavailable, report that this repository has
 only the review guidance needed for Bugbot once the managed service is enabled.

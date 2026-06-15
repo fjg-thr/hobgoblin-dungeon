@@ -72,8 +72,10 @@ Notes:
 - JSON sprite-sheet metadata should remain consistent with the PNG dimensions and frame
   assumptions used by Phaser.
 - Generated source imagery and processor outputs should not be churned in unrelated PRs.
-- Audio files are declared through `public/assets/audio/audio-manifest.json` and loaded from
-  the Phaser scene; verify key/path consistency for audio changes.
+- Runtime audio files are declared through `assetManifest.audio` in
+  `src/game/assets/manifest.ts` and loaded from the Phaser scene. If
+  `public/assets/audio/audio-manifest.json` changes, verify it stays consistent with the
+  runtime manifest.
 - If a PR changes asset-generation tooling, include both `tools/**` and `scripts/**` in the
   review scope.
 

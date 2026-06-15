@@ -19,8 +19,8 @@ GitHub App access to this repository, and a smoke review on a pull request.
 
 ## Project context
 
-- This is a private Next.js/React/TypeScript prototype using Phaser for the
-  playable dungeon scene.
+- This is a Next.js/React/TypeScript prototype using Phaser for the playable
+  dungeon scene.
 - The main gameplay surface is `src/game/scenes/DungeonScene.ts`; it controls
   input, combat, enemy spawning, pickups, audio playback, HUD, start screen, and
   game-over flow.

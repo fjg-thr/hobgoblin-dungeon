@@ -88,9 +88,9 @@ For meaningful app/runtime changes, ask for or run the narrowest relevant checks
 - Asset changes: confirm every manifest path exists and matching JSON metadata
   still agrees with frame dimensions and animation ranges.
 
-For documentation-only Bugbot guidance updates, a whitespace diff check plus
-file existence/content validation is sufficient; full app build/typecheck is
-still useful before opening the deployment PR.
+For documentation-only Bugbot guidance updates, run a whitespace diff check and
+file existence/content validation. A full app build/typecheck is still useful
+before opening the deployment PR.
 
 ## Managed Bugbot deployment boundaries
 

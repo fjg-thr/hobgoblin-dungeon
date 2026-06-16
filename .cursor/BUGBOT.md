@@ -16,7 +16,7 @@ This repository is a Next.js App Router game prototype that embeds a Phaser dung
 - Runtime audio and image loading is driven by `src/game/assets/manifest.ts`.
 - `public/assets/audio/audio-manifest.json` is auxiliary metadata; do not treat it as the runtime source of truth unless the PR changes loader behavior.
 - Generated asset files live under `public/assets`. The generator and processor tooling lives under `tools/` and `scripts/`.
-- The game currently supports movement with WASD/arrow keys, dash on Shift, firing with Space, and pointer/click firing.
+- The game currently supports movement with WASD/arrow keys, firing with Space, and pointer/click firing.
 - Some README gameplay details may lag code behavior. Existing mismatches should not block unrelated PRs unless the PR edits the relevant code or docs.
 - This repo does not use TailwindCSS. Prefer existing semantic markup and `src/app/globals.css` patterns for UI styling feedback.
 

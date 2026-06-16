@@ -21,7 +21,7 @@ or manual triggers are working.
 
 ## Project overview
 
-- This is a private Next.js app shell for a browser game prototype.
+- This is a Next.js app shell for a browser game prototype.
 - `src/app/page.tsx` renders the game page.
 - `src/game/GameCanvas.tsx` is a React client component that dynamically imports
   Phaser and mounts a single `DungeonScene`.

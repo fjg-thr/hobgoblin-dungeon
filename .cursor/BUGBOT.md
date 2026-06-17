@@ -63,9 +63,9 @@ default branch.
   unless a PR changes blast tuning or documentation.
 - The how-to-play modal currently says click or press SPACE to fire. That
   matches runtime behavior more closely than the README controls line.
-- `src/app/layout.tsx` references `/opengraph-image.png`; if metadata or public
-  assets change, verify the referenced asset exists and matches the declared
-  dimensions and alt text.
+- `src/app/layout.tsx` references `/opengraph-image.png`, which is currently
+  absent from the repository. Treat that as existing context unless a PR changes
+  metadata, OpenGraph assets, or public asset inventory.
 
 ## Phaser and React lifecycle checks
 

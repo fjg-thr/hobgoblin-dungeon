@@ -47,7 +47,8 @@ changing this file may not be reviewed with the new instructions yet.
    changes that break powerup spawns, ammo recovery, or HUD/counter sync.
 4. **Assets and manifests:** New or renamed files under `public/assets/` must
    match keys and frame names in `assetManifest`, Phaser atlas JSON, and any
-   generator script output. Missing PNG/JSON pairs or stale paths are blocking.
+   generator script output. For atlas/spritesheet assets, missing PNG/JSON
+   pairs or stale paths are blocking.
 5. **Accessibility and UI basics:** Start, how-to-play, mute, close, and restart
    interactions should remain keyboard/pointer understandable. Review copy,
    focus behavior for DOM controls, and contrast/readability changes.

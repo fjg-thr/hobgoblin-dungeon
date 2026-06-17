@@ -14,14 +14,14 @@ Use this guide when reviewing pull requests for this repository.
 Run these before approving gameplay, UI, asset-manifest, or dependency changes:
 
 ```bash
-npm install
+npm ci
 npm run build
 npx tsc --noEmit
 ```
 
 `npm run lint` currently uses `next lint`, which is not supported by the installed Next CLI. Treat lint coverage as unavailable until that script is migrated. There is no automated test script in `package.json`, so use the manual smoke checklist for gameplay changes.
 
-Asset generation commands are only relevant when asset tooling or source assets change:
+Asset generation commands are only relevant when asset tooling or source assets change. These package scripts cover the common generation paths; also inspect and run the matching script under `tools/` or `scripts/` when a PR changes a generator that is not exposed through `package.json`.
 
 ```bash
 npm run process:assets
@@ -46,7 +46,7 @@ Do not treat generated media as hand-written source:
 
 - `public/assets/**/*.png`
 - `public/assets/**/*.wav`
-- `public/assets/**/*-sprite-sheet.json`
+- `public/assets/**/*.json`
 - `public/assets/source/**`
 
 Review the code and manifest changes that consume these assets instead of reviewing pixel/audio contents directly. Lockfile-only churn is low signal unless dependencies intentionally changed.
@@ -70,7 +70,7 @@ Review the code and manifest changes that consume these assets instead of review
 ## Accessibility and UX review notes
 
 - The game UI is canvas-only; watch for PRs that further reduce keyboard access or focus visibility.
-- Start, restart, mute, and how-to-play interactions are pointer-driven; flag claims of keyboard accessibility unless the code implements it.
+- Restart, mute, and opening how-to-play are pointer-driven today; start has Space support and how-to-play can close with Escape. Flag claims of broader keyboard accessibility unless the code implements it.
 - Damage, power-up, and status feedback relies heavily on tint, flash, shake, and motion. Prefer changes that preserve readable text feedback and avoid excessive motion.
 - Verify resize behavior for HUD placement, modal panels, the custom cursor, and the mute button.
 - README currently mentions `J` as a fire key, while the gameplay code binds Space; flag documentation/control drift when related files change.

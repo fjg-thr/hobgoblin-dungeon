@@ -5,8 +5,10 @@ requests for Hobgoblin Ruin. This file does not enable or disable the hosted
 Bugbot service by itself; confirm managed-service setup separately in Cursor
 dashboard/org settings and GitHub App repository access. A live PR smoke review
 is the final proof that hosted Bugbot is active for this repo.
-Until this file lands on the default branch, it only provides review context for
-branches and pull requests that include it.
+Hosted Bugbot normally uses guidance from the default branch, so PRs that add or
+change this file may not be reviewed with the new rules until it has been
+merged there. Until then, this file only provides review context for branches
+and pull requests that include it.
 
 ## Manual review triggers
 

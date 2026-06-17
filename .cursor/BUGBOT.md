@@ -6,68 +6,59 @@ requests for `fjg-thr/hobgoblin-dungeon`.
 
 ## Deployment boundary
 
-This file provides repository-specific review context for Cursor Bugbot. It
-does not enable the managed Bugbot service by itself. Service deployment still
-requires Cursor dashboard/org settings, Cursor GitHub App access to this repo,
-and a pull request smoke check that confirms Bugbot comments or status updates
-appear. Manual PR triggers may use a top-level `cursor review` or `bugbot run`
-comment; verbose troubleshooting may use `cursor review verbose=true` or
-`bugbot run verbose=true`.
+This file provides repository-specific review context only. It does not enable
+the managed Bugbot service; that still requires Cursor dashboard/org settings,
+Cursor GitHub App repo access, and a PR smoke check that Bugbot comments or
+statuses appear. Manual PR triggers may use `cursor review` or `bugbot run`;
+verbose runs may use `cursor review verbose=true` or `bugbot run verbose=true`.
 
 Bugbot uses this guide after it is merged to the default branch. A PR adding or
 changing this file may not be reviewed with the new instructions yet.
 
 ## Project map
 
-- `src/app/page.tsx` renders the app shell and imports the client-only
+- `src/app/page.tsx` renders the app shell and imports client-only
   `src/game/GameCanvas.tsx`.
 - `src/game/GameCanvas.tsx` owns the React/Phaser boundary. It dynamically
   imports Phaser and `DungeonScene` during client-side boot and tears the game
   down from React effects.
 - `src/game/scenes/DungeonScene.ts` contains most gameplay, input, enemies,
   pickups, HUD, audio, and scene lifecycle logic.
-- `src/game/maps/startingDungeon.ts` defines dungeon layout helpers and tile
-  data used by the scene.
-- `src/game/assets/manifest.ts` is the runtime source of truth for loaded
-  sprites, atlases, tile assets, and audio. `public/assets/audio/audio-manifest.json`
-  is auxiliary and should be checked for consistency only when audio manifests
-  are touched.
+- `src/game/maps/startingDungeon.ts` defines dungeon layout helpers and tiles.
+- `src/game/assets/manifest.ts` is the runtime source of truth for sprites,
+  atlases, tile assets, and audio. `public/assets/audio/audio-manifest.json` is
+  auxiliary; check it only when audio manifests are touched.
 - `public/assets/` contains committed runtime assets and metadata. Many assets
   are generated from `tools/` and `scripts/`; do not treat large asset diffs as
   hand-authored unless the PR says so.
-- `src/app/globals.css` holds the current styling. This repo does not configure
-  Tailwind, so prefer existing CSS patterns and semantic HTML checks over
-  Tailwind conventions.
+- `src/app/globals.css` holds styling. This repo does not configure Tailwind,
+  so prefer existing CSS patterns and semantic HTML checks.
 
 ## Review priorities
 
-1. **Client/server boundaries:** Phaser, `window`, `document`, input handlers,
-   audio, and canvas access must stay behind client-only code paths. Avoid
-   moving Phaser imports into server components or module scope that Next can
-   evaluate during server rendering.
+1. **Client/server boundaries:** Phaser, `window`, `document`, input, audio, and
+   canvas access must stay behind client-only code paths. Avoid moving Phaser
+   imports where Next can evaluate them during server rendering.
 2. **Phaser lifecycle:** Check that event listeners, timers, animations,
    tweens, DOM/canvas references, and scene/game instances are cleaned up on
    scene shutdown or React unmount. Watch for duplicate handlers after restart.
-3. **Gameplay invariants:** Movement, aiming, firing, ammo consumption, damage,
-   invulnerability/ward behavior, enemy spawning, scoring, pickups, and game
-   over/restart should remain deterministic enough to reason about. Flag
-   changes that make powerups impossible to spawn, remove ammo recovery, or
-   allow health/ammo counters to desync from HUD state.
+3. **Gameplay invariants:** Movement, aiming, firing, ammo use, damage, ward,
+   spawning, scoring, pickups, and restart should remain consistent. Flag
+   changes that break powerup spawns, ammo recovery, or HUD/counter sync.
 4. **Assets and manifests:** New or renamed files under `public/assets/` must
    match keys and frame names in `assetManifest`, Phaser atlas JSON, and any
    generator script output. Missing PNG/JSON pairs or stale paths are blocking.
-5. **Accessibility and UI basics:** Start, how-to-play, mute, close, and
-   restart interactions should remain keyboard/pointer understandable. Review
-   visible copy, focus behavior when standard DOM controls are used, and
-   contrast/readability of any CSS or HUD changes.
+5. **Accessibility and UI basics:** Start, how-to-play, mute, close, and restart
+   interactions should remain keyboard/pointer understandable. Review copy,
+   focus behavior for DOM controls, and contrast/readability changes.
 6. **Generated output:** Avoid requesting broad rewrites of generated sprites,
    audio, or lockfiles unless the PR intentionally changes generation tooling or
    dependencies.
 
 ## Known existing mismatches
 
-Do not block unrelated PRs solely for these pre-existing issues, but flag them
-when a PR touches the relevant area:
+Do not block unrelated PRs for these pre-existing issues; flag them when a PR
+touches the relevant area:
 
 - `README.md` says `Space` or `J` fires. Current runtime firing is `Space` and
   pointer/click based; scope this to input/control documentation changes.
@@ -88,12 +79,11 @@ npm run build
 npx tsc --noEmit
 ```
 
-`npm run lint` currently maps to `next lint`, which is not reliable with the
-current Next setup. If build or typecheck rewrites generated files such as
-`next-env.d.ts` or creates `tsconfig.tsbuildinfo`, verify whether those changes
-are intentional before accepting them. This package intentionally has no
-`npm start` script; use a targeted Next dev/build smoke only when runtime
-behavior is part of the PR.
+`npm run lint` maps to `next lint`, which is not reliable with the current Next
+setup. If build/typecheck rewrites `next-env.d.ts` or creates
+`tsconfig.tsbuildinfo`, verify whether those changes are intentional. This
+package has no `npm start` script; use targeted Next smoke checks only when
+runtime behavior is part of the PR.
 
 ## Review output expectations
 

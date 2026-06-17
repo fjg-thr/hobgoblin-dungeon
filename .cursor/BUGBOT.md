@@ -108,7 +108,8 @@ branches and pull requests that include it.
 
 - Repository/config-only Bugbot guidance changes:
   `git diff --check $(git merge-base HEAD origin/main)..HEAD`,
-  `test -s .cursor/BUGBOT.md`, `npm run build`, `npx tsc --noEmit`.
+  `test -s .cursor/BUGBOT.md`, `npm ci`, `npm run build`,
+  `npx tsc --noEmit`.
 - Source or gameplay changes: run `npm run build` and `npx tsc --noEmit`, then
   include a manual smoke summary covering start screen, movement, firing,
   pickups/powerups, damage/game over, restart, sound toggle, and resize.

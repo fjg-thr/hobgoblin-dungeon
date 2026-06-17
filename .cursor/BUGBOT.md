@@ -15,12 +15,11 @@ Run these before approving gameplay, UI, asset-manifest, or dependency changes:
 
 ```bash
 npm install
-npm run lint
 npm run build
 npx tsc --noEmit
 ```
 
-There is no automated test script in `package.json`, so use the manual smoke checklist for gameplay changes.
+`npm run lint` currently uses `next lint`, which is not supported by the installed Next CLI. Treat lint coverage as unavailable until that script is migrated. There is no automated test script in `package.json`, so use the manual smoke checklist for gameplay changes.
 
 Asset generation commands are only relevant when asset tooling or source assets change:
 

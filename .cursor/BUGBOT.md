@@ -12,8 +12,8 @@ Use this guide when reviewing pull requests for this repository. It gives repo-s
 ## Project map
 
 - Next.js App Router entrypoints live in `src/app/`.
-- `src/app/page.tsx` renders the game shell and dynamically loads `src/game/GameCanvas.tsx` on the client.
-- `src/game/GameCanvas.tsx` owns Phaser bootstrapping and teardown for the React page.
+- `src/app/page.tsx` renders the game shell and imports the client-only `src/game/GameCanvas.tsx`.
+- `src/game/GameCanvas.tsx` dynamically imports Phaser and `DungeonScene` during client-side boot, then owns teardown.
 - Most gameplay behavior is in `src/game/scenes/DungeonScene.ts`.
 - Map generation and tile metadata live in `src/game/maps/startingDungeon.ts`.
 - Runtime asset loading is defined in `src/game/assets/manifest.ts`; this is the source of truth for assets Phaser loads.
@@ -24,7 +24,7 @@ Use this guide when reviewing pull requests for this repository. It gives repo-s
 
 1. Client/server boundaries
    - Keep Phaser and browser-only APIs out of server components.
-   - Preserve the client-only dynamic load path for `GameCanvas`.
+   - Preserve the `GameCanvas` client boundary and its client-side Phaser/scene imports.
    - Watch for `phaser`, `window`, or `document` usage that can execute during server rendering.
 
 2. Phaser lifecycle and cleanup

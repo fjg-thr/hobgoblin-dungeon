@@ -49,10 +49,14 @@ access to this repository.
 4. Flag asset pipeline mismatches: changed manifest paths without matching files,
    frame dimensions that do not match spritesheets, JSON metadata out of sync
    with sheets, or README asset lists updated inconsistently.
-5. Flag accessibility and UX regressions in DOM UI such as the landing shell,
-   how-to-play modal, title screen overlays, audio toggle affordances, or share
-   metadata. Prefer existing semantic HTML and `src/app/globals.css` patterns.
-6. Keep findings actionable. Include the failing scenario, why the changed code
+5. Flag DOM accessibility and UX regressions in the Next app shell, metadata, or
+   any future HTML UI. Prefer existing semantic markup and
+   `src/app/globals.css` patterns for those surfaces.
+6. Flag Phaser canvas UI regressions in overlays, title/game-over screens,
+   interactive zones, audio toggle affordances, keyboard/pointer handling, and
+   responsive placement. Review these as canvas interactions rather than DOM
+   elements.
+7. Keep findings actionable. Include the failing scenario, why the changed code
    causes it, and a specific file/line reference.
 
 ## Known baseline context

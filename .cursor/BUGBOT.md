@@ -108,6 +108,9 @@ them when a PR touches the relevant area:
   `package.json` uses `latest` for several dependencies. Prefer the existing
   package-manager choice in the changed files and avoid dependency churn unless
   the PR is intentionally about tooling.
+- The current lockfile has existing npm audit findings for Next.js and
+  PostCSS. Do not block unrelated PRs solely for those baseline advisories, but
+  do flag dependency or tooling PRs that worsen or fail to address them.
 - `npm run lint` maps to `next lint`, which is unreliable with current Next
   versions/configuration here. Prefer build and TypeScript verification.
 

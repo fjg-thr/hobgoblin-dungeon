@@ -63,8 +63,9 @@ guidance was verified. Manual PR smoke triggers must be top-level PR comments:
 - This repo does not configure Tailwind. For DOM/future HTML UI, follow
   semantic markup and `src/app/globals.css`; for Phaser overlays, review pointer
   zones, keyboard/mouse affordances, responsive placement, and canvas UX limits.
-- `src/app/layout.tsx` references `/opengraph-image.png`; keep
-  `public/opengraph-image.png` present when touching metadata or public assets.
+- `src/app/layout.tsx` references `/opengraph-image.png`, but the current repo
+  does not include a matching public asset. Treat this as existing metadata debt
+  unless a PR touches metadata or public assets.
 
 ## Known repository context
 

@@ -33,6 +33,9 @@ Notes:
 
 - `npm run lint` maps to `next lint`, which is not reliable with the current Next
   version in this repo. Prefer the build and TypeScript checks above.
+- `package-lock.json` is the canonical install lockfile for the verification
+  commands above. If a PR changes dependencies, also check the tracked
+  `pnpm-lock.yaml` for intentional sync or removal so lockfiles do not drift.
 - `npm ci` may report pre-existing dependency audit findings. Do not block an
   unrelated PR solely on those baseline advisories unless the PR changes
   dependencies, lockfiles, or security-sensitive behavior.
@@ -113,9 +116,9 @@ new guidance yet.
 - For Phaser canvas UI, review pointer hit zones, keyboard/mouse affordances,
   responsive placement, contrast, readable text, and whether the interaction has
   an equivalent keyboard path where practical.
-- `src/app/layout.tsx` references `/opengraph-image.png`. If a PR touches
-  metadata, social previews, or public root assets, verify that referenced public
-  assets exist and have the dimensions and alt text declared in metadata.
+- If a PR touches metadata, social previews, or public root assets, verify that
+  referenced public assets exist and have the dimensions and alt text declared in
+  metadata.
 
 ## Known baseline mismatches and limitations
 
@@ -128,5 +131,8 @@ a PR touches the same behavior:
   current code also has seeker ammo behavior gated after kills or survival time.
 - README describes blast as late and rare, while current code unlocks blast after
   early progression constants.
+- `src/app/layout.tsx` references `/opengraph-image.png`, but that public asset
+  is currently absent. Treat this as existing baseline unless a PR changes
+  metadata, social previews, or public root assets.
 - The prototype intentionally lacks a formal test suite and uses simple collision
   rather than a full physics system.

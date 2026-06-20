@@ -116,9 +116,10 @@ new guidance yet.
 - For Phaser canvas UI, review pointer hit zones, keyboard/mouse affordances,
   responsive placement, contrast, readable text, and whether the interaction has
   an equivalent keyboard path where practical.
-- If a PR touches metadata, social previews, or public root assets, verify that
-  referenced public assets exist and have the dimensions and alt text declared in
-  metadata.
+- `src/app/layout.tsx` references the tracked `public/opengraph-image.png`
+  social image. If a PR touches metadata, social previews, or public root assets,
+  verify that referenced public assets still exist and match the dimensions and
+  alt text declared in metadata.
 
 ## Known baseline mismatches and limitations
 
@@ -131,8 +132,5 @@ a PR touches the same behavior:
   current code also has seeker ammo behavior gated after kills or survival time.
 - README describes blast as late and rare, while current code unlocks blast after
   early progression constants.
-- `src/app/layout.tsx` references `/opengraph-image.png`, but that public asset
-  is currently absent. Treat this as existing baseline unless a PR changes
-  metadata, social previews, or public root assets.
 - The prototype intentionally lacks a formal test suite and uses simple collision
   rather than a full physics system.

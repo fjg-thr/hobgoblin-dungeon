@@ -54,7 +54,6 @@ Do not block unrelated PRs solely for these existing conditions. Flag them when 
 - README says `Space` or `J` fires, while current runtime shooting is bound to `SPACE` plus pointer/click firing.
 - README documents regular ammo, hearts, quickshot, haste, ward, and blast. Current code also has seeker ammo/projectiles that unlock after 4 kills or 30 seconds.
 - README describes blast as rare late-game, but current `POWERUP_CONFIG.blast` unlocks after 2 kills or 16 seconds.
-- `src/app/layout.tsx` references `/opengraph-image.png`; the repository currently has no matching `opengraph-image.*` file.
 - Current dependency baseline can report npm audit findings for Next.js/PostCSS. Do not block unrelated PRs solely on those existing advisories unless the PR changes dependencies, lockfiles, build tooling, or claims security hardening.
 
 ## Suggested verification for PRs

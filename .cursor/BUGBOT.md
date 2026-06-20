@@ -101,9 +101,12 @@ the PR touches the relevant behavior or documentation:
 - For package or lockfile changes: run `npm ci` first, then build/typecheck.
   Existing dependency audit findings should be reported separately from the
   reviewed diff unless the PR changes dependencies.
-- For asset generator changes: run the specific `npm run generate:*`,
-  `npm run process:*`, or `node scripts/...` command relevant to the touched
-  file, then inspect the generated file list.
+- For asset generator changes: run the specific script relevant to the touched
+  file, such as `npm run generate:powerups`,
+  `npm run generate:combat-assets`, `npm run process:assets`,
+  `npm run process:death-assets`, `npm run process:combat-juice`, or
+  `node scripts/generate-retro-soundtrack.mjs`, then inspect the generated file
+  list.
 - After build/typecheck, expect possible generated local churn in
   `next-env.d.ts` or `tsconfig.tsbuildinfo`; restore or remove generated
   artifacts unless the PR intentionally changes them.

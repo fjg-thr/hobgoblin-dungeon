@@ -84,15 +84,17 @@ itself.
   ward damage blocking, heart pickup limits, finite ammo, seeker/staff projectile
   behavior, and restart/game-over state resets.
 - README currently documents `Space`/`J` firing and late rare blast behavior,
-  while the implementation may evolve separately. If a PR touches controls or
-  power-up timing, ask it to reconcile docs and code; do not block unrelated PRs
-  solely on pre-existing README drift.
+  while the implementation may evolve separately. README also omits the current
+  seeker ammo/projectile behavior. If a PR touches controls, ammo, projectiles,
+  or power-up timing, ask it to reconcile docs and code; do not block unrelated
+  PRs solely on pre-existing README drift.
 
 ### Assets and manifests
 
 - Runtime loads are driven by `src/game/assets/manifest.ts`, not by README asset
   lists alone. Any asset path, frame size, key, or sprite-sheet layout change
-  needs matching public files and JSON metadata.
+  needs matching public files; entries with `metadataPath` also need matching
+  JSON metadata.
 - For sprite sheets, review frame dimensions, frame ordering, `framesPerRow`,
   animation names, and direction arrays against both generated JSON and Phaser
   animation setup.

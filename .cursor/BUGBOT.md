@@ -10,7 +10,7 @@ On pull requests, top-level comments can request a review with:
 
 - `cursor review`
 - `bugbot run`
-- `cursor review verbose=true` or `bugbot run verbose=true` for extra detail
+- `cursor review verbose=true` or `bugbot run verbose=true` for diagnostics
 
 If Bugbot does not respond, verify Cursor dashboard/org settings, the GitHub
 App installation for `fjg-thr/hobgoblin-dungeon`, repository access, and that

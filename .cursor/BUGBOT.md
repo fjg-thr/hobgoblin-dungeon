@@ -1,8 +1,8 @@
 # Cursor Bugbot review guidance
 
-This file gives Cursor Bugbot repo-specific context after it reaches the
-default branch. Managed Bugbot enablement is controlled outside this repo by
-Cursor org settings and GitHub App repository access.
+This file gives Cursor Bugbot repo-specific context after it reaches `main`.
+Managed Bugbot enablement is controlled outside this repo by Cursor org
+settings and GitHub App repository access.
 
 ## Manual review triggers
 
@@ -14,8 +14,8 @@ On pull requests, top-level comments can request a review with:
 
 If Bugbot does not respond, verify Cursor dashboard/org settings, the GitHub
 App installation for `fjg-thr/hobgoblin-dungeon`, repository access, and that
-this file is present on the default branch. Use a small PR smoke check when
-dashboard access is available.
+this file is on `main`. Use a small PR smoke check when dashboard access is
+available.
 
 ## Project map
 
@@ -23,8 +23,8 @@ dashboard access is available.
 - `src/game/GameCanvas.tsx` is a client-only Phaser bootstrap and teardown
   wrapper. Preserve `"use client"`, dynamic `phaser` import behavior, and
   cleanup when touching it.
-- `src/game/scenes/DungeonScene.ts` is the main runtime surface for preload,
-  animations, combat, HUD, input, audio, powerups, debug overlay, and restart.
+- `src/game/scenes/DungeonScene.ts` owns preload, animations, combat, HUD,
+  input, audio, powerups, debug overlay, and restart.
 - `src/game/maps/startingDungeon.ts` owns procedural dungeon layout, tile
   codes, and collision decisions.
 - `src/game/assets/manifest.ts` is the runtime source of truth for asset keys,
@@ -47,8 +47,7 @@ dashboard access is available.
    scene-level mute behavior, keyboard/mouse input, depth ordering, collision
    expectations, and player/enemy animation key naming.
 5. Map changes should update layout generation, collision, rendering, and
-   manifest assets as a set. Wall tile assets are preloaded, but current wall
-   codes are mostly collision/shape data and are not all visibly rendered.
+   manifest assets as a set. Preloaded wall tiles are not all visibly rendered.
 6. React/Next changes should preserve SSR safety for Phaser, ensure metadata
    image paths resolve to committed `public/` files, and keep DOM UI styling
    aligned with existing `src/app/globals.css`; this repo is not using Tailwind
@@ -95,8 +94,8 @@ specifically about generated Next typing behavior.
 
 ## Review output expectations
 
-Prioritize concrete correctness issues over style-only feedback. Include file
-and line references, explain player-facing impact, and distinguish new
-regressions from known baseline limitations. For binary asset PRs, focus on
-manifest paths, frame dimensions, animation math, and runtime loadability
-rather than pixel-perfect art critique.
+Prioritize correctness over style-only feedback. Include file and line
+references, explain player-facing impact, and distinguish new regressions from
+known baseline limitations. For binary assets, focus on manifest paths, frame
+dimensions, animation math, and runtime loadability rather than pixel-perfect
+art critique.

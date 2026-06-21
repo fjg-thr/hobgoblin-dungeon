@@ -11,6 +11,21 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Cursor Bugbot Code Review
+
+This repository includes Cursor Bugbot review guidance in `.cursor/BUGBOT.md`.
+Bugbot is a hosted Cursor/GitHub App integration, so no GitHub Actions workflow or
+repository secret is required.
+
+To enable Bugbot for this repository:
+
+1. Connect GitHub in the Cursor dashboard under Integrations.
+2. Install or authorize the Cursor GitHub App for this repository.
+3. Enable Bugbot for the repository in the Cursor Bugbot dashboard, or use the
+   Cursor Admin API with an admin API key kept outside the repository.
+4. Open or update a pull request and comment `bugbot run` or `cursor review` to
+   request a review. Use `bugbot run verbose=true` when troubleshooting setup.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

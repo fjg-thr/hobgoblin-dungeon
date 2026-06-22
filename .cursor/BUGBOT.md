@@ -32,7 +32,7 @@ Use this file as repository-specific context when Bugbot reviews pull requests f
 - `npm run build` or `npx tsc --noEmit` may rewrite `next-env.d.ts` and create `tsconfig.tsbuildinfo`; those generated artifacts should not be committed unless the task intentionally changes generated typing behavior.
 - `src/app/layout.tsx` references `/opengraph-image.png`, but no matching app/public image exists on the current baseline. Block PRs that touch metadata/share-image behavior and fail to address or preserve this intentionally; do not block unrelated PRs solely for the existing gap.
 - README says `Space` or `J` fires, but current runtime binding uses `Space` plus pointer/click firing. Treat this as an existing docs/code mismatch unless an input/control PR touches it.
-- README omits seeker ammo, while the game currently unlocks seeker pickups/projectiles after progression. Review seeker behavior against code-defined behavior unless a docs PR is updating README.
+- README omits seeker ammo, while the game currently unlocks seeker pickups/projectiles after 4 kills or 30 seconds. Review seeker behavior against code-defined behavior unless a docs PR is updating README.
 - README describes blast as a rare late-game power-up, while current code unlocks blast after 2 kills or 16 seconds. Treat that as an existing docs/code mismatch unless a PR intentionally changes power-up progression.
 
 ## Suggested verification

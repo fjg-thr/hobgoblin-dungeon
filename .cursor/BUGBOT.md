@@ -68,8 +68,6 @@ the PR claims to fix the area or makes the mismatch worse.
   defined in `POWERUP_CONFIG` and may unlock after 2 kills or 16 seconds.
 - Seeker ammo exists in code but is not fully documented in README gameplay
   text.
-- `src/app/layout.tsx` references `/opengraph-image.png`, but this branch does
-  not currently track `public/opengraph-image.png`.
 - Both `package-lock.json` and `pnpm-lock.yaml` are present. Prefer the package
   manager used by the PR and avoid broad lockfile churn.
 - `next lint` is listed in `package.json`, but Next 16 lint behavior/config may

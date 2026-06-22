@@ -50,7 +50,7 @@ PR review smoke check.
   mismatch without resolving it.
 - `src/app/layout.tsx` references `/opengraph-image.png`; if the image is absent
   on a baseline, scope findings to PRs that touch metadata/share-image behavior.
-- `npm ci` may report existing audit advisories from baseline dependencies.
+- `npm ci` currently reports 2 baseline audit advisories (1 moderate, 1 high).
   Mention them, but do not block unrelated PRs unless the PR changes dependency
   risk.
 

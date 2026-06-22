@@ -10,8 +10,7 @@ On pull requests, top-level comments can request a review with:
 
 - `cursor review`
 - `bugbot run`
-- `cursor review verbose=true` or `bugbot run verbose=true` for diagnostics,
-  request IDs, and additional troubleshooting detail
+- `cursor review verbose=true` or `bugbot run verbose=true` for diagnostics
 
 If Bugbot does not respond, verify Cursor dashboard/org settings, the GitHub
 App installation for `fjg-thr/hobgoblin-dungeon`, repository access, and that
@@ -25,11 +24,11 @@ is available.
   wrapper. Preserve `"use client"`, dynamic `phaser` import behavior, and
   cleanup when touching it.
 - `src/game/scenes/DungeonScene.ts` owns preload, animations, combat, HUD,
-  input, audio, powerups, debug overlay, responsive layout, and restart.
-- `src/game/maps/startingDungeon.ts` owns procedural dungeon layout, tile
-  codes, collision decisions, and prop placement.
+  input, audio, powerups, debug overlay, layout, and restart.
+- `src/game/maps/startingDungeon.ts` owns layout, tile codes, collision
+  decisions, and prop placement.
 - `src/game/assets/manifest.ts` is the runtime source of truth for asset keys,
-  paths, frame dimensions, sidecar metadata paths, and audio loaded by Phaser.
+  paths, frame dimensions, sidecar metadata paths, and audio.
 - `public/assets/**` contains processed art/audio plus sidecar metadata.
 - Asset generation/processing scripts live in both `tools/` and `scripts/`.
 
@@ -40,24 +39,23 @@ is available.
    matching files break Phaser preload.
 2. Runtime animation code relies on sheet layout math, not most sidecar JSON:
    actor sheets are four direction rows by ten columns; powerups, combat juice,
-   pickup-intent effects, and several other effects use explicit row/frame math.
-   Check frame sizes and indexes together.
+   pickup-intent effects, and others use explicit row/frame math. Check frame
+   sizes and indexes together.
 3. `public/assets/audio/audio-manifest.json` and many JSON sidecars are not the
-   runtime audio/texture source of truth. Do not treat edits there as complete
-   unless `manifest.ts` and scene loading also line up.
+   runtime source of truth. Edits there are incomplete unless `manifest.ts` and
+   scene loading also line up.
 4. Gameplay changes in `DungeonScene.ts` should preserve restart cleanup,
    scene-level mute behavior, keyboard/mouse input, depth ordering, collision
    expectations, and player/enemy animation key naming.
 5. Map changes should update layout generation, collision, rendering, and
    manifest assets as a set. Preloaded wall tiles are not all visibly rendered.
 6. React/Next changes should preserve SSR safety for Phaser, ensure metadata
-   image paths resolve to committed `public/` files, and keep DOM UI styling
-   aligned with existing `src/app/globals.css`; this repo is not using Tailwind
-   or ShadCN.
+   image paths resolve, and keep DOM UI styling aligned with
+   `src/app/globals.css`; this repo is not using Tailwind or ShadCN.
 7. Tooling changes should avoid hard-coded local paths, undeclared runtime
    dependencies, and accidental rewrites of generated binary assets.
-8. Metadata/share-image changes should keep `src/app/layout.tsx` and the
-   committed `public/opengraph-image.png` dimensions, alt text, and path in sync.
+8. Metadata/share-image changes should keep `src/app/layout.tsx` and committed
+   `public/opengraph-image.png` dimensions, alt text, and path in sync.
 
 ## Known baseline mismatches
 
@@ -74,8 +72,8 @@ the PR claims to fix the area or makes the mismatch worse.
   manager used by the PR and avoid broad lockfile churn.
 - `next lint` is listed in `package.json`, but Next 16 lint behavior/config may
   not be a reliable correctness gate here.
-- Existing dependency audit findings may appear during install; separate
-  dependency hardening from unrelated gameplay or guidance changes.
+- Existing dependency audit findings may appear during install; keep hardening
+  separate from unrelated gameplay or guidance changes.
 
 ## Verification guidance
 
@@ -85,9 +83,8 @@ Prefer focused checks that match the change:
 - `npm run build`
 - Relevant asset processors, for example `npm run process:assets`,
   `npm run process:death-assets`, `npm run process:combat-juice`,
-  `npm run generate:powerups`, `npm run generate:combat-assets`, or a direct
-  `node tools/...` / `python3 tools/...` command for processors without npm
-  wrappers
+  `npm run generate:powerups`, `npm run generate:combat-assets`, or direct
+  `node tools/...` / `python3 tools/...` commands without npm wrappers
 - Manual browser smoke test for Phaser boot, start/restart, movement, firing,
   pickups, mute toggle, and responsive canvas behavior when gameplay or UI is
   touched

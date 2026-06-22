@@ -1,8 +1,9 @@
 # Cursor Bugbot review guidance
 
-This file gives Cursor Bugbot repo-specific context after it reaches `main`.
-Managed Bugbot enablement is controlled outside this repo by Cursor org settings
-and GitHub App repository access.
+This gives Cursor Bugbot repo-specific context after it reaches `main`.
+Managed Bugbot enablement is outside this repo in Cursor org settings and
+GitHub App repository access; this file alone does not prove the service is
+enabled.
 
 ## Manual review triggers
 
@@ -13,8 +14,8 @@ On pull requests, top-level comments can request a review with:
 - `cursor review verbose=true` or `bugbot run verbose=true` for diagnostics
 
 If Bugbot does not respond, verify Cursor dashboard/org settings, GitHub App
-access to `fjg-thr/hobgoblin-dungeon`, and that this file has reached `main`.
-Use a small PR smoke check when dashboard access is available.
+access to this repo, and that this file has reached `main`. Use a small PR
+smoke check when dashboard access is available.
 
 ## Project map
 
@@ -53,9 +54,8 @@ Use a small PR smoke check when dashboard access is available.
    `src/app/globals.css`; this repo is not using Tailwind or ShadCN.
 7. Tooling changes should avoid hard-coded local paths, undeclared dependencies,
    and accidental rewrites of generated binary assets.
-8. Metadata/share-image changes should keep `src/app/layout.tsx` and any
-   committed `public/opengraph-image.png` dimensions, alt text, and path in
-   sync.
+8. Metadata/share-image changes should keep `src/app/layout.tsx`, committed
+   images, dimensions, alt text, and paths in sync.
 
 ## Known baseline mismatches
 
@@ -68,6 +68,8 @@ the PR claims to fix the area or makes the mismatch worse.
   defined in `POWERUP_CONFIG` and may unlock after 2 kills or 16 seconds.
 - Seeker ammo exists in code but is not fully documented in README gameplay
   text.
+- `src/app/layout.tsx` references `/opengraph-image.png`, but no matching
+  image is committed; flag this only for metadata/share-image PRs.
 - Both `package-lock.json` and `pnpm-lock.yaml` are present. Prefer the package
   manager used by the PR and avoid broad lockfile churn.
 - `next lint` is listed in `package.json`, but Next 16 lint behavior/config may

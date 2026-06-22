@@ -26,8 +26,8 @@ Manual top-level PR triggers that maintainers can use are `cursor review` or
   `tools/process_corporate_goblin_assets.py`,
   `tools/process_spreadsheet_brute_assets.py`,
   `tools/generate_powerup_sprites.mjs`, `tools/generate_polish_sprites.mjs`,
-  `tools/generate_brute_ammo_sprites.mjs`, and
-  `scripts/generate-retro-soundtrack.mjs`.
+  `tools/generate_brute_ammo_sprites.mjs`, `tools/generate_audio_sfx.mjs`,
+  and `scripts/generate-retro-soundtrack.mjs`.
 
 ## Review priorities
 
@@ -79,6 +79,7 @@ Manual top-level PR triggers that maintainers can use are `cursor review` or
   `npm run process:assets`, `npm run process:death-assets`,
   `npm run process:combat-juice`, `npm run generate:powerups`,
   `npm run generate:combat-assets`, or
+  `node tools/generate_audio_sfx.mjs`, or
   `node scripts/generate-retro-soundtrack.mjs`.
 - When practical, smoke-test locally: start the game, begin a run, move with
   WASD/arrows, aim with mouse, fire with Space/click, collect ammo/powerups,

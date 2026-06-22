@@ -27,7 +27,7 @@ Use this file as repository-specific context when Bugbot reviews pull requests f
 
 ## Known baselines
 
-- `npm ci` currently succeeds but reports existing audit findings; do not block unrelated PRs solely for that baseline unless dependency/tooling changes make it worse.
+- `npm ci` currently succeeds but reports 2 existing audit findings (1 moderate, 1 high); do not block unrelated PRs solely for that baseline unless dependency/tooling changes make it worse.
 - `npm run lint` is not reliable for this Next.js version. Prefer `npm run build` and `npx tsc --noEmit`.
 - `npm run build` or `npx tsc --noEmit` may rewrite `next-env.d.ts` and create `tsconfig.tsbuildinfo`; those generated artifacts should not be committed unless the task intentionally changes generated typing behavior.
 - `src/app/layout.tsx` references `/opengraph-image.png`, but no matching app/public image exists on the current baseline. Block PRs that touch metadata/share-image behavior and fail to address or preserve this intentionally; do not block unrelated PRs solely for the existing gap.

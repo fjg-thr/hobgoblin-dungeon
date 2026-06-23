@@ -33,9 +33,11 @@ verbose diagnostics with `cursor review verbose=true` or
 - Controls: current runtime firing is `Space` plus pointer/click firing. The
   README also mentions `J`; treat that as a known docs/runtime mismatch unless a
   PR touches controls or documentation.
-- Power-ups/docs: quickshot, haste, ward, blast, hearts, ammo, and code-defined
-  seeker ammo have existing README/code mismatches. Block only changes that make
-  touched behavior or documentation less accurate.
+- Power-ups/docs: README already covers quickshot, haste, ward, blast, regular
+  ammo, and heart pickups. Known drift is narrower: README omits code-defined
+  seeker ammo and describes blast as rare late-game while current code unlocks
+  it earlier. Block changes that make touched behavior or documentation less
+  accurate.
 - Assets/audio: when manifests change, verify file paths exist under `public/`,
   frame sizes match Phaser spritesheets, generated metadata stays aligned, and
   audio keys referenced by `DungeonScene.ts` match `assetManifest.audio`.

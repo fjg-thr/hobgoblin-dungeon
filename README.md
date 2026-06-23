@@ -11,6 +11,11 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review Automation
+
+Cursor Bugbot project rules live in `.cursor/BUGBOT.md`. Enablement and
+verification steps are documented in `docs/bugbot-deployment.md`.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

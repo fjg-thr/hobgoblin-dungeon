@@ -17,9 +17,10 @@ adds or edits this file may not be reviewed with the updated rules yet.
 - The main DOM entrypoints are `src/app/layout.tsx`, `src/app/page.tsx`, and
   `src/game/GameCanvas.tsx`.
 - Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`.
-- Runtime asset and audio loading should flow through
-  `src/game/assets/manifest.ts`. `public/assets/audio/audio-manifest.json` is
-  auxiliary and should not be treated as the scene loading source of truth.
+- Runtime asset and audio loading should flow through the exported
+  `assetManifest` in `src/game/assets/manifest.ts`.
+  `public/assets/audio/audio-manifest.json` is auxiliary and should not be
+  treated as the scene loading source of truth.
 - Asset tooling is split across `tools/` and `scripts/`, including
   `tools/generate_audio_sfx.mjs` and
   `scripts/generate-retro-soundtrack.mjs`.

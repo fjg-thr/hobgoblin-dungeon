@@ -5,7 +5,7 @@ with React, TypeScript, and a Phaser 4 canvas game.
 
 ## Deployment boundary
 
-- Cursor Bugbot is a hosted review service. Enabling it requires Cursor
+- Cursor Bugbot is a hosted review service. Enabling it requires the Cursor
   dashboard/org settings and Cursor GitHub App access to
   `fjg-thr/hobgoblin-dungeon`; repository files only provide review context.
 - After this file is merged to the default branch, verify deployment with a

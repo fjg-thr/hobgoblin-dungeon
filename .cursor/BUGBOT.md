@@ -1,38 +1,40 @@
-# Cursor Bugbot Review Instructions
+# Cursor Bugbot Review Guide
 
-Use this file as repository-specific context when reviewing pull requests for the Hobgoblin Ruin Prototype. The managed Bugbot service, GitHub App access, and Cursor dashboard settings are configured outside this repository; this file only supplies review guidance.
+This file gives Cursor Bugbot repository-specific review guidance after it is merged to the default branch. It does not enable the hosted Bugbot service by itself. Confirm deployment through Cursor dashboard/org settings, GitHub App repository access, the Bugbot Admin API, or a live PR smoke review when those controls are available.
+
+Manual PR triggers, when the service is installed:
+
+- Add a top-level PR comment: `cursor review`
+- Equivalent trigger: `bugbot run`
+- For diagnostics, request verbose logs/request IDs with `cursor review verbose=true` or `bugbot run verbose=true`
 
 ## Project context
 
-- This is a Next.js app package with React, TypeScript, and a Phaser 4 game scene.
-- The playable surface is primarily `src/game/scenes/DungeonScene.ts`, rendered through `src/game/GameCanvas.tsx` and `src/app/page.tsx`.
-- Styling is plain CSS in `src/app/globals.css`; Tailwind and ShadCN are not configured in this repo.
-- Assets live under `public/assets`. Generator and processor tooling lives under both `tools/` and `scripts/`.
-- The package intentionally has no `npm start` script. Prefer build and type checks unless a PR adds explicit smoke-test infrastructure.
+- Next.js App Router, React, TypeScript, and Phaser 4 power a browser-only dungeon prototype.
+- `src/app/page.tsx` renders `GameCanvas`; `src/game/GameCanvas.tsx` dynamically imports Phaser and `DungeonScene` inside `useEffect`.
+- Most gameplay behavior lives in `src/game/scenes/DungeonScene.ts`; map data is in `src/game/maps/startingDungeon.ts`; runtime asset paths are in `src/game/assets/manifest.ts`.
+- Styling is plain CSS in `src/app/globals.css`; Tailwind and Shadcn are not configured in this repo.
 
 ## Review priorities
 
-1. Preserve game boot and rendering behavior:
-   - `GameCanvas` must remain client-only and dynamically import Phaser.
-   - Phaser scenes should clean up input listeners, timers, tweens, and game instances on shutdown/unmount.
-   - Browser-only APIs must not run during Next server rendering.
-2. Protect gameplay invariants:
-   - Movement uses isometric WASD/arrow input.
-   - Shooting is implemented with `Space` and pointer/click firing in code. The README currently also mentions `J`; do not block unrelated PRs solely for that existing docs/code mismatch.
-   - Ammo is finite. Standard ammo, seeker ammo, heart pickups, quickshot, haste, ward, and blast all have separate progression and UI implications.
-   - Existing README/code mismatches around seeker ammo and blast timing should be called out only when the PR touches those systems or claims to document them.
-3. Watch asset and metadata changes carefully:
-   - If `src/app/layout.tsx` references `/opengraph-image.png`, verify `public/opengraph-image.png` exists and is tracked.
-   - Generated or processed assets should be reproducible from the matching `tools/` or `scripts/` command, or the PR should explain why a source-only/manual asset is intentional.
-   - Do not accept broken manifest references in `src/game/assets/manifest.ts`; every referenced public asset should exist.
-4. Keep dependency/tooling changes scoped:
-   - Dependency or lockfile churn should have a clear reason and should update the matching lockfiles consistently.
-   - Do not suggest `next lint` as the primary verification path; this repo's current Next setup does not make it reliable.
-   - Avoid adding CI, package scripts, or runtime infrastructure unless the PR is explicitly about tooling.
+1. Preserve client/server boundaries. Do not allow Phaser, `window`, `document`, or browser-only audio/input code to run in server components, metadata, or module scope that Next can execute on the server. `GameCanvas` should keep lazy imports, avoid duplicate `Phaser.Game` instances, and destroy the game on unmount.
+2. For `DungeonScene.ts`, review gameplay invariants carefully: tile/world conversions, collision checks, enemy pathing, respawn timing, hit stop, invulnerability windows, health, ammo caps, seeker ammo, projectile lifetime, power-up duration, blast damage radius, HUD state, camera resize behavior, and cleanup of tweens/events/timers.
+3. Asset changes must keep `assetManifest` paths, sprite dimensions, animation frame ranges, and public files in sync. Runtime audio loads from `assetManifest.audio`; `public/assets/audio/audio-manifest.json` is auxiliary consistency data, not the scene's source of truth.
+4. For asset tooling changes, verify the intended generator/processor script explicitly, for example `tools/process_assets.py`, `tools/process_combat_juice_assets.mjs`, `tools/process_actor_death_assets.mjs`, `tools/process_pickup_intent_effect_assets.mjs`, `tools/generate_audio_sfx.mjs`, or `scripts/generate-retro-soundtrack.mjs`.
+5. UI and accessibility review should account for canvas limitations. DOM-level changes should use semantic HTML and existing CSS patterns; Phaser overlay changes should verify pointer zones, keyboard/mouse affordances, text contrast, responsive placement, and that controls remain usable at different viewport sizes.
+6. Metadata and share-card changes must keep `src/app/layout.tsx` and public assets aligned. The current baseline references `/opengraph-image.png`; if the image is absent, flag PRs that touch metadata/share image behavior or make the mismatch worse, but do not block unrelated gameplay PRs solely for this baseline.
+7. Dependency and tooling changes should be reviewed separately from gameplay work. This repo currently has baseline `npm ci` audit advisories; do not block unrelated PRs solely for pre-existing advisories, but flag new package, lockfile, or Next/Phaser upgrade risk.
+
+## Known baseline notes
+
+- README says `Space` or `J` fires; current code path clearly supports pointer/click firing and `Space`. Treat the `J` mismatch as existing unless a PR edits controls or input docs.
+- README documents regular ammo, heart pickups, quickshot, haste, ward, and blast. Current code also unlocks seeker ammo after kill/time thresholds. Treat seeker ammo as code-defined behavior and ask for docs only when a PR changes gameplay docs or seeker behavior.
+- README describes blast as a rare late-game power-up, while current `POWERUP_CONFIG` unlocks blast earlier. Treat this as an existing docs/code mismatch unless a PR intends to fix or changes blast timing.
+- `next lint` is not reliable with the current Next version in this repo. Prefer build and typecheck evidence.
 
 ## Suggested verification
 
-For most code PRs:
+For most code PRs, ask authors to provide:
 
 ```bash
 npm ci
@@ -41,20 +43,11 @@ npx tsc --noEmit
 git diff --check origin/main...HEAD
 ```
 
-For asset or metadata PRs, also verify referenced files:
+For asset-heavy PRs, also ask for the specific generator/processor command used and confirm referenced files exist under `public/assets`.
 
-```bash
-git ls-files --error-unmatch public/opengraph-image.png
-```
+## Review style
 
-Adjust the asset command to the specific files touched by the PR. If verification generates `.next/`, `next-env.d.ts`, or `tsconfig.tsbuildinfo` changes, separate intentional source changes from generated local artifacts before approving.
-
-## Managed Bugbot deployment checks
-
-When asked to confirm that Bugbot is deployed for code review, verify these outside the repository if you have access:
-
-1. Cursor organization or workspace settings have Bugbot/code review enabled.
-2. The Cursor GitHub App is installed for `fjg-thr/hobgoblin-dungeon`.
-3. A test pull request receives a Bugbot review or check.
-
-If those settings are unavailable from the agent environment, state that repository guidance is present but managed-service enablement could not be proven from repo files alone.
+- Lead with concrete correctness, regression, and missing-test risks tied to changed lines.
+- Prefer targeted findings over broad architectural rewrites; this is a compact prototype.
+- Separate existing baseline limitations from regressions introduced by the PR.
+- When a change affects gameplay feel, request a short manual smoke test covering movement, click/Space firing, ammo pickup, at least one power-up, mute toggle, resize, and game-over restart.

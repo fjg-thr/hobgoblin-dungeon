@@ -1,15 +1,13 @@
 # Cursor Bugbot review guide
 
-Use this file as repository-specific context when Cursor Bugbot reviews pull
-requests for the Hobgoblin Ruin prototype. It complements normal code review;
-it does not enable the managed Bugbot service by itself.
+Repository-specific context for Cursor Bugbot reviews of Hobgoblin Ruin PRs.
+This complements normal review; it does not enable the managed service.
 
 ## Deployment and trigger boundaries
 
-- The managed Cursor Bugbot service must be enabled outside this repository in
-  Cursor dashboard/org settings, with the GitHub App granted access to this
-  repository. This file only supplies review guidance after it is merged to the
-  default branch.
+- The managed Cursor Bugbot service must be enabled outside this repo in Cursor
+  dashboard/org settings, with GitHub App access to this repository. This file
+  only supplies review guidance after it lands on the default branch.
 - A PR that adds or changes this file may not be reviewed with the new guidance
   until a later PR.
 - If Bugbot is available on a PR, reviewers can request a run with a top-level
@@ -17,8 +15,8 @@ it does not enable the managed Bugbot service by itself.
 - For diagnostics, use `cursor review verbose=true` or
   `bugbot run verbose=true`; verbose mode is for request IDs/log detail and
   troubleshooting, not for a deeper review standard.
-- A successful repo-side deployment should still be smoke-checked on a live PR
-  by confirming Bugbot posts review output or a status.
+- Smoke-check deployment on a live PR by confirming Bugbot posts review output
+  or a status.
 
 ## Project overview
 
@@ -37,27 +35,23 @@ it does not enable the managed Bugbot service by itself.
 
 ## Review priorities
 
-- Gameplay changes: check movement, camera, collision, enemy spawn pressure,
-  projectile lifetime, finite ammo, power-up state, damage invulnerability,
-  scoring, game-over/restart flow, and debug overlay behavior.
+- Gameplay: check movement, camera, collision, enemy spawn pressure, projectile
+  lifetime, finite ammo, power-up state, damage, scoring, restart, and debug UI.
 - Phaser lifecycle: ensure scenes clean up timers, tweens, input handlers,
   audio instances, and game objects; avoid accumulating listeners after restart
   or React remount.
-- React/Next integration: `GameCanvas` should be client-only where needed and
-  resilient to Strict Mode/remounts. Keep metadata changes in `layout.tsx`
-  consistent with available public assets.
+- React/Next: `GameCanvas` should be client-only where needed and resilient to
+  Strict Mode/remounts. Keep `layout.tsx` metadata aligned with public assets.
 - TypeScript: preserve strict typing, avoid broad `any`, and keep runtime asset
   keys aligned with `assetManifest`.
 - UI/UX: this repo has no Tailwind config. For DOM UI, follow semantic markup
-  and existing `src/app/globals.css` patterns. For Phaser canvas UI, verify
-  pointer zones, keyboard/mouse affordances, responsive placement, depth, and
-  readable text at the configured scale.
+  and `src/app/globals.css`. For Phaser canvas UI, verify pointer zones,
+  keyboard/mouse affordances, responsive placement, depth, and readable text.
 - Assets: when image or JSON metadata changes, verify frame sizes, frame rows,
   animation ranges, transparent backgrounds, and paths in `assetManifest`.
-- Audio: when touching audio loading/playback, verify mute state, unlock/start
-  behavior, volume balance, loop cleanup, and that runtime references come from
-  `assetManifest.audio`. `public/assets/audio/audio-manifest.json` is auxiliary
-  consistency context, not the scene's loader source of truth.
+- Audio: when touching audio, verify mute state, unlock/start behavior, volume,
+  loop cleanup, and runtime references from `assetManifest.audio`.
+  `public/assets/audio/audio-manifest.json` is auxiliary context only.
 
 ## Known baseline caveats
 
@@ -66,18 +60,16 @@ it does not enable the managed Bugbot service by itself.
   unrelated PRs solely for the existing mismatch.
 - README covers regular ammo, hearts, quickshot, haste, ward, and blast. The
   code also unlocks seeker ammo/projectiles after progression thresholds.
-- README calls blast late and rare, while current `POWERUP_CONFIG` unlocks it
-  earlier. Treat this as an existing docs/code mismatch unless a PR touches it.
-- `src/app/layout.tsx` references `/opengraph-image.png`; the current baseline
-  may not include that public asset. Only block PRs that change metadata/share
-  image behavior or worsen this state.
-- Dependency audit findings may exist in the lockfile baseline. Do not block an
-  unrelated PR solely on pre-existing advisories, but do flag new dependency
-  risk or lockfile churn.
+- README calls blast late and rare, but current `POWERUP_CONFIG` unlocks it
+  earlier. Treat this as a baseline mismatch unless a PR touches it.
+- `src/app/layout.tsx` references `/opengraph-image.png`; the asset may be
+  absent. Only block PRs that change metadata/share-image behavior or worsen it.
+- Dependency audit findings may exist in the lockfile baseline. Do not block
+  unrelated PRs solely on pre-existing advisories; do flag new dependency risk.
 
 ## Suggested verification
 
-Run the smallest set that matches the PR, and expand when shared runtime code,
+Run the smallest set that matches the PR; expand when shared runtime code,
 assets, or dependencies change:
 
 ```bash
@@ -89,13 +81,12 @@ npx tsc --noEmit
 Notes:
 
 - `next lint` is not a reliable gate for this Next.js version in this repo.
-- `npm run build` or `npx tsc --noEmit` can rewrite `next-env.d.ts` route type
-  imports or create `tsconfig.tsbuildinfo`; do not include generated churn
-  unless the PR intentionally changes type-generation behavior.
-- For gameplay changes, also perform a manual smoke test in the browser:
-  start the game, move with WASD/arrows, aim with mouse, fire with Space and
-  click, collect ammo/power-ups/hearts, toggle SOUND/MUTED, take damage, die,
-  restart, and toggle F3 debug display.
+- `npm run build` or `npx tsc --noEmit` can rewrite `next-env.d.ts` route
+  imports or create `tsconfig.tsbuildinfo`; avoid generated churn unless
+  type-generation behavior intentionally changes.
+- For gameplay changes, smoke-test in browser: start, move with WASD/arrows,
+  aim with mouse, fire with Space and click, collect ammo/power-ups/hearts,
+  toggle SOUND/MUTED, take damage, die, restart, and toggle F3 debug display.
 
 ## Review style
 

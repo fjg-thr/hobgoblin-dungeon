@@ -1,20 +1,19 @@
 # Cursor Bugbot review guide
 
-Use this file as repository-specific context when Cursor Bugbot reviews pull
-requests for the Hobgoblin Ruin prototype.
+Repository-specific context for Cursor Bugbot PR reviews.
 
 ## Deployment boundary
 
 - Treat this file as the repository-side Bugbot review configuration.
 - Managed Bugbot enablement is external to this repo. Confirm it in Cursor
-  dashboard or organization settings, GitHub App repository access, Admin API
-  credentials when used, and the live service configuration.
+  dashboard/org settings, GitHub App repository access, Admin API credentials
+  when used, and live service configuration.
 - After this guide lands on the default branch, smoke-test a real pull request
   review. A PR that adds or changes this file may not be reviewed with the new
   rules until after merge.
-- Manual review triggers are top-level PR comments: `cursor review` or
-  `bugbot run`. For diagnostics, use `cursor review verbose=true` or
-  `bugbot run verbose=true` to request extra troubleshooting detail.
+- Manual triggers are top-level PR comments: `cursor review` or `bugbot run`.
+  For diagnostics, use `cursor review verbose=true` or
+  `bugbot run verbose=true`.
 
 ## Project shape
 
@@ -24,9 +23,9 @@ requests for the Hobgoblin Ruin prototype.
   mounts the game once into `.game-shell`.
 - Main gameplay implementation: `src/game/scenes/DungeonScene.ts`.
 - Runtime asset source of truth: `src/game/assets/manifest.ts`, especially
-  `assetManifest.audio` for audio loaded by the scene.
-- Public assets live under `public/assets/**`. Metadata sidecars next to sprite
-  sheets must stay in sync with the generated PNGs.
+  `assetManifest.audio`.
+- Public assets live under `public/assets/**`. Sprite sidecars must stay in
+  sync with generated PNGs.
 - Asset tooling includes `tools/process_assets.py`,
   `tools/process_actor_death_assets.mjs`,
   `tools/process_combat_juice_assets.mjs`,
@@ -42,19 +41,18 @@ requests for the Hobgoblin Ruin prototype.
 - Inspect `DungeonScene.ts` changes for state reset paths, input handling,
   collision, projectile lifetime, pickup collection, enemy cleanup, depth
   ordering, audio teardown, and game-over/start-over transitions.
-- Check TypeScript strictness and avoid `any` when local types can describe game
-  state. Prefer existing constants, helpers, and manifest entries over duplicate
-  literals.
-- For asset additions or renames, verify the referenced files exist under
-  `public/assets`, the manifest path matches, frame dimensions match sidecar
-  metadata, and generated files are committed when runtime code depends on them.
+- Check TypeScript strictness. Prefer existing constants, helpers, and manifest
+  entries over duplicate literals.
+- For asset changes, verify files exist under `public/assets`, manifest paths
+  match, frame dimensions match sidecars, and runtime generated files are
+  committed.
 - For audio changes, verify `DungeonScene.ts` loads through
   `assetManifest.audio`. `public/assets/audio/audio-manifest.json` is auxiliary
   consistency data, not the runtime source of truth.
-- For DOM/metadata/UI changes, follow existing semantic markup and
-  `src/app/globals.css` patterns. This repo does not currently configure
-  Tailwind. For canvas UI, review pointer zones, keyboard/mouse affordances,
-  responsive placement, and accessibility limitations of Phaser-rendered text.
+- For DOM/metadata/UI changes, follow semantic markup and `src/app/globals.css`
+  patterns. Tailwind is not configured. For canvas UI, review pointer zones,
+  keyboard/mouse affordances, responsive placement, and accessibility limits of
+  Phaser-rendered text.
 - Keep generated Next files out of PRs unless intentionally changing framework
   behavior. `next-env.d.ts` can flip between `.next/dev/types/routes.d.ts` and
   `.next/types/routes.d.ts`; `tsconfig.tsbuildinfo` should remain untracked.
@@ -87,9 +85,9 @@ requests for the Hobgoblin Ruin prototype.
 - `npx tsc --noEmit`
 - Relevant asset generation or processing command when a PR changes generated
   assets, sidecar metadata, or manifest references.
-- Manual smoke test for gameplay changes: load the app, start a run, move with
-  WASD/arrows, aim with pointer, fire with Space and click, collect ammo and
-  power-ups, toggle sound, and restart after game over.
+- Gameplay smoke test: load the app, start a run, move with WASD/arrows, aim
+  with pointer, fire with Space and click, collect ammo/power-ups, toggle sound,
+  and restart after game over.
 
 ## Review style
 

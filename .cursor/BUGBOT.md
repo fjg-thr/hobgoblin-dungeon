@@ -1,9 +1,8 @@
 # Bugbot Review Guide
 
-This file gives Cursor Bugbot repository-specific review context for
-`fjg-thr/hobgoblin-dungeon`. It does not enable the managed service by itself.
-To confirm deployment, verify Cursor dashboard Bugbot settings, Cursor GitHub
-App repository access, and any team/admin API configuration outside this repo.
+Repository-specific review context for `fjg-thr/hobgoblin-dungeon`. This file
+does not enable Bugbot by itself; confirm Cursor dashboard settings, Cursor
+GitHub App repository access, and any team/admin API configuration outside git.
 
 Bugbot always includes this root guide. Add nested `.cursor/BUGBOT.md` files
 only when a subtree needs different review rules.
@@ -12,22 +11,21 @@ only when a subtree needs different review rules.
 
 - In Cursor dashboard, confirm the GitHub integration is connected through the
   Cursor GitHub App and that this repository is selected.
-- In Bugbot settings, confirm Bugbot is enabled for this repository and whether
-  it runs automatically, only on mention, only once per PR, or on draft PRs.
+- In Bugbot settings, confirm this repo is enabled and note whether reviews run
+  automatically, only on mention, only once per PR, or on draft PRs.
 - After this guide is merged to the default branch, smoke-test a pull request
   with a top-level comment: `cursor review` or `bugbot run`.
 - For diagnostics, use `cursor review verbose=true` or
-  `bugbot run verbose=true` and inspect the request ID/log details.
+  `bugbot run verbose=true` and inspect request ID/log details.
 - PRs that add or change this file may not be reviewed with the new rules until
   after merge.
 
 ## Project shape
 
-- Next.js App Router app with React/TypeScript entry points in `src/app`.
+- Next.js App Router with React/TypeScript entry points in `src/app`.
 - Phaser 4 game runtime mounts from `src/game/GameCanvas.tsx`.
-- Main gameplay, UI overlays, input, enemies, pickups, audio, and effects live
-  in `src/game/scenes/DungeonScene.ts`; review this file carefully because many
-  gameplay systems share mutable scene state.
+- Main gameplay, UI overlays, input, enemies, pickups, audio, and effects live in
+  `src/game/scenes/DungeonScene.ts`; many systems share mutable scene state.
 - Dungeon generation and tile codes live in `src/game/maps/startingDungeon.ts`.
 - Runtime asset paths are centralized in `src/game/assets/manifest.ts`.
 - Generated/process tooling lives under `tools/` and `scripts/`; generated
@@ -38,40 +36,36 @@ only when a subtree needs different review rules.
 ### Gameplay and Phaser runtime
 
 - Check frame-rate independence for movement, projectiles, tweens, timers, and
-  enemy pressure. Avoid changes that couple gameplay speed to render FPS.
+  enemy pressure. Avoid coupling gameplay speed to render FPS.
 - Verify collision, depth sorting, camera bounds, pointer zones, and resize
-  behavior when editing map, actor, projectile, or overlay code.
+  behavior in map, actor, projectile, or overlay changes.
 - Preserve input behavior: WASD/arrows move, mouse aims, click fires, `SPACE`
   fires, `F3` toggles debug, and Escape/overlay controls continue to work.
   README still mentions `J` firing, but current runtime binds `SPACE` only; do
   not block unrelated PRs solely for that existing docs/runtime drift.
-- Review scene cleanup for intervals, tweens, sounds, sprites, keyboard keys,
-  and arrays of Phaser objects. Restart/game-over paths should not leak actors,
-  audio, input handlers, or projectiles.
+- Review cleanup for intervals, tweens, sounds, sprites, keyboard keys, and
+  Phaser object arrays. Restart/game-over paths should not leak runtime objects.
 
 ### Assets and audio
 
-- Treat `src/game/assets/manifest.ts` as the runtime source of truth for assets
-  loaded by `DungeonScene.ts`.
+- Treat `src/game/assets/manifest.ts` as the runtime source of truth for assets.
 - `public/assets/audio/audio-manifest.json` is auxiliary/consistency context,
   not the scene loader source of truth.
 - If sprite dimensions, frame rows, or animation metadata change, verify the
   corresponding manifest entry and Phaser animation frame indexes.
-- Asset/audio generation helpers include `tools/generate_audio_sfx.mjs`,
-  `scripts/generate-retro-soundtrack.mjs`, and processor scripts under
-  `tools/`. Do not require regenerating unrelated assets for code-only PRs.
+- Asset/audio helpers include `tools/generate_audio_sfx.mjs`,
+  `scripts/generate-retro-soundtrack.mjs`, and processors under `tools/`.
+  Do not require regenerating unrelated assets for code-only PRs.
 
 ### Next.js, React, and DOM shell
 
-- Keep browser-only Phaser imports behind the client component/dynamic import
-  pattern used by `src/game/GameCanvas.tsx`; avoid importing Phaser from server
-  components.
+- Keep browser-only Phaser imports behind the `src/game/GameCanvas.tsx` client
+  component/dynamic import pattern; avoid importing Phaser from server code.
 - Preserve full-viewport canvas layout and existing `src/app/globals.css`
   patterns. This repo does not currently use Tailwind or ShadCN.
-- Metadata currently references `/opengraph-image.png`, but there is no matching
-  `public/opengraph-image.png` or app `opengraph-image.*` in the baseline. Only
-  block PRs that touch metadata/share-image behavior and make this worse or fail
-  to provide an intended image.
+- Metadata references `/opengraph-image.png`, but no matching
+  `public/opengraph-image.png` or app `opengraph-image.*` exists in baseline.
+  Only block PRs that touch share-image behavior and make this worse.
 
 ### Gameplay docs drift
 
@@ -92,8 +86,8 @@ only when a subtree needs different review rules.
   - `npx tsc --noEmit --incremental false`
 - If Next rewrites `next-env.d.ts` during local verification, restore it unless
   the PR intentionally changes generated type behavior.
-- Existing npm audit advisories may be present in the baseline; do not block
-  unrelated PRs solely on unchanged advisory output.
+- Existing npm audit advisories may be present; do not block unrelated PRs on
+  unchanged advisory output.
 
 ## Review style
 

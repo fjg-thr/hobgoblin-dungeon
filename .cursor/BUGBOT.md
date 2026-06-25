@@ -4,7 +4,8 @@ Use this repository guide when Cursor Bugbot reviews pull requests for the Hobgo
 
 ## Deployment boundary
 
-- This file supplies repository-specific review context. Managed Bugbot enablement still depends on Cursor dashboard or organization settings, GitHub App access for `fjg-thr/hobgoblin-dungeon`, and a live PR smoke review after the file is merged to the default branch.
+- This file supplies repository-specific review context. Managed Bugbot enablement still depends on Cursor dashboard or organization settings, GitHub App access for `fjg-thr/hobgoblin-dungeon`, or Admin API credentials.
+- After this file is merged to the default branch, verify the managed service with a live PR smoke review when available.
 - A PR that adds or changes this file might not be reviewed with the new instructions until after merge.
 - Manual review triggers supported by Cursor are top-level PR comments: `cursor review` or `bugbot run`. For diagnostics, use `cursor review verbose=true` or `bugbot run verbose=true` to request request IDs and detailed logs.
 

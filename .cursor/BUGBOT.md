@@ -7,7 +7,7 @@ Cursor GitHub App repository access, and any team/Admin API configuration. After
 this file is merged to the default branch, confirm deployment with a live PR
 smoke review when credentials and repository access are available.
 
-Manual PR triggers:
+Manual PR triggers should be posted as new top-level PR comments:
 
 - `cursor review`
 - `bugbot run`

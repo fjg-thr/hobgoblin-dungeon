@@ -45,17 +45,8 @@ Manual PR triggers:
    file under `public/assets`, sprite sheet frame sizes match metadata, and audio
    keys loaded from `assetManifest.audio` are used consistently.
 6. For generated asset/tooling PRs, keep source prompts, source images, processed
-   files, metadata JSON, and scripts aligned. Relevant tools include
-   `tools/process_assets.py`, `tools/process_actor_death_assets.mjs`,
-   `tools/process_combat_juice_assets.mjs`,
-   `tools/process_corporate_goblin_assets.py`,
-   `tools/process_gpt_tile_powerup_assets.mjs`,
-   `tools/process_pickup_intent_effect_assets.mjs`,
-   `tools/process_spreadsheet_brute_assets.py`,
-   `tools/generate_audio_sfx.mjs`, `tools/generate_polish_sprites.mjs`,
-   `tools/generate_powerup_sprites.mjs`,
-   `tools/generate_brute_ammo_sprites.mjs`, and
-   `scripts/generate-retro-soundtrack.mjs`.
+   files, metadata JSON, and scripts aligned. Use the exact owner command listed
+   in the verification section for the touched asset family.
 7. For DOM or metadata PRs, prefer semantic HTML and existing CSS patterns in
    `globals.css`. For Phaser UI, review pointer zones, keyboard/mouse affordances,
    responsive placement, and canvas-specific accessibility limits.
@@ -91,5 +82,20 @@ npx tsc --noEmit --incremental false
 git diff --check
 ```
 
-For asset/tooling changes, also run the exact generator or processor that owns the
-touched asset family and confirm no unrelated binary or metadata churn appears.
+For asset/tooling changes, also run the exact owner command for the touched
+family and confirm no unrelated binary or metadata churn appears:
+
+```bash
+npm run process:assets
+npm run process:death-assets
+npm run process:combat-juice
+npm run generate:powerups
+npm run generate:combat-assets
+python3 tools/process_corporate_goblin_assets.py
+python3 tools/process_spreadsheet_brute_assets.py
+node tools/process_gpt_tile_powerup_assets.mjs
+node tools/process_pickup_intent_effect_assets.mjs
+node tools/generate_audio_sfx.mjs
+node tools/generate_polish_sprites.mjs
+node scripts/generate-retro-soundtrack.mjs
+```

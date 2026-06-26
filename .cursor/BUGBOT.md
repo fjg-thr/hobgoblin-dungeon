@@ -18,7 +18,7 @@ Manual PR review triggers supported by Cursor Bugbot include top-level comments:
 - Next.js app using React and TypeScript.
 - `src/app/page.tsx` mounts the game shell.
 - `src/game/GameCanvas.tsx` is a client component that dynamically imports
-  Phaser and boots `DungeonScene`; avoid SSR-only APIs outside client effects.
+  Phaser and boots `DungeonScene`; avoid browser-only APIs during render.
 - `src/game/scenes/DungeonScene.ts` contains most runtime behavior: input,
   combat, HUD, audio, pickup spawning, enemy behavior, and Phaser rendering.
 - `src/game/maps/startingDungeon.ts` owns procedural map generation and tile

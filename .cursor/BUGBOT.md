@@ -70,7 +70,11 @@ or clear evidence that the generated output is intentional.
 - `tools/process_assets.py`
 - `tools/process_actor_death_assets.mjs`
 - `tools/process_combat_juice_assets.mjs`
+- `tools/process_corporate_goblin_assets.py`
+- `tools/process_gpt_tile_powerup_assets.mjs`
 - `tools/process_pickup_intent_effect_assets.mjs`
+- `tools/process_spreadsheet_brute_assets.py`
+- `tools/generate_polish_sprites.mjs`
 - `tools/generate_powerup_sprites.mjs`
 - `tools/generate_brute_ammo_sprites.mjs`
 - `tools/generate_audio_sfx.mjs`

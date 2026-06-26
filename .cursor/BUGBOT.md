@@ -30,6 +30,8 @@ outside client-only code paths.
 Review Next/React changes for server/client boundaries, metadata correctness,
 stable dynamic imports, accessible DOM outside the canvas, and preserving the
 fullscreen canvas shell in `src/app/page.tsx` and `src/app/globals.css`.
+Review TypeScript changes for unsafe casts, loosened types, route/typegen churn,
+and `tsconfig` changes that reduce compiler coverage.
 
 ## Gameplay and docs caveats
 

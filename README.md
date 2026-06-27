@@ -11,6 +11,24 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review
+
+Cursor Bugbot review guidance for this repository lives in `.cursor/BUGBOT.md`. Enabling the managed Bugbot service still happens outside the repo through Cursor settings and GitHub App repository access.
+
+After Bugbot is enabled, request a review on a pull request with a top-level comment:
+
+```text
+cursor review
+```
+
+or:
+
+```text
+bugbot run
+```
+
+For trigger diagnostics, use `cursor review verbose=true` or `bugbot run verbose=true`.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

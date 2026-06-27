@@ -11,6 +11,10 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Code Review
+
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. On pull requests, request a managed Bugbot pass with a top-level `cursor review` or `bugbot run` comment when the GitHub App is enabled for this repository.
+
 ## Controls
 
 - `WASD` or arrow keys: move in isometric directions

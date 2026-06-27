@@ -61,9 +61,9 @@ diagnostics.
 - README describes blast as rare late-game, while `POWERUP_CONFIG` controls the
   actual unlock/weight. Treat as existing docs drift unless the PR changes
   blast balance or docs.
-- `src/app/layout.tsx` references `/opengraph-image.png`; verify that metadata
-  and share-image changes keep the referenced image present, correctly sized,
-  and cacheable from the public app URL.
+- `src/app/layout.tsx` references `/opengraph-image.png`; this checkout has no
+  matching `public/opengraph-image.png` or app `opengraph-image.*` file. Block
+  metadata/share-image PRs that make this worse or miss the chance to fix it.
 - `next lint` is not reliable with the current Next version; prefer build and
   TypeScript checks. `npm ci` may report existing audit advisories unrelated to
   scoped gameplay or asset changes.

@@ -49,10 +49,10 @@ git diff --check "$(git merge-base HEAD origin/main)"..HEAD
 test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png
 npm ci
 npm audit --omit=dev
-pnpm install --frozen-lockfile
-pnpm audit --prod
 npx tsc --noEmit --incremental false
 npm run build
+pnpm install --frozen-lockfile
+pnpm audit --prod
 pnpm exec tsc --noEmit --incremental false
 pnpm run build
 ```
@@ -61,7 +61,7 @@ If builds rewrite `next-env.d.ts` between `.next/dev/types/routes.d.ts` and `.ne
 
 ## Asset tooling checks
 
-When a PR changes generated assets, require the exact relevant command and inspect the emitted PNG/JSON pairs:
+When a PR changes generated assets, require the exact relevant command and inspect the emitted assets plus matching metadata or manifests:
 
 ```bash
 npm run process:assets

@@ -37,6 +37,7 @@ git diff --check "$(git merge-base HEAD origin/main)"..HEAD
 test -f public/opengraph-image.png && git ls-files --error-unmatch public/opengraph-image.png
 npm ci
 npm audit --omit=dev
+pnpm audit --prod
 npx tsc --noEmit --incremental false
 npm run build
 ```

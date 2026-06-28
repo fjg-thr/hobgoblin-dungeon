@@ -77,4 +77,3 @@ node tools/generate_polish_sprites.mjs
 node tools/generate_audio_sfx.mjs
 node scripts/generate-retro-soundtrack.mjs
 ```
-

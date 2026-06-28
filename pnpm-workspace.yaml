@@ -6,3 +6,6 @@ overrides:
 
 onlyBuiltDependencies:
   - sharp
+
+allowBuilds:
+  sharp: true

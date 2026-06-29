@@ -4,7 +4,7 @@ Use this repository-specific context when reviewing pull requests for Hobgoblin 
 
 ## Project context
 
-- This is a private Next.js App Router prototype that mounts a Phaser 4 canvas from `src/game/GameCanvas.tsx`.
+- This is a Next.js App Router prototype that mounts a Phaser 4 canvas from `src/game/GameCanvas.tsx`.
 - Gameplay lives mostly in `src/game/scenes/DungeonScene.ts`; map generation is in `src/game/maps/startingDungeon.ts`.
 - The source of truth for runtime assets is `src/game/assets/manifest.ts`. Static files are under `public/assets`.
 - UI that is rendered in the DOM uses semantic React/Next.js and `src/app/globals.css`. In-canvas UI is Phaser-based and should be reviewed for pointer zones, keyboard affordances, readable placement, and responsive behavior.
@@ -34,6 +34,8 @@ When PRs touch generated assets, check whether the relevant generator or process
 - `npm run generate:powerups` / `node tools/generate_powerup_sprites.mjs`
 - `npm run generate:combat-assets` / `node tools/generate_brute_ammo_sprites.mjs`
 - `node tools/generate_audio_sfx.mjs`
+- `python3 tools/process_corporate_goblin_assets.py`
+- `python3 tools/process_spreadsheet_brute_assets.py`
 - `node tools/process_pickup_intent_effect_assets.mjs`
 - `node tools/process_gpt_tile_powerup_assets.mjs`
 - `node tools/generate_polish_sprites.mjs`

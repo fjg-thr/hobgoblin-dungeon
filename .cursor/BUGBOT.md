@@ -1,7 +1,7 @@
 # Cursor Bugbot review guidance
 
-Use this guide when reviewing changes in this repository. The project is a
-Next.js App Router shell that mounts a browser-only Phaser 4 dungeon prototype.
+Use this guide when reviewing this Next.js App Router shell that mounts a
+browser-only Phaser 4 dungeon prototype.
 
 ## Product and runtime context
 
@@ -28,9 +28,9 @@ Next.js App Router shell that mounts a browser-only Phaser 4 dungeon prototype.
   ordering, and `assetManifest` entries must stay synchronized.
 - Audio or dependency changes: keep `package.json`, `package-lock.json`, and
   `pnpm-lock.yaml` consistent when dependencies change.
-- DOM/metadata changes should use existing semantic HTML and `src/app/globals.css`
-  patterns. The Phaser canvas UI also needs review for keyboard/mouse affordance,
-  pointer zones, responsive placement, and readable text at small viewport sizes.
+- DOM/metadata changes should use existing semantic HTML and `src/app/globals.css`.
+  Review Phaser canvas UI for keyboard/mouse affordance, pointer zones,
+  responsive placement, and readable small-viewport text.
 
 ## Known baseline drift
 
@@ -49,7 +49,7 @@ Next.js App Router shell that mounts a browser-only Phaser 4 dungeon prototype.
 
 ## Asset and generator checks
 
-When generated assets change, verify that source prompts/tooling and committed
+When generated assets change, verify that source prompts, tooling, and committed
 outputs stay coherent:
 
 - `tools/process_assets.py`
@@ -65,36 +65,33 @@ outputs stay coherent:
 - `tools/generate_audio_sfx.mjs`
 - `scripts/generate-retro-soundtrack.mjs`
 
-Prefer exact commands over wildcard script names when recommending verification,
-for example `python3 tools/process_corporate_goblin_assets.py` for the corporate
-goblin processor.
+Prefer exact commands over wildcard script names; use `python3
+tools/process_corporate_goblin_assets.py` for the corporate goblin processor.
 
 ## Suggested verification by change type
 
 - Markdown-only guidance/docs: `git diff --check $(git merge-base origin/main HEAD) HEAD`.
 - Runtime TypeScript/gameplay: `npx tsc --noEmit --incremental false` and
   `npm run build`.
-- Browser behavior: smoke-test `npm run dev`, then verify start screen, movement
-  with WASD/arrows, aim with pointer, click or `SPACE` to fire, ammo pickup,
-  enemy damage, game over, restart, mute toggle, and `F3` debug overlay.
+- Browser behavior: smoke-test `npm run dev`; verify start screen, WASD/arrows,
+  pointer aim, click or `SPACE` firing, ammo pickup, enemy damage, game over,
+  restart, mute toggle, and `F3` debug overlay.
 - Asset changes: confirm referenced files exist under `public/assets`, metadata
   frame sizes match the PNG/spritesheet layout, and `assetManifest` points to the
   committed paths.
-- Dependency changes: run the relevant install/audit/build path for both tracked
-  lockfiles when feasible. `next lint` is not reliable for this Next version; do
-  not rely on it as the only check.
+- Dependency changes: run relevant install/audit/build paths for both tracked
+  lockfiles when feasible. `next lint` is not reliable for this Next version.
 
 Watch for generated `next-env.d.ts` churn after local Next commands. Restore it
 unless the PR intentionally changes generated Next typing behavior.
 
 ## Managed Bugbot boundary
 
-This repository file gives Bugbot project-specific review context. Enabling the
-managed Bugbot service itself still happens outside the repo through Cursor
-dashboard/org settings, GitHub App repository access, service configuration, or
-Bugbot Admin API credentials. If those are not available in the review
-environment, state that repo guidance was added but external enablement could not
-be proven from code alone.
+This file gives Bugbot project-specific review context. Managed Bugbot enablement
+still happens outside the repo through Cursor dashboard/org settings, GitHub App
+repository access, service configuration, or Bugbot Admin API credentials. If
+those are unavailable, state that repo guidance was added but external enablement
+could not be proven from code alone.
 
 For manual PR review triggers, use a top-level GitHub comment such as
 `cursor review` or `bugbot run`. For troubleshooting, use `cursor review

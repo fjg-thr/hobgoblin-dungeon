@@ -80,5 +80,7 @@ This file gives hosted Cursor Bugbot repository-specific review context; it does
 not prove that the managed Bugbot service is enabled. Confirm real deployment
 outside Git through Cursor dashboard/org settings, GitHub App repository access,
 Admin API credentials when used, and a pull-request smoke review when available.
-Top-level PR comments `cursor review` or `bugbot run` can request a manual
-review; add `verbose=true` for diagnostics, request IDs, and log detail.
+Hosted Bugbot may only consume this guidance after it is merged or otherwise
+available on the branch Bugbot reads. Top-level PR comments `cursor review` or
+`bugbot run` can request a manual review; add `verbose=true` for diagnostics,
+request IDs, and log detail.

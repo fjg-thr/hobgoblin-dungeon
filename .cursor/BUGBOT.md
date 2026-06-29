@@ -1,15 +1,15 @@
 # Cursor Bugbot review guide
 
 Use these instructions when reviewing pull requests for the Hobgoblin Ruin
-prototype. The repository is a Next.js/React app that mounts a browser-only
-Phaser 4 dungeon scene from `src/game/scenes/DungeonScene.ts`.
+prototype. This Next.js/React app mounts a browser-only Phaser 4 dungeon scene
+from `src/game/scenes/DungeonScene.ts`.
 
 ## Review priorities
 
-- Treat `src/game/scenes/DungeonScene.ts` as the highest-risk file. It owns
+- Treat `src/game/scenes/DungeonScene.ts` as the highest-risk file: it owns
   player input, combat, spawning, power-up state, audio, UI overlays, and Phaser
-  object lifecycles. Watch for missed cleanup of timers, event handlers, pooled
-  objects, tweens, sounds, and keyboard or pointer subscriptions.
+  lifecycles. Watch for missed cleanup of timers, event handlers, pooled
+  objects, tweens, sounds, and keyboard/pointer subscriptions.
 - Changes in `src/game/maps/startingDungeon.ts` can affect collision,
   reachability, camera bounds, and safe spawn placement. Check map generation
   changes against enemy, pickup, and player spawn assumptions.
@@ -72,9 +72,9 @@ Phaser 4 dungeon scene from `src/game/scenes/DungeonScene.ts`.
 - For TypeScript, gameplay, app shell, or manifest changes, prefer:
   - `npx tsc --noEmit --incremental false`
   - `npm run build`
-- Dependency changes must keep `package.json`, `package-lock.json`, and
-  `pnpm-lock.yaml` intentionally synchronized. Do not accept one-lockfile-only
-  churn unless the PR explicitly changes package-manager ownership.
+- Keep `package.json`, `package-lock.json`, and `pnpm-lock.yaml` synchronized
+  for dependency changes. Reject one-lockfile-only churn unless package-manager
+  ownership changes.
 - `next lint` is not reliable for this Next.js baseline, so do not treat its
   absence as a failed verification unless the PR changes lint tooling.
 - Build and dev commands can rewrite `next-env.d.ts` between `.next/types` and
@@ -89,7 +89,7 @@ Phaser 4 dungeon scene from `src/game/scenes/DungeonScene.ts`.
   hosted Bugbot service, GitHub App repository access, team rules, repository
   rules, and Admin API credentials is managed in Cursor/GitHub settings outside
   this repository.
-- Manual PR review triggers can be requested with a top-level PR comment:
+- Manual PR review triggers can be requested with top-level PR comments:
   `cursor review` or `bugbot run`. For diagnostics, use
   `cursor review verbose=true` or `bugbot run verbose=true`.
 - Hosted Bugbot may only apply new `BUGBOT.md` instructions after this file is

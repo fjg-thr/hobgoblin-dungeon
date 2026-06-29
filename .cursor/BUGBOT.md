@@ -33,7 +33,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin Prototype. Th
   - `python3 tools/process_assets.py`
   - `node tools/process_actor_death_assets.mjs`
   - `node tools/process_combat_juice_assets.mjs`
-  - `node tools/process_corporate_goblin_assets.py`
+  - `python3 tools/process_corporate_goblin_assets.py`
   - `node tools/process_gpt_tile_powerup_assets.mjs`
   - `node tools/process_pickup_intent_effect_assets.mjs`
   - `python3 tools/process_spreadsheet_brute_assets.py`

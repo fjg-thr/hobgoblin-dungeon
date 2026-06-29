@@ -22,9 +22,10 @@ Phaser 4 dungeon scene from `src/game/scenes/DungeonScene.ts`.
 - `src/game/GameCanvas.tsx` isolates Phaser from server rendering. For app or
   framework changes, verify Phaser still loads only in the browser and that game
   destruction handles React remounts cleanly.
-- `src/app/layout.tsx` metadata must match files actually served from
-  `public/`. If metadata references `/opengraph-image.png` or similar public
-  assets, confirm those files exist and are intentionally tracked.
+- `src/app/layout.tsx` metadata must match files served from `public/`. Treat
+  the current missing `/opengraph-image.png` as baseline drift for unrelated
+  PRs, but flag metadata or public share-asset changes that keep or add broken
+  references.
 
 ## Gameplay and UX checks
 
@@ -71,6 +72,9 @@ Phaser 4 dungeon scene from `src/game/scenes/DungeonScene.ts`.
 - For TypeScript, gameplay, app shell, or manifest changes, prefer:
   - `npx tsc --noEmit --incremental false`
   - `npm run build`
+- Dependency changes must keep `package.json`, `package-lock.json`, and
+  `pnpm-lock.yaml` intentionally synchronized. Do not accept one-lockfile-only
+  churn unless the PR explicitly changes package-manager ownership.
 - `next lint` is not reliable for this Next.js baseline, so do not treat its
   absence as a failed verification unless the PR changes lint tooling.
 - Build and dev commands can rewrite `next-env.d.ts` between `.next/types` and

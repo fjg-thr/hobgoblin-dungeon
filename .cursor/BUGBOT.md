@@ -18,7 +18,7 @@ Use this guide when reviewing pull requests for this repository. This project is
 - README says `Space` or `J` fires, but the current scene binds firing to `SPACE` plus pointer/click input. Scope this mismatch to control or documentation PRs; do not block unrelated changes only for the existing drift.
 - README documents regular ammo, heart pickups, quickshot, haste, ward, and blast. The current code also unlocks seeker ammo/projectiles after progression thresholds.
 - README describes blast as rare late-game, while `POWERUP_CONFIG` currently controls the actual unlock timing and weights.
-- `src/app/layout.tsx` references `/opengraph-image.png`; flag PRs that add broken public references, remove referenced assets, or drift image dimensions/alt text.
+- `src/app/layout.tsx` currently references `/opengraph-image.png`, but `public/opengraph-image.png` is not tracked in baseline. Do not block unrelated PRs only for that existing drift; flag PRs that introduce or worsen broken public references, remove referenced assets, or claim to fix metadata without adding the referenced asset.
 
 ## Verification guidance
 

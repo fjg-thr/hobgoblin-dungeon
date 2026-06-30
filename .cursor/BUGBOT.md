@@ -27,7 +27,7 @@ Use this file as repository-specific context when reviewing PRs for the Hobgobli
 
 ### Assets and generated content
 
-- If an asset path, sprite sheet, frame size, key, or metadata file changes, confirm `assetManifest` and the matching `public/assets/**` file both change.
+- If an asset path, sprite sheet, frame size, key, or metadata file changes, confirm `assetManifest` and matching `public/assets/**` files stay in sync.
 - Prefer checking actual image dimensions and JSON frame metadata for sprite-sheet edits.
 - Treat `src/game/assets/manifest.ts` as the runtime audio source of truth. `public/assets/audio/audio-manifest.json` is auxiliary consistency data.
 - Generated asset tooling includes:

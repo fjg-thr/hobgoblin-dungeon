@@ -39,7 +39,11 @@ Use this context when reviewing pull requests for this repository. Prioritize co
      - `npm run generate:combat-assets`
      - `node tools/generate_audio_sfx.mjs`
      - `node scripts/generate-retro-soundtrack.mjs`
+     - `node tools/process_pickup_intent_effect_assets.mjs`
+     - `node tools/process_gpt_tile_powerup_assets.mjs`
+     - `node tools/generate_polish_sprites.mjs`
      - `python3 tools/process_corporate_goblin_assets.py`
+     - `python3 tools/process_spreadsheet_brute_assets.py`
 
 5. **UI, metadata, and accessibility**
    - This repo does not currently configure Tailwind or shadcn/ui. Review DOM UI against existing semantic HTML and `src/app/globals.css` patterns.

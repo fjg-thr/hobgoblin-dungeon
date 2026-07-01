@@ -26,7 +26,7 @@ Use this guide when reviewing pull requests for the Hobgoblin Ruin prototype.
 4. **Gameplay invariants**: Movement, collision, enemy damage, pickups, ammo limits, projectile cleanup, game-over state, and restart flow should stay deterministic enough to reason about. Watch for timers/tweens/event listeners that survive scene shutdown.
 5. **Input and HUD behavior**: Current runtime shooting uses `Space` and pointer/click input; README also mentions `J`, which is an existing docs/runtime drift. Block PRs that worsen or claim to fix controls without verifying actual key bindings.
 6. **Audio behavior**: Audio changes should respect browser autoplay restrictions, the scene-level mute state, sound cleanup on shutdown, and the `SOUND`/`MUTED` HUD toggle.
-7. **Metadata/share assets**: `src/app/layout.tsx` references `/opengraph-image.png`; ensure metadata PRs do not introduce broken public references or remove assets they still reference. Do not block unrelated PRs solely for an existing baseline asset gap.
+7. **Metadata/share assets**: `src/app/layout.tsx` references `/opengraph-image.png`, which is expected to exist while referenced; ensure metadata PRs do not introduce broken public references or remove assets they still reference. Do not block unrelated PRs solely for pre-existing metadata issues.
 
 ## Known baseline context
 

@@ -1,7 +1,7 @@
 # Cursor Bugbot review guide
 
 Use this as repo context for Hobgoblin Ruin PR reviews. This file does
-not prove the managed Cursor Bugbot service is enabled; proof still requires
+not prove the managed Bugbot service is enabled; proof still requires
 Cursor/GitHub App configuration or a live PR review smoke check after merge.
 
 ## Project map

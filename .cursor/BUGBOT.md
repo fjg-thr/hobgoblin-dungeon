@@ -1,20 +1,19 @@
 # Cursor Bugbot review guide
 
-Use this file as repository-specific context when reviewing pull requests for
-`fjg-thr/hobgoblin-dungeon`, a Next.js/React/TypeScript prototype that embeds a
-Phaser dungeon scene.
+Use this as repository-specific context for `fjg-thr/hobgoblin-dungeon`, a
+Next.js/React/TypeScript prototype that embeds a Phaser dungeon scene.
 
 ## Deployment and triggers
 
-- This file only provides repository-side review guidance. Enabling the managed
-  Bugbot service requires Cursor dashboard/org settings, GitHub App repository
-  access, and any Admin API credentials outside this repo.
+- This file only provides repo-side review guidance. Enabling managed Bugbot
+  requires Cursor dashboard/org settings, GitHub App repository access, and any
+  Admin API credentials outside this repo.
 - After this file is merged to the default branch, Bugbot should use it for PR
   reviews. PRs that add or change this file may not be reviewed with the new
   guidance yet.
-- Manual top-level PR comments that can request a review are `cursor review` and
-  `bugbot run`. For diagnostics, use `cursor review verbose=true` or
-  `bugbot run verbose=true` and check the returned request/log details.
+- Manual top-level PR comments can request `cursor review` or `bugbot run`.
+  For diagnostics, use `cursor review verbose=true` or
+  `bugbot run verbose=true` and check returned request/log details.
 
 ## Project map
 
@@ -26,14 +25,12 @@ Phaser dungeon scene.
   dynamically imports Phaser and `DungeonScene`, creates one game instance, and
   destroys it on unmount.
 - `src/game/scenes/DungeonScene.ts` contains gameplay, UI overlays, input,
-  enemies, pickups, audio, and cleanup. Review changes here for lifecycle,
-  canvas interaction, and gameplay invariants.
+  enemies, pickups, audio, and cleanup.
 - `src/game/assets/manifest.ts` is the runtime asset source of truth for Phaser
   loads. `public/assets/audio/audio-manifest.json` is auxiliary and should not
   be treated as the scene loader.
-- `tools/` and `scripts/` contain generated asset/audio tooling. Avoid
-  regenerating or committing large binary assets unless the PR intentionally
-  changes assets and includes the matching metadata/manifests.
+- `tools/` and `scripts/` contain generated asset/audio tooling. Avoid large
+  binary churn unless the PR intentionally changes assets and matching metadata.
 
 ## Review priorities
 
@@ -50,10 +47,9 @@ Phaser dungeon scene.
 - Review canvas UI changes for pointer zones, keyboard affordances, responsive
   placement, readable contrast, and mute/how-to-play/start/game-over behavior.
   This repo does not currently configure Tailwind or ShadCN.
-- Validate combat/resource invariants when touched: finite ammo, seeker ammo
-  unlocks, power-up unlock weights, heart pickups, ward damage prevention,
-  blast charge consumption, enemy respawn pressure, score updates, and game-over
-  state resets.
+- Validate combat/resource invariants when touched: finite ammo, seeker unlocks,
+  power-up weights, heart pickups, ward prevention, blast consumption, enemy
+  pressure, score updates, and game-over resets.
 - Keep audio loading and mute state consistent with `assetManifest.audio`; stop
   or clean up looping sounds during restart, shutdown, and game-over paths.
 - Treat generated `next-env.d.ts` route-type churn as verification noise unless
@@ -80,9 +76,9 @@ Choose the smallest set that matches the diff:
 - Markdown/config-only: `git diff --check origin/main...HEAD`.
 - TypeScript/source changes: `npm run build` and
   `npx tsc --noEmit --incremental false`.
-- Runtime gameplay changes: manually smoke test start screen, how-to-play modal,
-  movement with WASD/arrows, mouse aim/click fire, Space fire, ammo pickup,
-  power-up pickup, mute toggle, F3 debug overlay, damage, death, and restart.
+- Runtime gameplay changes: smoke test start screen, how-to-play modal,
+  WASD/arrows, mouse aim/click fire, Space fire, ammo/power-up pickup, mute,
+  F3 debug overlay, damage, death, and restart.
 - Asset changes: verify changed files exist under `public/assets`, metadata
   matches frame sizes, and affected generation commands are documented. Relevant
   commands include `npm run process:assets`, `npm run process:death-assets`,

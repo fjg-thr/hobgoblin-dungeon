@@ -145,4 +145,3 @@ review smoke check after this file is available on the default branch.
 - Dependency change: run install/audit/build commands for the touched lockfile
   ecosystem and note any known baseline audit limitations separately from new
   vulnerabilities.
-

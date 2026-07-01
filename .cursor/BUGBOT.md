@@ -65,9 +65,9 @@ Cursor/GitHub App configuration or a live PR review smoke check after merge.
   and metadata paths.
 - Generated sprite/audio changes need matching source/tooling updates or
   provenance.
-- `src/app/layout.tsx` references `/opengraph-image.png`, but this branch does
-  not track `public/opengraph-image.png`. Treat as baseline for unrelated PRs;
-  block share-metadata PRs that do not add/fix the asset and metadata together.
+- `src/app/layout.tsx` references tracked `public/opengraph-image.png`
+  (1360x752). Block share-metadata PRs that do not keep asset, dimensions, and
+  alt text consistent.
 - Prefer exact generator commands:
   `npm run process:assets`, `npm run process:death-assets`,
   `npm run process:combat-juice`, `npm run generate:powerups`,

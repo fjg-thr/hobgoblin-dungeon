@@ -6,7 +6,6 @@ import {
   MAP_WIDTH,
   createDungeon,
   getTileCode,
-  isRenderableTileCode,
   isTileBlocked,
   tileAssetForCode,
   type DungeonMap,
@@ -14,7 +13,6 @@ import {
   type PropKind,
   type TileCode
 } from "../maps/startingDungeon";
-import { SHOOT_KEY_CODES } from "./input";
 
 type Direction = (typeof assetManifest.character.directions)[number];
 type PowerUpKind = (typeof assetManifest.powerUps.types)[number];
@@ -579,7 +577,7 @@ export class DungeonScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.scale.off("resize", this.handleResize, this);
     });
-    this.updateCamera();
+    this.updateCamera(1);
     this.updateFocusMask(true);
     this.showStartScreen();
   }
@@ -588,7 +586,7 @@ export class DungeonScene extends Phaser.Scene {
     const dt = Math.min(deltaMs / 1000, MAX_SIMULATION_DT);
     if (!this.gameStarted) {
       this.updatePlayerVisuals();
-      this.updateCamera();
+      this.updateCamera(dt);
       this.updateFocusMask();
       return;
     }
@@ -600,7 +598,7 @@ export class DungeonScene extends Phaser.Scene {
 
     if (this.playerDying) {
       this.updatePlayerVisuals();
-      this.updateCamera();
+      this.updateCamera(dt);
       this.updateFocusMask();
       return;
     }
@@ -628,7 +626,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateHeartPickups();
     this.updateAmmoPickups();
     this.updatePlayerVisuals();
-    this.updateCamera();
+    this.updateCamera(dt);
     this.updateFocusMask();
     this.updatePowerUpText();
 
@@ -835,12 +833,12 @@ export class DungeonScene extends Phaser.Scene {
     for (let y = 0; y < this.dungeon.height; y += 1) {
       for (let x = 0; x < this.dungeon.width; x += 1) {
         const code = this.getTileCode(x, y);
-        if (!isRenderableTileCode(code)) {
+        if (code === " " || code === "W") {
           continue;
         }
 
         const world = this.tileCellCenterToWorld(x, y);
-        const assetKey = tileAssetForCode[code];
+        const assetKey = tileAssetForCode[code as Exclude<TileCode, " ">];
         this.addTileImage(assetKey, world, code, x, y);
       }
     }
@@ -981,8 +979,7 @@ export class DungeonScene extends Phaser.Scene {
       a: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       s: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       d: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-      shoot: keyboard.addKey(SHOOT_KEY_CODES[0]),
-      shootAlt: keyboard.addKey(SHOOT_KEY_CODES[1]),
+      shoot: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       escape: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       debug: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F3)
     };
@@ -995,7 +992,7 @@ export class DungeonScene extends Phaser.Scene {
         this.debugGraphics?.clear();
       }
     });
-    const handleShootKeyDown = () => {
+    this.keys.shoot.on("down", () => {
       if (!this.gameStarted) {
         if (this.howToPlayContainer) {
           return;
@@ -1004,9 +1001,7 @@ export class DungeonScene extends Phaser.Scene {
         return;
       }
       this.shotQueued = true;
-    };
-    this.keys.shoot.on("down", handleShootKeyDown);
-    this.keys.shootAlt.on("down", handleShootKeyDown);
+    });
     this.keys.escape.on("down", () => {
       if (!this.gameStarted && this.howToPlayContainer) {
         this.hideHowToPlayModal();
@@ -1124,13 +1119,7 @@ export class DungeonScene extends Phaser.Scene {
     this.muteButtonZone.setScrollFactor(0);
     this.muteButtonZone.setDepth(HUD_DEPTH + 55);
     this.muteButtonZone.setInteractive({ useHandCursor: true });
-    this.muteButtonZone.on(
-      "pointerdown",
-      (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
-        event.stopPropagation();
-        this.toggleMute();
-      }
-    );
+    this.muteButtonZone.on("pointerdown", () => this.toggleMute());
 
     this.muteButtonContainer = this.add.container(0, 0, [this.muteButtonBg, this.muteButtonText]);
     this.muteButtonContainer.setScrollFactor(0);
@@ -1308,7 +1297,7 @@ export class DungeonScene extends Phaser.Scene {
       return;
     }
 
-    const shotRequested = this.shotQueued || this.keys.shoot.isDown || this.keys.shootAlt.isDown;
+    const shotRequested = this.shotQueued || this.keys.shoot.isDown;
     if (!shotRequested) {
       return;
     }
@@ -2013,7 +2002,7 @@ export class DungeonScene extends Phaser.Scene {
       if (distance > config.alertRange) {
         enemy.sprite.anims.play(`${config.keyPrefix}idle-${enemy.direction}`, true);
       } else {
-        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase) : chase;
+        const movement = distance > config.contactRange ? this.enemyChaseVector(enemy, chase, dt) : chase;
         if (Math.hypot(movement.x, movement.y) > 0.01) {
           enemy.direction = this.directionFromVector(movement);
         }
@@ -2035,7 +2024,7 @@ export class DungeonScene extends Phaser.Scene {
     });
   }
 
-  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint): TilePoint {
+  private enemyChaseVector(enemy: EnemyActor, direct: TilePoint, _dt: number): TilePoint {
     const config = ENEMY_CONFIG[enemy.kind];
     if (this.hasClearEnemyPath(enemy.tile, this.playerTile, config.radius)) {
       enemy.path = [];
@@ -3626,7 +3615,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera();
+    this.updateCamera(1);
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3778,7 +3767,7 @@ export class DungeonScene extends Phaser.Scene {
     this.updateAmmoText();
     this.updatePowerUpText();
     this.updatePlayerVisuals();
-    this.updateCamera();
+    this.updateCamera(1);
     this.updateFocusMask(true);
     this.startBackgroundMusic();
     this.playSfx("start", { volume: 0.32 });
@@ -3876,11 +3865,11 @@ export class DungeonScene extends Phaser.Scene {
         this.showHowToPlayModal(false);
       }
     }
-    this.updateCamera();
+    this.updateCamera(1);
     this.updateFocusMask(true);
   }
 
-  private updateCamera() {
+  private updateCamera(_dt: number) {
     const camera = this.cameras.main;
     const world = this.playerViewCenterWorld();
     camera.centerOn(Math.round(world.x), Math.round(world.y));

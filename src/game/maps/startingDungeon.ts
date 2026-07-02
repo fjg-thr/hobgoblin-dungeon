@@ -296,10 +296,6 @@ export function getTileCode(dungeon: DungeonMap, x: number, y: number): TileCode
   return dungeon.rows[y]?.[x] as TileCode;
 }
 
-export function isRenderableTileCode(code: TileCode): code is Exclude<TileCode, " "> {
-  return code !== " ";
-}
-
 export function isTileBlocked(code: TileCode): boolean {
   return code === " " || code === "W" || code === "h";
 }

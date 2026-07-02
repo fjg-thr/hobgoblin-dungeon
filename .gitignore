@@ -4,7 +4,6 @@ __pycache__/
 out/
 dist/
 tmp/
-tsconfig.tsbuildinfo
 .npmrc
 .env*
 !.env.example

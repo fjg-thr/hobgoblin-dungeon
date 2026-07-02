@@ -59,9 +59,11 @@ review; add `verbose=true` only for diagnostic IDs/log detail.
   `npm run process:death-assets`, `npm run process:combat-juice`,
   `npm run generate:powerups`, and `npm run generate:combat-assets`.
 - Extra tools include `tools/process_pickup_intent_effect_assets.mjs`,
-  `tools/process_gpt_tile_powerup_assets.mjs`, corporate/spreadsheet goblin
-  processors, `tools/generate_polish_sprites.mjs`,
-  `tools/generate_audio_sfx.mjs`, and `scripts/generate-retro-soundtrack.mjs`.
+  `tools/process_gpt_tile_powerup_assets.mjs`,
+  `tools/process_corporate_goblin_assets.py`,
+  `tools/process_spreadsheet_brute_assets.py`,
+  `tools/generate_polish_sprites.mjs`, `tools/generate_audio_sfx.mjs`, and
+  `scripts/generate-retro-soundtrack.mjs`.
 - Node image processors may require `sharp`; Python processors require Pillow.
   Flag generated-asset PRs that omit required regenerated outputs or tool
   dependency notes.

@@ -15,7 +15,7 @@ Use this repository guide when Cursor Bugbot reviews pull requests for
   should return diagnostic details such as request IDs or logs.
 - If Bugbot does not respond, check the Cursor integration for the GitHub
   account or organization, confirm this repository is enabled in the Bugbot tab,
-  and verify GitHub App access covers `fjg-thr/hobgoblin-dungeon`.
+  and verify GitHub App repository access covers `fjg-thr/hobgoblin-dungeon`.
 - New or changed guidance in this file may not affect the PR that introduces it
   until the change has landed on the default branch.
 

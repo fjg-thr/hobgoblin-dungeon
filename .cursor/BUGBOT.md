@@ -78,6 +78,8 @@ npm run process:death-assets
 npm run process:combat-juice
 npm run generate:powerups
 npm run generate:combat-assets
+python3 tools/process_corporate_goblin_assets.py
+python3 tools/process_spreadsheet_brute_assets.py
 node tools/generate_audio_sfx.mjs
 node scripts/generate-retro-soundtrack.mjs
 ```
@@ -135,6 +137,9 @@ insufficient:
 - Existing context: seeker ammo behavior exists in code but is not fully
   described in README. Flag PRs that change seeker ammo without updating player
   docs or in-game copy when appropriate.
+- Existing context: README describes blast as rare late-game, while current
+  `POWERUP_CONFIG` unlock timing may make it available earlier. Treat this as
+  pre-existing unless a PR intentionally changes power-up rarity or docs.
 
 ### Assets and manifests
 

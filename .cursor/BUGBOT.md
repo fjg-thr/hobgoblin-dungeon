@@ -40,7 +40,7 @@ When a PR changes source, build, dependency, or asset loading behavior, expect a
 least these checks to be considered:
 
 ```bash
-npm install
+npm ci
 npm run build
 npx tsc --noEmit --incremental false
 ```
@@ -50,6 +50,8 @@ Notes:
 - `next lint` is still listed in `package.json`, but modern Next versions may no
   longer provide that command reliably. Prefer build and TypeScript checks for
   actionable verification.
+- Use `npm install` instead of `npm ci` only when intentionally updating
+  dependencies or lockfiles.
 - `next dev` can rewrite `next-env.d.ts` to reference `.next/dev/types`, while a
   production build can rewrite it to `.next/types`. Treat unintended
   `next-env.d.ts` churn as generated noise unless the PR intentionally changes

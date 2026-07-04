@@ -1,7 +1,7 @@
 # Cursor Bugbot review guide
 
 Use this guide when reviewing pull requests for the Hobgoblin Ruin prototype.
-The repository-side part of this deployment is this file. Managed Cursor Bugbot
+The repository-side part of this deployment is this file; managed Cursor Bugbot
 enablement still depends on external Cursor dashboard or organization settings,
 GitHub App repository access, Admin API credentials if used, and a live pull
 request trigger check.

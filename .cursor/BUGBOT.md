@@ -126,8 +126,8 @@ uses it.
   move Phaser imports into server components or top-level app code.
 - Preserve the single-game-instance guard and cleanup in `GameCanvas.tsx`.
 - `src/app/layout.tsx` defines metadata and currently references
-  `/opengraph-image.png`; metadata or share-image PRs should keep the referenced
-  public asset, dimensions, and alt text consistent.
+  `/opengraph-image.png`; metadata or share-image PRs should verify or add the
+  referenced public asset, or avoid worsening existing missing-asset drift.
 - This repo does not currently use Tailwind or shadcn/ui. Prefer existing
   semantic markup and `src/app/globals.css` patterns for DOM UI changes unless a
   PR explicitly adds a broader UI system.
@@ -151,8 +151,8 @@ uses it.
 - Managed enablement must be verified outside the repo: Cursor dashboard/org
   settings, GitHub App repository access, any Admin API configuration in use,
   and a live PR review smoke check.
-- After this file lands on the default branch, trigger a review from a PR comment
-  with `cursor review` or `bugbot run`.
+- After this file lands on the default branch, trigger a review from a top-level
+  PR comment with `cursor review` or `bugbot run`.
 - For diagnostics, use `cursor review verbose=true` or
   `bugbot run verbose=true` and inspect the resulting request details.
 - The guide may not affect Bugbot reviews until it is merged to the default

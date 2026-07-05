@@ -71,7 +71,8 @@ Phaser scene lifecycle code:
   pickups restore ammo.
 - Seeker ammo unlocks through progression, uses cyan seeker pickups, consumes
   before standard ammo, and homes toward enemies.
-- Goblins and brutes spawn only after their configured progression gates.
+- Initial goblins are seeded from map enemy starts; additional goblins ramp with
+  target enemy count, and brutes spawn only after their configured unlock gates.
 - Contact damage, invulnerability, heart pickups, and ward behavior still match
   the current life-meter rules.
 - Quickshot, haste, ward, and blast power-ups display feedback and expire or

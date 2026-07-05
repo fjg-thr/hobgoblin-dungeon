@@ -6,6 +6,10 @@ Use this project-specific guide when reviewing pull requests for Hobgoblin Ruin 
 
 This file gives Bugbot repository context only. It does not prove the managed service is enabled. To validate deployment, confirm Cursor dashboard/org settings, GitHub App access to `fjg-thr/hobgoblin-dungeon`, and a PR review smoke check. If those are unavailable, state that only repo guidance and CI were verified.
 
+## Manual PR trigger
+
+If automatic review does not run on a GitHub pull request, leave a new top-level PR comment with `cursor review` or `bugbot run`. For troubleshooting, use `cursor review verbose=true` or `bugbot run verbose=true` so the response includes request details useful for support.
+
 ## Deployment baseline
 
 Package versions use committed npm/pnpm lockfiles and audited pinned top-level dependencies in CI. Next.js is patched to audited `16.2.6`; treat that as dependency hardening and ask for build/start smoke evidence when reviewing baseline changes.

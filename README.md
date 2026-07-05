@@ -9,7 +9,21 @@ npm install
 npm run dev
 ```
 
+Or, with the pinned pnpm version declared in `package.json`:
+
+```bash
+corepack pnpm install
+corepack pnpm dev
+```
+
 Open `http://localhost:3000`.
+
+## Code Review
+
+Cursor Bugbot review guidance lives in `.cursor/BUGBOT.md`. Repository CI runs on pull requests, `main` pushes, and `cursor/**` automation branches with whitespace checks, dependency audits, smoke helper tests, type generation/typecheck, build, dynamic-port HTTP smoke tests, and npm/pnpm install verification so automated reviews have a consistent baseline.
+Managed Bugbot activation still happens outside this repository through Cursor dashboard/org settings and GitHub App repository access.
+If a pull request needs a manual Bugbot run, add a new top-level PR comment with `cursor review` or `bugbot run`; use `cursor review verbose=true` or `bugbot run verbose=true` when request diagnostics are needed.
+The Bugbot deployment baseline also pins package versions and includes the audited Next.js patch level required for production dependency checks.
 
 ## Controls
 

@@ -1,8 +1,9 @@
 # Cursor Bugbot Review Guide
 
-Use this guide when Cursor Bugbot reviews pull requests for this repository.
-Focus on behavioral regressions, broken builds, missing assets, and mismatches
-between the public game documentation and the runtime Phaser implementation.
+Use this guide when Cursor Bugbot reviews pull requests for
+`fjg-thr/hobgoblin-dungeon`. Focus on behavioral regressions, broken builds,
+missing assets, and mismatches between the public game documentation and the
+runtime Phaser implementation.
 
 ## Managed enablement
 

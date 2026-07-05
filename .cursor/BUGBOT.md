@@ -91,8 +91,9 @@ Phaser scene lifecycle code:
   sync when touching firing logic.
 - Seeker projectiles should keep their target-finding and steering behavior
   separate from standard staff bolts.
-- `POWERUP_CONFIG` controls progression gates and duration/weight behavior for
-  quickshot, haste, ward, and blast.
+- `POWERUP_CONFIG` controls progression gates, spawn weights, and presentation
+  metadata for quickshot, haste, ward, and blast; duration and effect timing
+  live in nearby power-up constants and collection logic.
 - Blast state is a charged-shot flag (`blastShotReady`) that applies radial
   damage on projectile impact.
 - The staircase is intentionally visible but does not transition to another

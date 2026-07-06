@@ -64,7 +64,7 @@ Use this file as repository-specific guidance when Cursor Bugbot reviews pull re
 - This repo does not currently configure Tailwind or ShadCN. For DOM UI changes, use existing semantic HTML and `src/app/globals.css` patterns unless the PR intentionally introduces a styling system.
 - Most UI is Phaser canvas UI, not DOM. Review pointer hit zones, keyboard/mouse affordances, modal close behavior, text readability, and compact/tiny viewport layouts.
 - The start screen and how-to-play modal include responsive layout branches and close behavior. Changes should not break compact viewport placement or allow clicks behind the modal.
-- `src/app/layout.tsx` references `/opengraph-image.png` with dimensions `1360x752`. This branch does not currently include `public/opengraph-image.png`; if a PR touches metadata/share images, require the asset, dimensions, and alt text to be brought into sync or the stale reference to be removed.
+- `src/app/layout.tsx` references `/opengraph-image.png`, and `public/opengraph-image.png` is tracked at `1360x752`. If a PR touches metadata/share images, require the asset, dimensions, and alt text to stay in sync.
 
 ### 6. Audio
 

@@ -8,7 +8,7 @@ contracts, or user-facing project documentation.
 ## Deployment boundary
 
 - This file gives repository-specific review instructions to Cursor Bugbot.
-- Managed Cursor Bugbot enablement still depends on Cursor dashboard or
+- External managed Cursor Bugbot enablement still depends on Cursor dashboard or
   organization settings, GitHub App repository access, Admin API credentials
   when used, and a live PR trigger check. Do not claim those external settings
   are enabled based only on this file.

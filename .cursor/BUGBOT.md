@@ -147,4 +147,3 @@ Use the smallest set that matches the change:
 - For asset changes, confirm referenced files exist and load without missing texture or missing audio errors.
 - For responsive UI changes, check desktop, compact, and tiny viewport layouts.
 - For metadata or share-image changes, confirm `public/opengraph-image.png` exists and matches the metadata dimensions and alt text intent.
-

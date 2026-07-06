@@ -132,5 +132,5 @@ atlas consistency checks. For documentation-only changes, at minimum run
 - Separate blocking issues from suggestions. Avoid broad refactors unless they
   directly reduce risk introduced by the PR.
 - If a PR changes only this Bugbot guide, verify the file is ASCII Markdown with
-  a trailing newline and that no runtime source, assets, package files, or
-  workflow files changed unintentionally.
+  trailing newline and that no runtime source, assets, package files, or workflow
+  files changed unintentionally.

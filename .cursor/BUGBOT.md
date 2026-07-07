@@ -1,112 +1,56 @@
-# Cursor Bugbot Review Instructions
+# Cursor Bugbot review guidance
 
-Review this repository as a first-playable Hobgoblin Ruin browser game built
-with Next.js, React, TypeScript, and Phaser. Prioritize concrete defects that
-can break production builds, server/client boundaries, asset loading, Phaser
-scene lifecycle, or player-facing gameplay described in `README.md`.
+Use this file as repository-specific context when Cursor Bugbot reviews pull requests for Hobgoblin Ruin. Keep findings focused on bugs, regressions, security issues, broken gameplay, build failures, or missing verification evidence.
 
-## Project Map
+## Deployment boundary
 
-- `src/app/layout.tsx` owns metadata and global document shell.
-- `src/app/page.tsx` renders the game page and should stay thin.
-- `src/game/GameCanvas.tsx` is the React client boundary. It dynamically imports
-  Phaser and `DungeonScene`, then creates one `Phaser.Game` per mounted host.
-- `src/game/scenes/DungeonScene.ts` contains most runtime state: input, combat,
-  enemy AI, pickups, power-ups, UI overlays, audio, camera, debug rendering, and
-  scene cleanup.
-- `src/game/maps/startingDungeon.ts` generates rooms/corridors and defines tile
-  blocking semantics.
-- `src/game/assets/manifest.ts` is the source of truth for public asset paths,
-  sprite dimensions, animation metadata, and audio keys.
-- `public/assets/**` contains runtime assets. Many JSON, sprite, audio, and
-  source files are generated through `tools/**` or `scripts/**`; generated churn
-  should be intentional and tied to a source or tool change.
+- This file gives hosted Cursor Bugbot review context after it is merged to the default branch.
+- Enabling or disabling the managed Bugbot service is outside this repository. Validate Cursor dashboard or organization settings, GitHub App repository access, Admin API credentials when used, and at least one PR-review smoke check in the live service.
+- If those external controls are unavailable, state that repository files can only provide review guidance and cannot prove managed Bugbot enablement.
+- Manual top-level PR triggers supported by Cursor docs include `cursor review` and `bugbot run`. For diagnostics, use `cursor review verbose=true` or `bugbot run verbose=true` to surface request IDs and log details.
 
-## High-Priority Review Checks
+## Project map
 
-### Next.js and React Boundaries
+- Next.js App Router entry points live in `src/app/page.tsx`, `src/app/layout.tsx`, and `src/app/globals.css`.
+- `src/game/GameCanvas.tsx` is a client component that dynamically imports Phaser and `DungeonScene`, creates one `Phaser.Game`, and destroys it in `useEffect` cleanup.
+- `src/game/scenes/DungeonScene.ts` contains most gameplay, input, UI overlays, audio, enemy AI, projectiles, pickups, power-ups, scoring, game-over flow, and Phaser object lifecycle code.
+- `src/game/maps/startingDungeon.ts` generates the room-and-corridor map, collision tile codes, player start, enemy starts, props, chasms, bridge tiles, and stairs.
+- `src/game/assets/manifest.ts` is the runtime source of truth for loaded image, sprite-sheet, UI, effect, projectile, pickup, power-up, and audio asset paths.
+- `public/assets/audio/audio-manifest.json` is auxiliary consistency data; changing audio usually also needs `assetManifest.audio` updates.
+- Generated asset and audio tooling lives under `tools/` and `scripts/`, including `tools/generate_audio_sfx.mjs`, `scripts/generate-retro-soundtrack.mjs`, `tools/process_corporate_goblin_assets.py`, and `tools/process_spreadsheet_brute_assets.py`.
 
-- Flag static imports of `phaser` or `DungeonScene` from server components.
-  Phaser should remain behind `"use client"` and dynamic imports in
-  `GameCanvas.tsx` so builds and SSR never evaluate browser-only APIs.
-- Check that `GameCanvas` preserves the single-game invariant: no duplicate
-  `Phaser.Game` instances for one host, and the game is destroyed on unmount.
-- Browser globals (`window`, canvas, pointer APIs, local storage, Web Audio)
-  should only run from client-only code paths.
-- Metadata image paths must match committed files under `public/`. In
-  particular, `src/app/layout.tsx` references `/opengraph-image.png`; changes
-  near metadata should ensure that asset exists or update the reference.
+## Review priorities
 
-### Phaser Scene Lifecycle
+- Prioritize runtime crashes, stuck start/game-over states, lost input, missing cleanup of Phaser listeners/timers/tweens/game objects, asset path mismatches, and regressions that make the dungeon impossible to play.
+- Watch client/server boundaries: Phaser must stay out of server-rendered code, browser globals must remain inside client-only effects or Phaser scene methods, and dynamic imports should not create duplicate games on React remounts.
+- Phaser is pinned to `4.0.0-rc.4`; review Phaser API usage against that RC and be cautious with examples from Phaser 3 or later releases.
+- For scene lifecycle changes, check `Phaser.Scenes.Events.SHUTDOWN` cleanup, input listener removal, tween/timer cancellation, audio stop/mute behavior, and restart paths.
+- For shared constants and config, prefer one source of truth over duplicated magic numbers.
 
-- New listeners, timers, tweens, graphics, containers, sounds, or pooled game
-  objects in `DungeonScene` must be cleaned up on scene shutdown/restart.
-- Watch for duplicate handlers when starting a run, restarting after game over,
-  muting/unmuting, opening the how-to-play overlay, or toggling debug UI.
-- A fresh run should reset related UI, audio, enemy, projectile, pickup,
-  power-up, score, ammo, health, focus mask, and debug overlay state.
-- Avoid unbounded object creation in `update`; use existing pools or destroy old
-  effects when adding recurring visual feedback.
+## Gameplay and input facts
 
-### Gameplay Invariants
+- Movement uses WASD or arrow keys in isometric directions.
+- Runtime shooting is currently bound to Space and pointer/click firing. The README also mentions `J`; flag that mismatch for input/control documentation PRs, but do not block unrelated PRs solely because the mismatch already exists.
+- Pointer aim snaps shots to 15-degree angles and click queues one shot toward the pointer.
+- The start screen and how-to-play modal are rendered inside Phaser, with compact and tiny viewport layout branches, pointer hit zones, close behavior, and Space-to-start behavior. Review viewport/layout changes for mobile-sized screens as well as desktop.
+- Initial goblins come from `dungeon.enemyStarts`; additional goblins ramp with target enemy count. Brutes unlock after `BRUTE_UNLOCK_KILLS` or `BRUTE_UNLOCK_MS`, not from the start.
+- Seeker ammo is code-defined gameplay unlocked after `SEEKER_UNLOCK_KILLS` or `SEEKER_UNLOCK_MS`; it is not currently documented in the README controls section.
+- `POWERUP_CONFIG` controls unlock gates, weights, sprite rows, colors, and labels for quickshot, haste, ward, and blast. Durations and effect timing live in nearby constants such as `QUICKSHOT_DURATION_MS`, `HASTE_DURATION_MS`, and `WARD_DURATION_MS`; blast uses `blastShotReady`.
+- Hearts restore missing health after kill milestones and should not increase max health.
+- The lower-right `SOUND` / `MUTED` Phaser button toggles scene audio; review audio changes for both muted and unmuted states.
 
-- Movement, projectile travel, enemy movement, knockback, and pickup collection
-  rely on tile/world coordinate conversion. Preserve isometric coordinates,
-  depth ordering, camera follow, and collision radius math.
-- `isTileBlocked`, prop blocking, chasm/bridge tiles, safe-spawn checks, and
-  enemy pathing must agree. Flag changes where something is visually walkable
-  but logically blocked, or logically walkable through an obstacle.
-- Enemy and pickup spawning should respect caps and progression gates such as
-  `MAX_ENEMIES`, `MAX_BRUTES`, active pickup limits, unlock kill counts, and
-  elapsed-time unlocks.
-- Ammo, seeker ammo, quickshot, haste, ward, blast, and heart pickups should
-  preserve max counts, rarity, duration, pickup feedback, and HUD state.
-- Combat changes should account for invulnerability windows, hit stop, damage
-  numbers, death effects, score increments, drops, and game-over timing.
-- Keep controls and docs aligned. `README.md` documents WASD/arrow movement,
-  pointer aiming, click-to-fire, `Space` or `J` firing, lower-right
-  `SOUND`/`MUTED`, and `F3` debug controls; flag changed behavior or docs that
-  leave those controls inconsistent.
+## Asset, UI, and metadata checks
 
-### Assets, Generated Files, and Dependencies
+- Asset PRs should keep PNG/WAV files, JSON frame metadata, `assetManifest`, README asset lists, and generation scripts consistent.
+- Sprite-sheet frame dimensions, frame rows, animation keys, and texture keys must match the constants used in `DungeonScene.ts`.
+- OpenGraph metadata in `src/app/layout.tsx` references `/opengraph-image.png` at 1360 x 752 with descriptive alt text. Metadata/share-image changes should keep the public asset, dimensions, and alt text aligned.
+- This repo does not configure Tailwind. DOM styling should follow existing semantic markup and `src/app/globals.css`; Phaser canvas UI should be reviewed separately for pointer zones, keyboard affordances, responsive placement, contrast, and inaccessible canvas-only controls.
 
-- Every `assetManifest` path should exist under `public/`, use the expected
-  leading slash runtime path, and match the frame dimensions used by Phaser.
-- Sprite metadata JSON changes should match the corresponding PNG layout,
-  `framesPerRow`, frame dimensions, frame order, and animation row assumptions.
-- Binary assets should change only when the PR intentionally updates game art,
-  audio, UI, or generated sources. Avoid unrelated churn in generated files.
-- Treat generated `next-env.d.ts` edits from local builds as noise unless the
-  TypeScript or Next.js configuration intentionally changed.
-- This repository currently has both `package-lock.json` and `pnpm-lock.yaml`.
-  Flag dependency changes that update only one lockfile unless the package
-  manager decision is explicit.
+## Verification expectations
 
-## Finding Standards
-
-- Report only actionable, high-confidence issues tied to changed code.
-- Include the user-visible consequence and the minimal code path that triggers
-  the issue.
-- Do not request broad `DungeonScene.ts` rewrites, style-only changes, or
-  speculative performance work unless they prevent a concrete bug.
-- Prefer existing project patterns and dependencies. Do not suggest new
-  libraries unless the current stack cannot address the issue.
-- Do not flag known prototype limitations from `README.md` unless a change makes
-  an existing limitation worse or contradicts documented behavior.
-- For visual or gameplay changes without automated coverage, ask for a short
-  manual smoke-test description covering the affected controls and game state.
-
-## Suggested Local Verification
-
-Use the narrowest useful checks for the files changed. These baseline commands
-are useful when dependencies are available:
-
-```bash
-npm ci
-npm run build
-git diff --check
-```
-
-If a PR changes generated assets or asset-processing code, also run the relevant
-generator or processor command from `package.json`, `README.md`, or the changed
-tool.
+- For source changes, prefer `npm run build` and `npx tsc --noEmit --incremental false`. `next lint` is not reliable in this Next 16 setup.
+- `npm run build` can rewrite `next-env.d.ts`; restore it unless the PR intentionally changes generated Next typing behavior.
+- Plain `npx tsc --noEmit` can create `tsconfig.tsbuildinfo` because incremental compilation is enabled; avoid or remove that artifact.
+- For guidance-only changes to this file, verify the diff is limited to `.cursor/BUGBOT.md`, run Markdown/content checks, and confirm a clean git status after commit and push.
+- For gameplay changes, smoke check loading the app, starting a run, moving, aiming, Space shooting, pointer/click shooting, collecting ammo and at least one power-up, toggling sound, taking damage, game over, restart, and the how-to-play modal.
+- For asset-heavy PRs, ask for generation commands, before/after screenshots or recordings, and evidence that sprite metadata matches runtime frame sizes.

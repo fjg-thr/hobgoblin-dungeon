@@ -3,7 +3,7 @@
 Use this file as repository-specific context when Cursor Bugbot reviews pull
 requests for `fjg-thr/hobgoblin-dungeon`.
 
-## Deployment boundary
+## Deployment boundary and Managed Bugbot enablement
 
 This repository file gives Bugbot durable review instructions. It does not, by
 itself, enable or prove enablement of the managed Cursor Bugbot service.

@@ -2,25 +2,20 @@
 
 Repository: `fjg-thr/hobgoblin-dungeon`
 
-Use this file as repository-specific context when Cursor Bugbot reviews pull
-requests for the Hobgoblin Ruin prototype.
+Repository-specific context for Cursor Bugbot PR reviews.
 
 ## Deployment boundary
 
-This file gives Bugbot review context. It does not, by itself, enable the
-managed Cursor Bugbot service for the repository. When validating deployment,
-confirm the external pieces that are outside this repo:
+This file gives Bugbot review context. It does not enable the managed Cursor
+Bugbot service. Validate external deployment pieces separately:
 
 - Cursor dashboard or organization settings have Bugbot enabled for this repo.
 - The Cursor GitHub App has access to `fjg-thr/hobgoblin-dungeon`.
 - Admin API credentials and repository configuration are correct when an Admin
   API based rollout is used.
-- A live pull request can receive a Bugbot review, or a diagnostic request ID is
-  available from a verbose manual trigger.
+- A live PR can receive a Bugbot review, or verbose mode yields a request ID.
 
-Bugbot generally reads repository guidance from the default branch after this
-file is merged. A pull request that adds or edits this file may not be reviewed
-with the updated guidance until after merge.
+Bugbot generally reads guidance from the default branch after merge.
 
 ## Manual review triggers and diagnostics
 
@@ -34,8 +29,7 @@ For verbose troubleshooting, use:
 - `cursor review verbose=true`
 - `bugbot run verbose=true`
 
-Treat verbose mode as a way to collect diagnostics, request IDs, and service log
-detail. It should not change the code-review bar.
+Verbose mode is for diagnostics, request IDs, and service log detail.
 
 ## Project shape
 
@@ -48,8 +42,8 @@ detail. It should not change the code-review bar.
 - `src/game/assets/manifest.ts` is the runtime asset source of truth, including
   audio. `public/assets/audio/audio-manifest.json` is auxiliary consistency data.
 - Asset processing and generation scripts live in `tools/` and `scripts/`.
-- This repo currently uses plain CSS in `src/app/globals.css`; do not assume
-  Tailwind or shadcn is configured.
+- This repo uses plain CSS in `src/app/globals.css`; do not assume Tailwind or
+  shadcn is configured.
 
 ## High-priority review checks
 
@@ -106,13 +100,10 @@ Prefer targeted checks plus the project build:
 - `npm ci` when dependency installation or lockfile freshness matters.
 - `npm run build` for Next.js and Turbopack validation.
 - `npx tsc --noEmit --incremental false` for TypeScript validation.
-- Asset-processing commands only when the PR touches the corresponding source
-  prompts, processors, manifests, or generated assets.
+- Asset-processing commands when the PR touches related sources or outputs.
 
-`npm run lint` currently maps to `next lint`, which is not reliable with the
-current Next.js version. Do not require it as the primary gate unless the project
-tooling changes.
+`npm run lint` maps to `next lint`, which is not reliable with the current
+Next.js version. Do not require it as the primary gate unless tooling changes.
 
-`npm run build` may rewrite `next-env.d.ts`; do not treat that generated churn as
-an intentional source change unless the PR is specifically updating Next typing
-behavior. Also avoid committing `tsconfig.tsbuildinfo`.
+`npm run build` may rewrite `next-env.d.ts`; avoid committing that churn unless
+the PR updates Next typing behavior. Also avoid `tsconfig.tsbuildinfo`.

@@ -27,7 +27,7 @@ This repository contains a Next.js App Router shell around a Phaser dungeon game
 ## Next.js and React
 
 - `src/game/GameCanvas.tsx` dynamically imports Phaser and destroys the game on unmount. Changes should preserve the single-game guard, cancellation guard, full-viewport resize behavior, and cleanup call.
-- `src/app/layout.tsx` owns metadata and the Open Graph image reference. If metadata, title, description, or share image dimensions change, verify `public/opengraph-image.png`, dimensions, and alt text remain consistent.
+- `src/app/layout.tsx` owns metadata and references `/opengraph-image.png`. If metadata, title, description, or share-image behavior changes, verify the referenced asset exists in the deployed app or update the metadata, dimensions, and alt text accordingly.
 - Styling currently uses plain CSS in `src/app/globals.css`, not Tailwind. Review DOM UI changes against existing CSS conventions and semantic HTML/accessibility requirements.
 
 ## Phaser gameplay and input

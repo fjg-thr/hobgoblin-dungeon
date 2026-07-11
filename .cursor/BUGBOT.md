@@ -5,7 +5,7 @@ This repository contains a Next.js App Router shell around a Phaser dungeon game
 ## Deployment boundary
 
 - This file provides review instructions only. Hosted Cursor Bugbot still has to be enabled through Cursor dashboard or organization settings, with the Cursor GitHub App granted access to `fjg-thr/hobgoblin-dungeon`.
-- If a PR claims to "deploy Bugbot" using only repository files, flag that the managed service configuration, GitHub App access, and optional branch-protection status checks must be verified outside the repo.
+- If a PR claims to "deploy Bugbot" using only repository files, flag that managed service configuration, Admin API/service configuration, GitHub App access, and optional branch-protection status checks must be verified outside the repo.
 - After this file is merged to the default branch, a smoke check can be triggered on a PR with a top-level `cursor review` or `bugbot run` comment. Use `cursor review verbose=true` or `bugbot run verbose=true` only for diagnostics that need request IDs or extra service logs.
 
 ## Project shape

@@ -93,4 +93,3 @@ is explicitly labeled as throwaway asset experimentation.
 - For documentation-only Bugbot guidance changes, at minimum verify the file exists and
   run `git diff --check`. A full `npm run build` and `npx tsc --noEmit --incremental false`
   pass is still useful before merging deployment PRs.
-

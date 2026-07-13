@@ -30,9 +30,9 @@ is explicitly labeled as throwaway asset experimentation.
    frame dimensions, row ordering, and metadata JSON. A missing PNG, stale dimensions, or
    mismatched frame count is usually a runtime break.
 5. Keep Next.js metadata and document structure valid in `src/app/layout.tsx` and
-   `src/app/page.tsx`. Metadata/share-image changes should verify that
-   `/opengraph-image.png` or any replacement asset exists in the deployed app and that
-   dimensions and alt text remain accurate.
+   `src/app/page.tsx`. Metadata/share-image changes should flag missing assets whether
+   they preserve an existing `/opengraph-image.png` reference or introduce a replacement,
+   and should verify that dimensions and alt text remain accurate.
 
 ## Gameplay context to keep straight
 - Runtime firing is bound to `SPACE` and pointer/click firing. README mentions `J`, but

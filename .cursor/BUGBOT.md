@@ -6,7 +6,8 @@ Use these repository-specific notes when reviewing pull requests for Hobgoblin R
 
 - This file supplies repository-local review context for Cursor Bugbot. It does not prove that the hosted Bugbot service is enabled.
 - To confirm managed Bugbot deployment, verify the Cursor dashboard or organization settings, the Cursor GitHub App repository access, and any Admin API/service credentials used by the team.
-- After enabling hosted Bugbot, smoke-test a pull request review with a top-level `cursor review` or `bugbot run` comment. For troubleshooting, use `cursor review verbose=true` or `bugbot run verbose=true` and capture the request/log details.
+- Keep these deployment checks out-of-band. Never post credentials, and retain only Bugbot request IDs rather than raw potentially sensitive logs.
+- After enabling hosted Bugbot, smoke-test a pull request review with a top-level `cursor review` or `bugbot run` comment. For troubleshooting, use `cursor review verbose=true` or `bugbot run verbose=true` to obtain the request ID.
 - These rules are read after they are merged to the default branch; a PR that adds or changes this file might not be reviewed with the new instructions.
 
 ## Project shape

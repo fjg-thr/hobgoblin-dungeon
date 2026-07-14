@@ -72,4 +72,3 @@ Use these repository-specific notes when reviewing pull requests for Hobgoblin R
 - Focus findings on concrete bugs, regressions, missing verification, and user-visible risk.
 - Do not block unrelated PRs for pre-existing limitations listed in README or in these notes.
 - When behavior is ambiguous, cite the exact runtime file or README section that establishes the expected behavior.
-

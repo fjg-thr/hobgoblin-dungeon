@@ -4,7 +4,7 @@ Use these repository-specific notes when reviewing pull requests for Hobgoblin R
 
 ## Deployment and activation boundary
 
-- This file supplies repository-local review context for Cursor Bugbot. It does not prove that the hosted Bugbot service is enabled.
+- This file supplies repository-local review context for Cursor Bugbot. It cannot enable or prove enablement of the hosted managed service.
 - To confirm managed Bugbot deployment, verify the Cursor dashboard or organization settings, the Cursor GitHub App repository access, and any Admin API/service credentials used by the team.
 - Keep these deployment checks out-of-band. Never post credentials, and retain only Bugbot request IDs rather than raw potentially sensitive logs.
 - After enabling hosted Bugbot, smoke-test a pull request review with a top-level `cursor review` or `bugbot run` comment. For troubleshooting, use `cursor review verbose=true` or `bugbot run verbose=true` to obtain the request ID.
@@ -38,7 +38,7 @@ Use these repository-specific notes when reviewing pull requests for Hobgoblin R
 - Initial goblins are seeded from `dungeon.enemyStarts`; additional goblins ramp with target enemy count. Brutes unlock later via `BRUTE_UNLOCK_KILLS` / `BRUTE_UNLOCK_MS`.
 - `POWERUP_CONFIG` controls power-up unlock gates, spawn weights, rows, colors, and labels. Duration and effect timing constants live near it, and blast uses `blastShotReady`.
 - README documents quickshot, haste, ward, blast, heart pickups, and regular ammo. Do not assume it documents seeker ammo unless a PR updates that text.
-- The title screen and how-to-play modal are Phaser-rendered with compact/tiny layout branches, pointer hit zones, and close behavior.
+- The title screen is Phaser-rendered with viewport-scaled positioning and sizing. The how-to-play modal has compact/tiny layout branches, pointer hit zones, and close behavior.
 
 ## Assets and generation tooling
 
